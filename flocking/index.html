@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Three.js Boilerplate</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <script type="text/javascript" src="js/external/three.js"></script>
+    <script type="text/javascript" src="js/external/stats.min.js"></script>
+    <script type="text/javascript" src="js/external/dat.gui.min.js"></script>
+    <script
+      type="text/javascript"
+      src="js/external/TrackballControls.js"
+    ></script>
+    <script type="text/javascript" src="js/external/OrbitControls.js"></script>
+
+    <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/controls.js"></script>
+    <script type="text/javascript" src="js/boid.js"></script>
+
+    <style>
+      body {
+        overflow: hidden;
+        padding: 0;
+        margin: 0;
+        color: #222;
+        background-color: #bbb;
+        font-family: arial;
+        font-size: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+
+    <script type="text/javascript">
+      var currentMask = false;
+
+      var vars = datGui();
+      init();
+    </script>
+  </body>
+</html>
