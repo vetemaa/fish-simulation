@@ -45,18 +45,27 @@ function animateBoids() {
     const cohVec = cohesionVec(boid);
 
     // boid.helpArrows[0].setDirection(sepVec);
-    boid.helpArrows[0].setDirection(aliVec);
+    // boid.helpArrows[0].setDirection(aliVec);
     // boid.helpArrows[0].setDirection(cohVec);
 
     boid.forwardVec.add(sepVec);
-    // boid.forwardVec.add(aliVec);
+    boid.forwardVec.add(aliVec);
     boid.forwardVec.add(cohVec);
 
+    speedLimit(boid.forwardVec);
+
     moveVec = new THREE.Vector3().copy(boid.forwardVec);
-    moveVec.multiplyScalar(variables.speed);
-    // boid.helpArrows[0].setDirection(moveVec);
+    // moveVec.multiplyScalar(variables.speed);
+    boid.helpArrows[0].setDirection(moveVec);
     boid.position.add(moveVec);
   });
+}
+
+function speedLimit(vec) {
+  if (vec.length() > variables.speed) {
+    vec.divideScalar(vec.length());
+    vec.multiplyScalar(variables.speed);
+  }
 }
 
 function cohesionVec(boid) {
@@ -102,7 +111,7 @@ function separationVec(boid) {
   boids.forEach(flockmate => {
     if (
       boid.id !== flockmate.id &&
-      boid.position.distanceTo(flockmate.position) < 0.6
+      boid.position.distanceTo(flockmate.position) < 1
     ) {
       boidPosCopy = new THREE.Vector3().copy(boid.position);
       sepVec.add(boidPosCopy.sub(flockmate.position));
