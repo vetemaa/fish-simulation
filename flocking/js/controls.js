@@ -8,7 +8,7 @@ function datGui() {
   variables = new Variables();
   gui = new dat.GUI();
 
-  gui.add(variables, "speed", -0.01, 0.01).step(0.001);
+  gui.add(variables, "speed", -0.1, 0.1).step(0.01);
 
   return variables;
 }

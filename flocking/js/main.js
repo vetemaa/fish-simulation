@@ -24,12 +24,12 @@ function init() {
     10000
   );
   // camera.position.set(0, 0, 5);
-  camera.position.set(10, 5, 10);
+  camera.position.set(30, 15, 30);
   scene.add(camera);
 
   // cameraControls = new THREE.TrackballControls(camera, renderer.domElement);
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-  cameraControls.rotateSpeed = 0.1;
+  cameraControls.rotateSpeed = 0.2;
 
   scene.add(new THREE.AxesHelper(100));
   addBoids();
