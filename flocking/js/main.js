@@ -32,6 +32,7 @@ function init() {
   cameraControls.rotateSpeed = 0.2;
 
   scene.add(new THREE.AxesHelper(100));
+  addBounds();
   addBoids();
 
   animate();

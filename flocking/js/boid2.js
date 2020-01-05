@@ -1,24 +1,25 @@
 var boids = [];
-// var maxForce = 0.03;
-// var maxSpeed = 0.01;
-var r = 2;
 
 function addBoids() {
-  for (let i = 0; i < 300; i++) {
+  for (let i = 0; i < 100; i++) {
     // addBoid([Math.random(), Math.random(), i * 2]);
-    // addBoid([i * Math.random(), i * Math.random(), i * Math.random()]);
+    // addBoid([
+    //   i * 3 * Math.random(),
+    //   i * 3 * Math.random(),
+    //   i * 3 * Math.random()
+    // ]);
     addBoid([40 * Math.random(), 40 * Math.random(), 40 * Math.random()]);
-    // addBoid([0, 0, i * 1]);
+    // addBoid([0, 0, i * 2]);
   }
 
   console.log(boids);
 }
 
 function addBoid(position) {
-  // const geom = new THREE.BoxGeometry(1, 0.5, 0.25, 4, 2, 1);
-  // const geom = new THREE.BoxGeometry(0.25, 0.5, 1, 4, 2, 1);
   const boid = new THREE.Group();
 
+  // const geom = new THREE.BoxGeometry(1, 0.5, 0.25, 4, 2, 1);
+  // const geom = new THREE.BoxGeometry(0.25, 0.5, 1, 4, 2, 1);
   const geom = new THREE.ConeGeometry(0.3, 1);
   // const mat = new THREE.MeshNormalMaterial({ wireframe: true });
   const mat = new THREE.MeshBasicMaterial({ wireframe: true });
@@ -31,7 +32,7 @@ function addBoid(position) {
     Math.random() - 0.5,
     Math.random() - 0.5,
     Math.random() - 0.5
-  ).normalize();
+  ).clampLength(0, variables.maxForce);
   boid.acceleration = new THREE.Vector3();
 
   boid.helpArrows = [];
@@ -56,46 +57,53 @@ function animateBoids() {
     // boid algorithm
     const sep = separation(boid);
     const ali = alignment(boid);
-    // const coh = cohesion(boid);
-    setArrow(boid.helpArrows[1], sep);
-    setArrow(boid.helpArrows[2], ali);
-    // setArrow(boid.helpArrows[3], coh)
-    sep.multiplyScalar(0.01);
-    ali.multiplyScalar(0.01);
+    const coh = cohesion(boid);
+    const bnd = bounds(boid);
+    // setArrow(boid.helpArrows[1], sep);
+    // setArrow(boid.helpArrows[2], ali);
+    // setArrow(boid.helpArrows[3], coh);
+    sep.multiplyScalar(0.6);
+    ali.multiplyScalar(0.2);
+    coh.multiplyScalar(0.1);
+    bnd.multiplyScalar(0.4);
     acceleration.add(sep);
     acceleration.add(ali);
-    // acceleration.add(coh);
+    acceleration.add(coh);
+    acceleration.add(bnd);
 
-    // visual stuff
-    const lookVec = velocity.clone();
-    lookVec.multiplyScalar(10).add(boid.position);
-    mesh.lookAt(lookVec);
-    mesh.rotateX(THREE.Math.degToRad(90));
-    setArrow(boid.helpArrows[0], velocity);
+    if (variables.startStop !== 0) {
+      // visual stuff
+      const lookVec = velocity.clone();
+      lookVec.multiplyScalar(10).add(boid.position);
+      mesh.lookAt(lookVec);
+      mesh.rotateX(THREE.Math.degToRad(90));
+      // setArrow(boid.helpArrows[0], velocity);
 
-    // update position
-    velocity.add(acceleration);
-    velocity.clampLength(0, variables.maxSpeed);
-    position.add(velocity);
-    acceleration.multiplyScalar(0);
-    // moveVec = velocity.clone().multiplyScalar(0.001);
-    // boid.position.add(moveVec);
+      // update position
+      velocity.add(acceleration);
+      velocity.clampLength(0, variables.maxSpeed);
+      position.add(velocity);
+      acceleration.multiplyScalar(0);
+    }
   });
 }
 
 function separation(boid) {
   const steer = new THREE.Vector3();
   let neighbourCount = 0;
+  let distFactor = 0;
 
   boids.forEach(flockmate => {
     const dist = boid.position.distanceTo(flockmate.position);
 
     if (dist > 0 && dist < variables.separationDist) {
+      // console.log(dist);
+      distFactor += dist;
+
       const diff = boid.position.clone().sub(flockmate.position);
       diff.normalize();
       // diff.divideScalar(dist); mõjutab olulisust aga järsk kukkumine
       diff.multiplyScalar(variables.separationDist / dist - 1); // sujuv kukkumine
-      // TODO kuidagi lisada ka mõju tugevus pärast normaliseerimist
       steer.add(diff);
       neighbourCount++;
     }
@@ -106,15 +114,18 @@ function separation(boid) {
     steer.setLength(variables.maxSpeed);
     // steer.sub(boid.velocity);
     steer.clampLength(0, variables.maxForce);
-  }
 
-  asd++;
+    // mõju tugevus sõltuvalt kauguste summast
+    steer.multiplyScalar(
+      1 - distFactor / (neighbourCount * variables.separationDist)
+    );
+  }
 
   return steer;
 }
 
 function alignment(boid) {
-  let steer = new THREE.Vector3();
+  const steer = new THREE.Vector3();
   let neighbourCount = 0;
 
   boids.forEach(flockmate => {
@@ -129,12 +140,54 @@ function alignment(boid) {
   });
 
   if (neighbourCount > 0) {
-    steer.setLength(variables.maxSpeed);
+    steer.setLength(variables.maxSpeed); // TODO kas pigem lslt normalize
     // steer.sub(boid.velocity);
     steer.clampLength(0, variables.maxForce);
   }
 
-  asd++;
+  return steer;
+}
+
+function cohesion(boid) {
+  const steer = new THREE.Vector3();
+  let neighbourCount = 0;
+
+  boids.forEach(flockmate => {
+    const dist = boid.position.distanceTo(flockmate.position);
+
+    if (dist > 0 && dist < variables.neighbourDist) {
+      const pos = flockmate.position.clone();
+      // TODO sujuv kukkumine
+      steer.add(pos);
+      neighbourCount++;
+    }
+  });
+
+  if (neighbourCount > 0) {
+    steer.divideScalar(neighbourCount);
+    steer.sub(boid.position);
+    steer.setLength(variables.maxSpeed);
+    steer.clampLength(0, variables.maxForce);
+  }
+
+  return steer;
+}
+
+function bounds(boid) {
+  const area = variables.boundSize;
+  const steer = new THREE.Vector3();
+  const { x, y, z } = boid.position;
+
+  if (x < 0) steer.x = 1;
+  else if (x > area) steer.x = -1;
+  if (y < 0) steer.y = 1;
+  else if (y > area) steer.y = -1;
+  if (z < 0) steer.z = 1;
+  else if (z > area) steer.z = -1;
+
+  // steer.normalize();
+  // steer.clampLength(0, 0.1);
+  steer.clampLength(0, variables.maxForce);
 
   return steer;
 }
@@ -143,8 +196,8 @@ function setArrow(arrow, vec) {
   if (vec.length() <= 0) {
     arrow.visible = false;
   } else {
-    const len = vec.length() * 1000;
-    arrow.setLength(len, 0.2, 0.2);
+    // const len = vec.length() * 1000;
+    // arrow.setLength(len, 0.2, 0.2);
     arrow.setDirection(vec.clone().normalize());
     arrow.visible = true;
   }
@@ -152,15 +205,8 @@ function setArrow(arrow, vec) {
 
 var asd = 0;
 function makeArrow(vec) {
-  if (asd !== 0) return;
+  if (asd !== 3) return;
   const arrow = new THREE.ArrowHelper();
-  arrow.setColor(
-    new THREE.Color(
-      Math.random() * 255,
-      Math.random() * 255,
-      Math.random() * 255
-    )
-  );
   setArrow(arrow, vec);
   scene.add(arrow);
 }
