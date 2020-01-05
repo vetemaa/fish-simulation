@@ -24,9 +24,12 @@ function init() {
   camera.position.set(0, 0, 5);
   scene.add(camera);
 
-  cameraControls = new THREE.TrackballControls(camera, renderer.domElement);
+  cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
 
   geom = new THREE.BoxGeometry(2, 1, 0.5, 16, 8, 4);
+  // geom = new THREE.ConeGeometry(0.3, 2);
+  // geom.rotateZ(THREE.Math.degToRad(-90));
+
   mat = new THREE.MeshNormalMaterial({ wireframe: true });
   mesh = new THREE.Mesh(geom, mat);
   scene.add(mesh);
@@ -71,7 +74,7 @@ function locomotion() {
     //yaw
     if (vars.yaw) {
       angle =
-        toRad(30) *
+        toRad(vars.yaw_angle) *
         undulation *
         sinMask(orgVert.x, -1, 1, vars.yaw_maskWavLen, vars.yaw_maskOffset);
       newVert.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle);
@@ -81,7 +84,7 @@ function locomotion() {
 
     if (vars.linearYaw) {
       angle =
-        toRad(30) *
+        toRad(vars.linearYaw_angle) *
         oscillation *
         sinMask(
           orgVert.x,
@@ -98,7 +101,7 @@ function locomotion() {
     //roll
     if (vars.roll) {
       angle =
-        toRad(30) *
+        toRad(vars.roll_angle) *
         undulation *
         sinMask(orgVert.x, -1, 1, vars.roll_maskWavLen, vars.roll_maskOffset);
       newVert.applyAxisAngle(new THREE.Vector3(1, 0, 0), angle);
@@ -106,9 +109,15 @@ function locomotion() {
       //   newVert.y = orgVert.z * Math.sin(angle) + orgVert.y * Math.cos(angle);
     }
 
-    //squeeze
+    // //squeeze
     // if (vars.squeeze) {
-    //   zNew *= sinMask(vert.x, -1, 1, vars.squeeze_maskWavLen, vars.squeeze_maskOffset);
+    // zNew *= sinMask(
+    //   vert.x,
+    //   -1,
+    //   1,
+    //   vars.squeeze_maskWavLen,
+    //   vars.squeeze_maskOffset
+    // );
     // }
 
     //sinwave

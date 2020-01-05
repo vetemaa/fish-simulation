@@ -20,8 +20,8 @@ function datGui() {
   addVariableMask("s2s", 0.7, -1.3);
   // addVariable("sinWav", 0.7, -0.4, false);
   // addVariable("squeeze", 0.2, -0.3, false);
-  addVariable("roll", false);
-  addVariableAngle("roll", 30);
+  addVariable("roll", true);
+  addVariableAngle("roll", 12);
   addVariableMask("roll", 0.7, 0.9);
   addVariable("linearYaw", true);
   addVariableAngle("linearYaw", 30);

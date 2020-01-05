@@ -15,6 +15,7 @@ function init() {
   stats.domElement.style.bottom = "0px";
   document.body.appendChild(stats.domElement);
   window.addEventListener("resize", onWindowResize, false);
+  initControls();
 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(
@@ -24,7 +25,7 @@ function init() {
     10000
   );
   // camera.position.set(0, 0, 5);
-  camera.position.set(30, 15, 30);
+  camera.position.set(94, 48, 60);
   scene.add(camera);
 
   // cameraControls = new THREE.TrackballControls(camera, renderer.domElement);
@@ -38,12 +39,11 @@ function init() {
   animate();
 }
 
-function toRad(degree) {
-  return (Math.PI * 2 * degree) / 360;
-}
-
-function animate() {
-  animateBoids();
+let then = Date.now();
+function animate(now) {
+  const delta = now - then;
+  delta && animateBoids(delta);
+  then = now;
 
   requestAnimationFrame(animate);
   render();
@@ -51,8 +51,6 @@ function animate() {
 }
 
 function render() {
-  var PIseconds = Date.now() * Math.PI;
-
   cameraControls.update();
 
   renderer.render(scene, camera);
