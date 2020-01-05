@@ -1,12 +1,13 @@
 var boids = [];
 
 function addBoids() {
-  for (let i = 0; i < 100; i++) {
-    addBoid([
-      variables.boundSize * Math.random(),
-      variables.boundSize * Math.random(),
-      variables.boundSize * Math.random()
-    ]);
+  for (let i = 0; i < 3; i++) {
+    // addBoid([
+    //   variables.boundSize * Math.random(),
+    //   variables.boundSize * Math.random(),
+    //   variables.boundSize * Math.random()
+    // ]);
+    addBoid([0, 0, i * 1]);
   }
   boids[0].subject = true;
 }
@@ -64,10 +65,10 @@ function animateBoids(delta) {
     setArrow(boid.helpArrows[2], ali);
     setArrow(boid.helpArrows[3], coh);
     setArrow(boid.helpArrows[4], bnd);
-    acceleration.add(sep);
-    acceleration.add(ali);
-    acceleration.add(coh);
-    acceleration.add(bnd);
+    // acceleration.add(sep);
+    // acceleration.add(ali);
+    // acceleration.add(coh);
+    // acceleration.add(bnd);
     setArrow(boid.helpArrows[0], acceleration);
 
     if (boid.subject) {
@@ -103,34 +104,34 @@ function animateBoids(delta) {
 function separation(boid) {
   const steer = new THREE.Vector3();
   let neighbourCount = 0;
-  let distFactor = 0;
 
   boids.forEach(flockmate => {
     const dist = boid.position.distanceTo(flockmate.position);
 
     if (dist > 0 && dist < variables.separationDist) {
-      // console.log(dist);
-      distFactor += dist;
-
       const diff = boid.position.clone().sub(flockmate.position);
       diff.normalize();
-      // diff.divideScalar(dist); mõjutab olulisust aga järsk kukkumine
-      diff.multiplyScalar(variables.separationDist / dist - 1); // sujuv kukkumine
+      // if (boid.subject) console.log(diff.length());
+      diff.multiplyScalar(1 - dist / variables.separationDist); // sujuv kukkumine
+      // if (boid.subject) console.log(diff.length());
+      // if (boid.subject) console.log("");
+      // if (boid.subject)
+      //   flockmate.mesh.material.color.setRGB(
+      //     1 - dist / variables.separationDist,
+      //     0,
+      //     0
+      //   );
       steer.add(diff);
+
       neighbourCount++;
     }
   });
 
   if (neighbourCount > 0) {
-    // steer.divideScalar(neighbourCount);
-    steer.setLength(variables.maxSpeed);
+    steer.divideScalar(neighbourCount);
+    // steer.setLength(variables.maxSpeed);
     // steer.sub(boid.velocity);
-    steer.clampLength(0, variables.maxForce);
-
-    // mõju tugevus sõltuvalt kauguste summast
-    steer.multiplyScalar(
-      1 - distFactor / (neighbourCount * variables.separationDist)
-    );
+    steer.clampLength(0, variables.maxForce); // TODO eemaldada, rikub sujuvuse
   }
 
   return steer;
@@ -145,30 +146,26 @@ function alignment(boid) {
 
     if (dist > 0 && dist < variables.alignmentDist) {
       const vel = flockmate.velocity.clone();
-      // if (boid.subject && steer.length() > 0) console.log(vel.length());
+
+      // if (boid.subject) console.log(vel.length());
       vel.multiplyScalar(1 - dist / variables.alignmentDist); // sujuv kukkumine
-      // if (boid.subject && steer.length() > 0) console.log(vel.length());
-      // if (boid.subject) {
-      //   console.log(variables.alignmentDist);
-      //   console.log(dist);
-      //   console.log(1 - dist / variables.alignmentDist);
-      //   console.log("");
-      // }
+      // if (boid.subject) console.log(vel.length());
+      // if (boid.subject) console.log("");
+      // if (boid.subject)
+      //   flockmate.mesh.material.color.setRGB(
+      //     1 - dist / variables.alignmentDist,
+      //     0,
+      //     0
+      //   );
+
       steer.add(vel);
       neighbourCount++;
     }
   });
 
   if (neighbourCount > 0) {
-    // if (boid.subject && steer.length() > 0) console.log(steer.length());
     steer.divideScalar(neighbourCount);
-    steer.sub(boid.velocity);
-    // steer.setLength(variables.maxSpeed); // TODO kas pigem lslt normalize
-    // if (boid.subject && steer.length() > 0) console.log(steer.length());
-    // if (boid.subject && steer.length() > 0) console.log("");
-
     steer.clampLength(0, variables.maxForce);
-    // steer.setLength(variables.maxForce);
   }
 
   return steer;
@@ -212,11 +209,7 @@ function bounds(boid) {
   if (z < minBound) steer.z = 1;
   else if (z > maxBound) steer.z = -1;
 
-  // steer.normalize();
-  // if (boid.subject && steer.length() > 0) console.log(steer.length());
   steer.clampLength(0, variables.maxForce);
-  // if (boid.subject && steer.length() > 0) console.log(steer.length());
-  // if (boid.subject && steer.length() > 0) console.log("");
   steer.multiplyScalar(boundBox.boundBox3.distanceToPoint(boid.position)); // smooth
 
   return steer;

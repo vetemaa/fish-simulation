@@ -4,12 +4,12 @@ var boundBox;
 function datGui() {
   var Variables = function() {
     this.play = true;
-    this.playSpeed = 0.8;
+    this.playSpeed = 0.01;
     this.maxSpeed = 0.2;
     this.maxForce = 0.03;
     // this.maxForce = 1000;
     this.separationDist = 4;
-    this.alignmentDist = 7;
+    this.alignmentDist = 4;
     this.cohesionDist = 7;
     this.boundSize = 34;
   };
