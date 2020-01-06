@@ -1,13 +1,13 @@
 var boids = [];
 
 function addBoids() {
-  for (let i = 0; i < 3; i++) {
-    // addBoid([
-    //   variables.boundSize * Math.random(),
-    //   variables.boundSize * Math.random(),
-    //   variables.boundSize * Math.random()
-    // ]);
-    addBoid([0, 0, i * 1]);
+  for (let i = 0; i < 100; i++) {
+    addBoid([
+      variables.boundSize * Math.random(),
+      variables.boundSize * Math.random(),
+      variables.boundSize * Math.random()
+    ]);
+    // addBoid([0, 0, i * 1]);
   }
   boids[0].subject = true;
 }
@@ -57,28 +57,29 @@ function animateBoids(delta) {
     const ali = alignment(boid);
     const coh = cohesion(boid);
     const bnd = bounds(boid);
-    sep.multiplyScalar(0.6);
-    ali.multiplyScalar(0.2);
-    coh.multiplyScalar(0.1);
-    bnd.multiplyScalar(0.28);
+    sep.multiplyScalar(0.3);
+    ali.multiplyScalar(2);
+    coh.multiplyScalar(0.08);
+    bnd.multiplyScalar(0.1);
     setArrow(boid.helpArrows[1], sep);
     setArrow(boid.helpArrows[2], ali);
     setArrow(boid.helpArrows[3], coh);
     setArrow(boid.helpArrows[4], bnd);
-    // acceleration.add(sep);
-    // acceleration.add(ali);
-    // acceleration.add(coh);
-    // acceleration.add(bnd);
+    acceleration.add(sep);
+    acceleration.add(ali);
+    acceleration.add(coh);
+    acceleration.add(bnd);
     setArrow(boid.helpArrows[0], acceleration);
+    acceleration.multiplyScalar(0.1);
 
     if (boid.subject) {
       boid.mesh.material.color.setHex(0x00fff5);
-      // console.log("sep:", sep.length());
-      // console.log("ali:", ali.length());
-      // console.log("coh:", coh.length());
-      // console.log("bnd:", bnd.length());
-      // console.log("acc:", acceleration.length());
-      // console.log("");
+      console.log("sep:", sep.length());
+      console.log("ali:", ali.length());
+      console.log("coh:", coh.length());
+      console.log("bnd:", bnd.length());
+      console.log("acc:", acceleration.length());
+      console.log("");
     }
 
     if (variables.play && variables.playSpeed > 0) {
@@ -110,17 +111,7 @@ function separation(boid) {
 
     if (dist > 0 && dist < variables.separationDist) {
       const diff = boid.position.clone().sub(flockmate.position);
-      diff.normalize();
-      // if (boid.subject) console.log(diff.length());
       diff.multiplyScalar(1 - dist / variables.separationDist); // sujuv kukkumine
-      // if (boid.subject) console.log(diff.length());
-      // if (boid.subject) console.log("");
-      // if (boid.subject)
-      //   flockmate.mesh.material.color.setRGB(
-      //     1 - dist / variables.separationDist,
-      //     0,
-      //     0
-      //   );
       steer.add(diff);
 
       neighbourCount++;
@@ -146,17 +137,7 @@ function alignment(boid) {
 
     if (dist > 0 && dist < variables.alignmentDist) {
       const vel = flockmate.velocity.clone();
-
-      // if (boid.subject) console.log(vel.length());
       vel.multiplyScalar(1 - dist / variables.alignmentDist); // sujuv kukkumine
-      // if (boid.subject) console.log(vel.length());
-      // if (boid.subject) console.log("");
-      // if (boid.subject)
-      //   flockmate.mesh.material.color.setRGB(
-      //     1 - dist / variables.alignmentDist,
-      //     0,
-      //     0
-      //   );
 
       steer.add(vel);
       neighbourCount++;
@@ -180,8 +161,7 @@ function cohesion(boid) {
 
     if (dist > 0 && dist < variables.cohesionDist) {
       const pos = flockmate.position.clone();
-      // TODO sujuv kukkumine
-      steer.add(pos);
+      steer.add(pos); // TODO sujuv kukkumine
       neighbourCount++;
     }
   });
@@ -189,7 +169,6 @@ function cohesion(boid) {
   if (neighbourCount > 0) {
     steer.divideScalar(neighbourCount);
     steer.sub(boid.position);
-    steer.setLength(variables.maxSpeed);
     steer.clampLength(0, variables.maxForce);
   }
 
@@ -219,7 +198,7 @@ function setArrow(arrow, vec) {
   if (vec.length() <= 0) {
     arrow.visible = false;
   } else {
-    const len = vec.length() * 100;
+    const len = vec.length() * 5;
     arrow.setLength(len, 0.1, 0.1);
     arrow.setDirection(vec.clone().normalize());
     arrow.visible = true;
@@ -232,4 +211,8 @@ function makeArrow(vec) {
   const arrow = new THREE.ArrowHelper();
   setArrow(arrow, vec);
   scene.add(arrow);
+}
+
+function colorBoid(boid, value) {
+  boid.mesh.material.color.setRGB(0, value, value);
 }
