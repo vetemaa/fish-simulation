@@ -4,10 +4,6 @@ function vertexAnimationInit(boid) {
   boid.geometry.vertices.forEach(vert => geom.OrigVertices.push(vert.clone()));
 }
 
-function toRad(degree) {
-  return (Math.PI * 2 * degree) / 360;
-}
-
 function vertexAnimation(delta, boid, acceleration) {
   //   let time = Date.now() - 1578415557426;
   boid.speedTime += delta * 0.75 * 0.01 * acceleration.length();
@@ -25,11 +21,10 @@ function vertexAnimation(delta, boid, acceleration) {
 
     var newVert = orgVert.clone();
     newVert.x -= 0.5;
-
     //yaw
     if (vars.yaw) {
       angle =
-        toRad(vars.yawAngle) *
+        THREE.Math.degToRad(vars.yawAngle) *
         undulation *
         sinMask(xOrg, -1, 1, vars.yawMaskWavLen, vars.yawMaskOffset);
       newVert.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle);
@@ -39,7 +34,7 @@ function vertexAnimation(delta, boid, acceleration) {
 
     if (vars.linearYaw) {
       angle =
-        toRad(vars.linearYawAngle) *
+        THREE.Math.degToRad(vars.linearYawAngle) *
         oscillation *
         sinMask(
           xOrg,
@@ -56,7 +51,7 @@ function vertexAnimation(delta, boid, acceleration) {
     //roll
     if (vars.roll) {
       angle =
-        toRad(vars.rollAngle) *
+        THREE.Math.degToRad(vars.rollAngle) *
         undulation *
         sinMask(xOrg, -1, 1, vars.rollMaskWavLen, vars.rollMaskOffset);
       newVert.applyAxisAngle(new THREE.Vector3(1, 0, 0), angle);

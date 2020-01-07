@@ -2,7 +2,7 @@ var folders = [];
 
 function datGui() {
   var Variables = function() {
-    this.speed = 0.2;
+    this.speed = 0.3;
     this.undulationWaveLen = 0.2;
     this.masks = true;
   };

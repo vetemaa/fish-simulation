@@ -3,7 +3,7 @@ var boundBox;
 
 function datGui() {
   var Variables = function() {
-    this.play = true;
+    this.play = false;
     this.playSpeed = 0.8;
     this.maxSpeed = 0.2;
     this.maxForce = 0.46;
@@ -11,7 +11,8 @@ function datGui() {
     this.separationDist = 3.6;
     this.alignmentDist = 7;
     this.cohesionDist = 7;
-    this.boundSize = 34;
+    this.boundSize = 46;
+    this.vertexAnimation = false;
   };
 
   variables = new Variables();
@@ -21,6 +22,8 @@ function datGui() {
   // folder1.open();
   folder2 = gui.addFolder("Rules");
   // folder2.open();
+  folder4 = gui.addFolder("Vertex Animation");
+  folder4.open();
 
   folder1.add(variables, "play").listen();
   folder1.add(variables, "playSpeed", 0, 1).step(0.01);
@@ -32,9 +35,10 @@ function datGui() {
   folder2
     .add(variables, "boundSize", 0, 100)
     .step(1)
-    .onChange(value => {
-      updateBounds(value);
-    });
+    .onChange(value => updateBounds(value));
+  folder4
+    .add(variables, "vertexAnimation")
+    .onChange(value => changeGeometry(value));
 
   return variables;
 }
@@ -78,10 +82,13 @@ function updateBounds(size) {
   boundBox.position.set(pos, pos, pos);
 
   boundBox.boundBox3.setFromObject(boundBox);
-  // console.log(boundBox.boundBox3);
-
-  // const target = 0;
   const target = variables.boundSize / 2;
-  cameraControls.target.set(target, target / 1.2, target);
-  // TODO: ära liiguta kaamerat vaid lihtsalt seda axeshelperit
+  cameraControls.target.set(target, target / 1.22, target);
+}
+
+function changeGeometry(value) {
+  boids.forEach(boid => {
+    boid.coneMesh.visible = !value;
+    boid.boxMesh.visible = value;
+  });
 }

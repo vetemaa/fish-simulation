@@ -1,6 +1,6 @@
 var stats, scene, renderer, composer;
 var camera, cameraControls;
-var geom, mat, mesh;
+var geom, mat, mesh, axesHelper;
 
 function init() {
   renderer = new THREE.WebGLRenderer({
@@ -25,14 +25,16 @@ function init() {
     10000
   );
   // camera.position.set(0, 0, 5);
-  camera.position.set(94, 48, 60);
+  // camera.position.set(94, 48, 60);
+  // camera.position.set(14, 9, 12);
+  camera.position.set(100, 0, 40);
   scene.add(camera);
-
-  // cameraControls = new THREE.TrackballControls(camera, renderer.domElement);
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
   cameraControls.rotateSpeed = 0.2;
 
-  scene.add(new THREE.AxesHelper(100));
+  axesHelper = new THREE.AxesHelper(100);
+  scene.add(axesHelper);
+
   addBounds();
   addBoids();
 

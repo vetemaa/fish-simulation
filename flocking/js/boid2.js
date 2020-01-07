@@ -1,7 +1,7 @@
 var boids = [];
 
 function addBoids() {
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 1; i++) {
     addBoid([
       variables.boundSize * Math.random(),
       variables.boundSize * Math.random(),
@@ -14,14 +14,21 @@ function addBoids() {
 
 function addBoid(position) {
   const boid = new THREE.Group();
-  // const geom = new THREE.BoxGeometry(0.25, 0.5, 1, 4, 2, 1);
-  const geom = new THREE.ConeGeometry(0.3, 1);
-  // const mat = new THREE.MeshNormalMaterial();
   const mat = new THREE.MeshBasicMaterial({ wireframe: true });
-  const mesh = new THREE.Mesh(geom, mat);
-  mesh.rotateX(THREE.Math.degToRad(90));
-  boid.mesh = mesh;
-  boid.add(mesh);
+  const coneGeom = new THREE.ConeGeometry(0.3, 1);
+  const boxGeom = new THREE.BoxGeometry(0.25, 1, 0.5, 16, 8, 4);
+  const coneMesh = new THREE.Mesh(coneGeom, mat);
+  const boxMesh = new THREE.Mesh(boxGeom, mat);
+
+  coneMesh.rotateX(THREE.Math.degToRad(90));
+  coneMesh.updateMatrix();
+  coneMesh.geometry.applyMatrix(coneMesh.matrix);
+  boxMesh.geometry.applyMatrix(coneMesh.matrix);
+
+  boid.coneMesh = coneMesh;
+  boid.boxMesh = boxMesh;
+  boid.add(coneMesh);
+  boid.add(boxMesh);
 
   boid.velocity = new THREE.Vector3(
     Math.random() - 0.5,
@@ -44,13 +51,19 @@ function addBoid(position) {
   boid.position.set(...position);
   boids.push(boid);
   scene.add(boid);
+
+  const velClone = boid.velocity.clone();
+  velClone.add(boid.position);
+  coneMesh.lookAt(velClone);
+  boxMesh.lookAt(velClone);
+  changeGeometry(variables.vertexAnimation);
 }
 
 function animateBoids(delta) {
   if (delta > 1000) delta = 0; // when tab not open
 
   boids.forEach(boid => {
-    const { velocity, acceleration, mesh, position } = boid;
+    const { velocity, acceleration, coneMesh, boxMesh, position } = boid;
 
     // boid algorithm
     const sep = separation(boid);
@@ -73,29 +86,28 @@ function animateBoids(delta) {
     acceleration.multiplyScalar(0.1);
 
     if (boid.subject) {
-      boid.mesh.material.color.setHex(0x00fff5);
-      console.log("sep:", sep.length());
-      console.log("ali:", ali.length());
-      console.log("coh:", coh.length());
-      console.log("bnd:", bnd.length());
-      console.log("acc:", acceleration.length());
-      console.log("");
+      boid.coneMesh.material.color.setHex(0x00fff5);
+      // console.log("sep:", sep.length());
+      // console.log("ali:", ali.length());
+      // console.log("coh:", coh.length());
+      // console.log("bnd:", bnd.length());
+      // console.log("acc:", acceleration.length());
+      // console.log("");
     }
 
-    if (variables.play && variables.playSpeed > 0) {
-      // acceleration.multiplyScalar(0.1);
+    if (variables.play) {
       velocity.add(acceleration);
-      // velocity.clampLength(0, variables.maxSpeed);
-      velocity.setLength(variables.maxSpeed); // TODO vb asendada hõõrdejõuga ja hõõrdejõu tugevus sõltuvalt cohesion tugevusest :OOOOOOO
+      velocity.clampLength(0, variables.maxSpeed);
+      // velocity.setLength(variables.maxSpeed); // TODO vb asendada hõõrdejõuga ja hõõrdejõu tugevus sõltuvalt cohesion tugevusest :OOOOOOO
       // setArrow(boid.helpArrows[5], velocity);
 
-      // position.add(velocity);
-      position.add(
-        velocity.clone().multiplyScalar(variables.playSpeed * (delta / 16))
-      );
+      const velClone = velocity.clone();
+      velClone.multiplyScalar(variables.playSpeed * (delta / 16));
+      position.add(velClone);
 
-      mesh.lookAt(velocity.clone().add(boid.position)); // vb acceleration
-      mesh.rotateX(THREE.Math.degToRad(90));
+      velClone.add(boid.position);
+      coneMesh.lookAt(velClone);
+      boxMesh.lookAt(velClone);
     }
 
     acceleration.multiplyScalar(0);
