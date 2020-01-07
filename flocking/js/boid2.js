@@ -198,7 +198,7 @@ function setArrow(arrow, vec) {
   if (vec.length() <= 0) {
     arrow.visible = false;
   } else {
-    const len = vec.length() * 5;
+    const len = vec.length() * 6;
     arrow.setLength(len, 0.1, 0.1);
     arrow.setDirection(vec.clone().normalize());
     arrow.visible = true;

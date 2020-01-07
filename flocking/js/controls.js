@@ -63,7 +63,7 @@ function addBounds() {
   box.visible = false;
   boundBox.add(box);
 
-  var helper = new THREE.BoxHelper(boundBox, 0xffffff);
+  var helper = new THREE.BoxHelper(boundBox, 0x777777);
   boundBox.add(helper);
 
   boundBox.boundBox3 = new THREE.Box3();
@@ -83,4 +83,5 @@ function updateBounds(size) {
   // const target = 0;
   const target = variables.boundSize / 2;
   cameraControls.target.set(target, target / 1.2, target);
+  // TODO: ära liiguta kaamerat vaid lihtsalt seda axeshelperit
 }
