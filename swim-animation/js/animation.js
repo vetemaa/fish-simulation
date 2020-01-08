@@ -1,27 +1,36 @@
 function vertexAnimationInit(boid) {
   boid.speedTime = 0;
   boid.geometry.OrigVertices = [];
-  boid.geometry.vertices.forEach(vert => geom.OrigVertices.push(vert.clone()));
+  boid.geometry.vertices.forEach(vert =>
+    boid.geometry.OrigVertices.push(vert.clone())
+  );
 }
 
 function vertexAnimation(delta, boid, acceleration) {
-  //   let time = Date.now() - 1578415557426;
-  boid.speedTime += delta * 0.75 * 0.01 * acceleration.length();
+  // boid.speedTime += delta * 0.75 * 0.01 * acceleration.length();
+  boid.speedTime += delta * acceleration.length();
   time = boid.speedTime;
+  time *= vars.speed;
+  // boid.position.x += 0.01;
+  // boid.position.y += 0.01;
 
-  let oscillation = Math.sin(time * vars.speed + Math.PI * 0.5);
+  // let oscillation = Math.sin(time + Math.PI * 0.5);
+  let s2sOscillation = Math.sin(
+    time + Math.PI * 0.5 + THREE.Math.degToRad(vars.s2sOffset)
+  );
+  let linearYawOscillation = Math.sin(
+    time + Math.PI * 0.5 + THREE.Math.degToRad(vars.linearYawOffset)
+  );
 
   boid.geometry.vertices.forEach((vert, i) => {
     var orgVert = boid.geometry.OrigVertices[i];
     let xOrg = orgVert.x;
 
-    let undulation = Math.sin(
-      xOrg * Math.PI * vars.undulationWaveLen + time * vars.speed
-    );
+    let undulation = Math.sin(xOrg * Math.PI * vars.undulationWaveLen + time);
 
     var newVert = orgVert.clone();
-    newVert.x -= 0.5;
-    //yaw
+    newVert.x -= 0.25;
+
     if (vars.yaw) {
       angle =
         THREE.Math.degToRad(vars.yawAngle) *
@@ -35,7 +44,7 @@ function vertexAnimation(delta, boid, acceleration) {
     if (vars.linearYaw) {
       angle =
         THREE.Math.degToRad(vars.linearYawAngle) *
-        oscillation *
+        linearYawOscillation *
         sinMask(
           xOrg,
           -1,
@@ -48,7 +57,6 @@ function vertexAnimation(delta, boid, acceleration) {
       // newVert.x = orgVert.z * Math.sin(angle) + orgVert.x * Math.cos(angle);
     }
 
-    //roll
     if (vars.roll) {
       angle =
         THREE.Math.degToRad(vars.rollAngle) *
@@ -60,15 +68,9 @@ function vertexAnimation(delta, boid, acceleration) {
     }
 
     // //squeeze
-    // if (vars.squeeze) {
-    // zNew *= sinMask(
-    //   vert.x,
-    //   -1,
-    //   1,
-    //   vars.squeezeMaskWavLen,
-    //   vars.squeezeMaskOffset
-    // );
-    // }
+    // if (vars.squeeze)
+    // {zNew *= sinMask(vert.x,-1,1,vars.squeezeMaskWavLen,vars.squeezeMaskOffset)
+    // ;}
 
     //sinwave
     if (vars.sinWav) {
@@ -79,16 +81,18 @@ function vertexAnimation(delta, boid, acceleration) {
 
     //side-to-side
     if (vars.s2s) {
-      newVert.z += oscillation * vars.s2sAmplitude;
+      newVert.z += s2sOscillation * vars.s2sAmplitude;
       // sinMask(orgVert.x, -1, 1, vars.s2sMaskWavLen, vars.s2sMaskOffset) / 3;
     }
+
+    newVert.x += 0.25;
 
     vert.x = newVert.x;
     vert.y = newVert.y;
     vert.z = newVert.z;
   });
 
-  geom.verticesNeedUpdate = true;
+  boid.geometry.verticesNeedUpdate = true;
 }
 
 function mask(value, start, end) {
@@ -96,10 +100,10 @@ function mask(value, start, end) {
   return maskedValue;
 }
 
-function sinMask(value, start, end, maskWavLen, maskOffset) {
+function sinMask(value, start, end, maskWavLen, maskOffset, offset = 0) {
   if (vars.masks) {
     maskedValue = mask(value, start, end) + maskOffset;
-    piValue = (maskedValue * Math.PI) / 2;
+    piValue = (maskedValue * Math.PI) / 2 + THREE.Math.degToRad(offset);
     sinValue = Math.sin(piValue / maskWavLen);
     return (sinValue + 1) / 2;
   }

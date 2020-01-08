@@ -24,10 +24,8 @@ function init() {
     1,
     10000
   );
-  // camera.position.set(0, 0, 5);
+  camera.position.set(1, 1, 5);
   // camera.position.set(94, 48, 60);
-  // camera.position.set(14, 9, 12);
-  camera.position.set(100, 0, 40);
   scene.add(camera);
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
   cameraControls.rotateSpeed = 0.2;

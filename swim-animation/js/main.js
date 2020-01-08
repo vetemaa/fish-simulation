@@ -1,6 +1,6 @@
 var stats, scene, renderer, composer;
 var camera, cameraControls;
-var geom, mat, mesh;
+var mesh;
 
 function init() {
   renderer = new THREE.WebGLRenderer({
@@ -19,38 +19,46 @@ function init() {
     35,
     window.innerWidth / window.innerHeight,
     1,
-    10000
+    100
   );
   camera.position.set(0, 0, 5);
   scene.add(camera);
 
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
 
-  geom = new THREE.BoxGeometry(2, 1, 0.5, 16, 8, 4);
-  // geom = new THREE.ConeGeometry(0.3, 2);
-  // geom.rotateZ(THREE.Math.degToRad(-90));
-
-  mat = new THREE.MeshNormalMaterial({ wireframe: true });
+  const geom = new THREE.BoxGeometry(1, 0.5, 0.25, 16, 8, 4);
+  // const geom = new THREE.ConeGeometry(0.3, 2);
+  const mat = new THREE.MeshNormalMaterial({ wireframe: true });
   mesh = new THREE.Mesh(geom, mat);
-  scene.add(mesh);
 
+  mesh.lookAt(new THREE.Vector3(3, 0, 0));
+  mesh.rotateY(THREE.Math.degToRad(-90));
+
+  const axesHelper = new THREE.AxesHelper(1);
+  axesHelper.position.set(0.25, -0.25, 0);
+  mesh.add(axesHelper);
+
+  scene.add(mesh);
   scene.add(new THREE.AxesHelper(10));
 
   vertexAnimationInit(mesh);
   animate();
 }
 
+function datGui() {
+  return initDatGui();
+}
+
 function render() {
   cameraControls.update();
-
   renderer.render(scene, camera);
 }
 
 let then = Date.now();
 function animate(now) {
   const delta = now - then;
-  delta && colorVert(delta);
-  delta && vertexAnimation(delta, mesh, new THREE.Vector3(1, 0, 0));
+  delta && colorVert(mesh);
+  delta && vertexAnimation(delta, mesh, new THREE.Vector3(0.001, 0, 0));
   then = now;
 
   requestAnimationFrame(animate);
@@ -58,27 +66,27 @@ function animate(now) {
   stats.update();
 }
 
-function colorVert() {
+function colorVert(mesh) {
   if (!currentMask || !vars.masks) {
     mesh.material = new THREE.MeshNormalMaterial({});
-    geom.elementsNeedUpdate = true;
-    geom.normalsNeedUpdate = true;
+    mesh.geometry.elementsNeedUpdate = true;
+    mesh.geometry.normalsNeedUpdate = true;
     return;
   }
 
   mesh.material = new THREE.MeshBasicMaterial({
     vertexColors: THREE.VertexColors
   });
-  geom.faces.forEach(face => {
+  mesh.geometry.faces.forEach(face => {
     ["a", "b", "c"].forEach((vert, indx) => {
-      xPos = geom.vertices[face[vert]].x;
+      xPos = mesh.geometry.vertices[face[vert]].x;
       //   maskedValue = mask(xPos, -1, 1);
       maskedValue = sinMask(
         xPos,
         -1,
         1,
-        vars[currentMask + "_maskWavLen"],
-        vars[currentMask + "_maskOffset"]
+        vars[currentMask + "MaskWavLen"],
+        vars[currentMask + "MaskOffset"]
       );
       face.vertexColors[indx] = new THREE.Color(
         maskedValue,
@@ -87,5 +95,5 @@ function colorVert() {
       );
     });
   });
-  geom.elementsNeedUpdate = true;
+  mesh.geometry.elementsNeedUpdate = true;
 }

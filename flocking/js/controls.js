@@ -4,7 +4,7 @@ var boundBox;
 function datGui() {
   var Variables = function() {
     this.play = false;
-    this.playSpeed = 0.8;
+    this.playSpeed = 0.01;
     this.maxSpeed = 0.2;
     this.maxForce = 0.46;
     // this.maxForce = 1000;
@@ -12,11 +12,13 @@ function datGui() {
     this.alignmentDist = 7;
     this.cohesionDist = 7;
     this.boundSize = 46;
-    this.vertexAnimation = false;
+    // this.boundSize = 2;
+    this.vertexAnimation = true;
   };
 
   variables = new Variables();
   gui = new dat.GUI();
+  gui.width = 333;
 
   folder1 = gui.addFolder("Main");
   // folder1.open();
@@ -39,6 +41,8 @@ function datGui() {
   folder4
     .add(variables, "vertexAnimation")
     .onChange(value => changeGeometry(value));
+
+  vertexAnimationGUI(gui);
 
   return variables;
 }
@@ -83,7 +87,7 @@ function updateBounds(size) {
 
   boundBox.boundBox3.setFromObject(boundBox);
   const target = variables.boundSize / 2;
-  cameraControls.target.set(target, target / 1.22, target);
+  // cameraControls.target.set(target, target / 1.22, target);
 }
 
 function changeGeometry(value) {

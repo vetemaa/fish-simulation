@@ -1,7 +1,7 @@
 var boids = [];
 
 function addBoids() {
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < 100; i++) {
     addBoid([
       variables.boundSize * Math.random(),
       variables.boundSize * Math.random(),
@@ -16,14 +16,17 @@ function addBoid(position) {
   const boid = new THREE.Group();
   const mat = new THREE.MeshBasicMaterial({ wireframe: true });
   const coneGeom = new THREE.ConeGeometry(0.3, 1);
-  const boxGeom = new THREE.BoxGeometry(0.25, 1, 0.5, 16, 8, 4);
+  // const boxGeom = new THREE.BoxGeometry(0.25, 1, 0.5, 4, 18, 8);
+  const boxGeom = new THREE.BoxGeometry(1, 0.5, 0.25, 16, 8, 4);
   const coneMesh = new THREE.Mesh(coneGeom, mat);
   const boxMesh = new THREE.Mesh(boxGeom, mat);
 
-  coneMesh.rotateX(THREE.Math.degToRad(90));
-  coneMesh.updateMatrix();
-  coneMesh.geometry.applyMatrix(coneMesh.matrix);
-  boxMesh.geometry.applyMatrix(coneMesh.matrix);
+  coneMesh.geometry.rotateX(THREE.Math.degToRad(90));
+  // boxMesh.geometry.rotateX(THREE.Math.degToRad(90));
+  // coneMesh.rotateX(THREE.Math.degToRad(90));
+  // coneMesh.updateMatrix();
+  // coneMesh.geometry.applyMatrix(coneMesh.matrix);
+  // boxMesh.geometry.applyMatrix(coneMesh.matrix);
 
   boid.coneMesh = coneMesh;
   boid.boxMesh = boxMesh;
@@ -54,9 +57,13 @@ function addBoid(position) {
 
   const velClone = boid.velocity.clone();
   velClone.add(boid.position);
+  // velClone.set(3, 0, 0);
   coneMesh.lookAt(velClone);
   boxMesh.lookAt(velClone);
+  boxMesh.rotateY(THREE.Math.degToRad(-90));
+
   changeGeometry(variables.vertexAnimation);
+  vertexAnimationInit(boid.boxMesh);
 }
 
 function animateBoids(delta) {
@@ -96,8 +103,13 @@ function animateBoids(delta) {
     }
 
     if (variables.play) {
+      // console.log(delta);
+      // acceleration.multiplyScalar(variables.playSpeed * delta);
       velocity.add(acceleration);
-      velocity.clampLength(0, variables.maxSpeed);
+      // velocity.clampLength(0, variables.maxSpeed);
+      if (velocity.length() > variables.maxSpeed)
+        velocity.setLength(variables.maxSpeed);
+
       // velocity.setLength(variables.maxSpeed); // TODO vb asendada hõõrdejõuga ja hõõrdejõu tugevus sõltuvalt cohesion tugevusest :OOOOOOO
       // setArrow(boid.helpArrows[5], velocity);
 
@@ -108,7 +120,15 @@ function animateBoids(delta) {
       velClone.add(boid.position);
       coneMesh.lookAt(velClone);
       boxMesh.lookAt(velClone);
+      boxMesh.rotateY(THREE.Math.degToRad(-90));
+
+      // acceleration.multiplyScalar(0.01);
+      if (variables.vertexAnimation) {
+        acceleration.multiplyScalar(variables.playSpeed * (delta / 8));
+        vertexAnimation(delta, boid.boxMesh, acceleration);
+      }
     }
+    // vertexAnimation(delta, boid.boxMesh, new THREE.Vector3(0.001, 0, 0));
 
     acceleration.multiplyScalar(0);
   });
