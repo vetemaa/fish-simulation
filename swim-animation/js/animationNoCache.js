@@ -6,15 +6,6 @@ function vertexAnimationInit(boid) {
   );
 }
 
-var frames = [];
-
-// function fillFrames(boid) {
-//   for (let i = 0; i < Math.PI * 2 * 100; i++) {
-//     frames.push(i);
-//   }
-//   console.log(frames);
-// }
-
 function vertexAnimation(boid, acceleration) {
   // boid.speedTime += delta * 0.75 * 0.01 * acceleration.length();
   // boid.speedTime += delta * acceleration.length();
@@ -22,8 +13,6 @@ function vertexAnimation(boid, acceleration) {
   time = boid.speedTime;
   time *= vars.speed;
   time %= Math.PI * 2; // animatsiooni soovi korral salvestamiseks
-
-  // console.log(Math.floor(time * 100));
 
   // let oscillation = Math.sin(time + Math.PI * 0.5);
   let s2sOscillation = Math.sin(

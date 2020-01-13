@@ -7,45 +7,49 @@ function initDatGui() {
   gui = new dat.GUI();
   gui.width = 333;
 
-  vertexAnimationGUI(gui);
+  folder = gui.addFolder("Vertex Animation");
+
+  vertexAnimationGUI(folder, variables, gui);
 
   return variables;
 }
 
-function vertexAnimationGUI(gui) {
-  variables["speed"] = 0.3;
-  variables["undulationWaveLen"] = 0.2;
+function vertexAnimationGUI(folder, variables, gui) {
+  variables["vertexAnimation"] = true;
+  variables["speed"] = 1.2;
+  variables["undulationWaveLen"] = 1.4;
   variables["masks"] = true;
 
-  folder = gui.addFolder("Vertex animation");
-  folder.add(variables, "speed", 0, 1).step(0.001);
+  // folder = gui.addFolder("Vertex animation");
+  // folder.add(variables, "vertexAnimation");
+  folder.add(variables, "speed", 0, 3);
   folder.add(variables, "undulationWaveLen", -5, 5).step(0.1);
   folder.add(variables, "masks");
-  folder.open();
+  // folder.open();
 
   animationRules = [
     {
       name: "s2s",
       folderName: "Side-to-side",
-      offset: 90,
+      offset: 180,
       enabled: true,
-      amplitude: 0.1
+      amplitude: 0.03
     },
     {
       name: "roll",
       folderName: "Roll",
       offset: 0,
       enabled: true,
-      angle: 12,
+      angle: 9,
       maskWavLen: 0.7,
-      maskOffset: 0.9
+      maskOffset: 0.3
     },
     {
       name: "linearYaw",
       folderName: "Linear Yaw",
-      offset: 0,
+      offset: 180,
       enabled: true,
-      angle: 30,
+      angle: 12,
       maskWavLen: 1.2,
       maskOffset: 2
     },
@@ -62,7 +66,7 @@ function vertexAnimationGUI(gui) {
 
   animationRules.forEach(rule => {
     fol = folder.addFolder(rule.folderName);
-    fol.open();
+    // fol.open();
     addVariable(fol, rule.name, rule.enabled);
     rule.offset !== undefined &&
       addVariable(fol, rule.name + "Offset", rule.offset, 0, 360);

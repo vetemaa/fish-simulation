@@ -16,10 +16,11 @@ function addBoid(position) {
   const boid = new THREE.Group();
   const mat = new THREE.MeshBasicMaterial({ wireframe: true });
   const coneGeom = new THREE.ConeGeometry(0.3, 1);
-  // const boxGeom = new THREE.BoxGeometry(0.25, 1, 0.5, 4, 18, 8);
-  const boxGeom = new THREE.BoxGeometry(1, 0.5, 0.25, 16, 8, 4);
+  const boxGeom = new THREE.BoxGeometry(1, 0.5, 0.25, 4, 2, 1);
+  // const boxGeom = new THREE.BoxGeometry(1, 0.5, 0.25, 8, 4, 2);
   const coneMesh = new THREE.Mesh(coneGeom, mat);
-  const boxMesh = new THREE.Mesh(boxGeom, mat);
+  // const boxMesh = new THREE.Mesh(boxGeom, mat);
+  const boxMesh = fishModel.clone();
 
   coneMesh.geometry.rotateX(THREE.Math.degToRad(90));
   // boxMesh.geometry.rotateX(THREE.Math.degToRad(90));
@@ -41,15 +42,14 @@ function addBoid(position) {
   boid.acceleration = new THREE.Vector3();
 
   boid.helpArrows = [];
-  [0xffffff, 0xff9999, 0x99ff99, 0x9999ff, 0xf6ff99, 0x00fff5].forEach(
-    color => {
-      const arrow = new THREE.ArrowHelper();
-      arrow.visible = false;
-      arrow.setColor(color);
-      boid.add(arrow);
-      boid.helpArrows.push(arrow);
-    }
-  );
+  // [0xffffff, 0xff9999, 0x99ff99, 0x9999ff, 0xf6ff99, 0x00fff5].forEach(
+  [0xffffff, 0xff9999, 0x99ff99, 0x9999ff, 0xf6ff99].forEach(color => {
+    const arrow = new THREE.ArrowHelper();
+    arrow.visible = false;
+    arrow.setColor(color);
+    boid.add(arrow);
+    boid.helpArrows.push(arrow);
+  });
 
   boid.position.set(...position);
   boids.push(boid);
@@ -81,19 +81,21 @@ function animateBoids(delta) {
     ali.multiplyScalar(2);
     coh.multiplyScalar(0.08);
     bnd.multiplyScalar(0.1);
-    setArrow(boid.helpArrows[1], sep);
-    setArrow(boid.helpArrows[2], ali);
-    setArrow(boid.helpArrows[3], coh);
-    setArrow(boid.helpArrows[4], bnd);
     acceleration.add(sep);
     acceleration.add(ali);
     acceleration.add(coh);
     acceleration.add(bnd);
-    setArrow(boid.helpArrows[0], acceleration);
+    if (variables.showVectors) {
+      setArrow(boid.helpArrows[1], sep);
+      setArrow(boid.helpArrows[2], ali);
+      setArrow(boid.helpArrows[3], coh);
+      setArrow(boid.helpArrows[4], bnd);
+      setArrow(boid.helpArrows[0], acceleration);
+    }
     acceleration.multiplyScalar(0.1);
 
     if (boid.subject) {
-      boid.coneMesh.material.color.setHex(0x00fff5);
+      // boid.coneMesh.material.color.setHex(0x00fff5);
       // console.log("sep:", sep.length());
       // console.log("ali:", ali.length());
       // console.log("coh:", coh.length());
@@ -102,19 +104,20 @@ function animateBoids(delta) {
       // console.log("");
     }
 
-    if (variables.play) {
+    const { play, playSpeed, maxSpeed, animateVertices } = variables;
+    if (play && playSpeed !== 0 && maxSpeed !== 0) {
       // console.log(delta);
       // acceleration.multiplyScalar(variables.playSpeed * delta);
       velocity.add(acceleration);
+
       // velocity.clampLength(0, variables.maxSpeed);
-      if (velocity.length() > variables.maxSpeed)
-        velocity.setLength(variables.maxSpeed);
+      if (velocity.length() > maxSpeed) velocity.setLength(maxSpeed);
 
       // velocity.setLength(variables.maxSpeed); // TODO vb asendada hõõrdejõuga ja hõõrdejõu tugevus sõltuvalt cohesion tugevusest :OOOOOOO
       // setArrow(boid.helpArrows[5], velocity);
 
       const velClone = velocity.clone();
-      velClone.multiplyScalar(variables.playSpeed * (delta / 16));
+      velClone.multiplyScalar(playSpeed * (delta / 16));
       position.add(velClone);
 
       velClone.add(boid.position);
@@ -122,13 +125,11 @@ function animateBoids(delta) {
       boxMesh.lookAt(velClone);
       boxMesh.rotateY(THREE.Math.degToRad(-90));
 
-      // acceleration.multiplyScalar(0.01);
-      if (variables.vertexAnimation) {
-        acceleration.multiplyScalar(variables.playSpeed * (delta / 8));
-        vertexAnimation(delta, boid.boxMesh, acceleration);
+      if (animateVertices) {
+        acceleration.multiplyScalar(playSpeed * delta);
+        vertexAnimation(boid.boxMesh, acceleration);
       }
     }
-    // vertexAnimation(delta, boid.boxMesh, new THREE.Vector3(0.001, 0, 0));
 
     acceleration.multiplyScalar(0);
   });
@@ -230,7 +231,7 @@ function setArrow(arrow, vec) {
   if (vec.length() <= 0) {
     arrow.visible = false;
   } else {
-    const len = vec.length() * 6;
+    const len = vec.length() * 8;
     arrow.setLength(len, 0.1, 0.1);
     arrow.setDirection(vec.clone().normalize());
     arrow.visible = true;

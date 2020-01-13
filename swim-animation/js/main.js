@@ -1,6 +1,7 @@
 var stats, scene, renderer, composer;
 var camera, cameraControls;
 var mesh;
+var fishModel;
 
 function init() {
   renderer = new THREE.WebGLRenderer({
@@ -26,17 +27,37 @@ function init() {
 
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
 
-  const geom = new THREE.BoxGeometry(1, 0.5, 0.25, 16, 8, 4);
+  scene.add(new THREE.AmbientLight(0xffffff));
+  const loader = new THREE.GLTFLoader();
+  loader.load("../../flocking/tang.glb", gltf => {
+    fishModel = gltf.scene.children[0];
+    fishModel.position.set(0, 0, 0);
+    fishModel.scale.set(1, 1, 1);
+
+    fishModel.geometry = new THREE.Geometry().fromBufferGeometry(
+      fishModel.geometry
+    );
+    mesh = fishModel;
+
+    initMesh();
+  });
+}
+
+function initMesh() {
+  // const geom = new THREE.BoxGeometry(1, 0.5, 0.25, 16, 8, 4);
+  // const geom = new THREE.BoxGeometry(1, 0.5, 0.25, 8, 4, 2);
+  const geom = new THREE.BoxGeometry(1, 0.5, 0.25, 4, 2, 1);
   // const geom = new THREE.ConeGeometry(0.3, 2);
   const mat = new THREE.MeshNormalMaterial({ wireframe: true });
-  mesh = new THREE.Mesh(geom, mat);
+  // mesh = new THREE.Mesh(geom, mat);
 
   mesh.lookAt(new THREE.Vector3(3, 0, 0));
   mesh.rotateY(THREE.Math.degToRad(-90));
 
   const axesHelper = new THREE.AxesHelper(1);
-  axesHelper.position.set(0.25, -0.25, 0);
-  mesh.add(axesHelper);
+  // axesHelper.position.set(0.25, -0.25, 0);
+  axesHelper.position.set(0.5, -0.5, 0);
+  scene.add(axesHelper);
 
   scene.add(mesh);
   scene.add(new THREE.AxesHelper(10));
@@ -57,8 +78,10 @@ function render() {
 let then = Date.now();
 function animate(now) {
   const delta = now - then;
-  delta && colorVert(mesh);
-  delta && vertexAnimation(delta, mesh, new THREE.Vector3(0.001, 0, 0));
+  // delta && colorVert(mesh);
+  const testVec = new THREE.Vector3(0.003 * delta, 0, 0);
+  delta && vertexAnimation(mesh, testVec);
+  // delta && vertexAnimationOld(delta, mesh, new THREE.Vector3(0.001, 0, 0));
   then = now;
 
   requestAnimationFrame(animate);
