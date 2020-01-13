@@ -53,6 +53,7 @@ function init() {
       fishModel.geometry
     );
 
+    fillFrames(fishModel);
     addBoids();
   });
 

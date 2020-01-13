@@ -39,6 +39,7 @@ function init() {
     );
     mesh = fishModel;
 
+    fillFrames(mesh);
     initMesh();
   });
 }

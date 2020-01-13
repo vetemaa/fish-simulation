@@ -5,7 +5,7 @@ function datGui() {
   var Variables = function() {
     this.play = true;
     this.playSpeed = 0.8;
-    this.maxSpeed = 0.2;
+    this.maxSpeed = 0.1;
     this.maxForce = 0.46;
     // this.maxForce = 1000;
     this.separationDist = 3.6;
