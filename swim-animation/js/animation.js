@@ -1,5 +1,5 @@
-function vertexAnimationInit(boid) {
-  boid.speedTime = 0;
+function vertexAnimationInit(boid, boids) {
+  boid.speedTime = Math.random() * animationFrameCount;
   boid.geometry.OrigVertices = [];
   boid.geometry.vertices.forEach(vert =>
     boid.geometry.OrigVertices.push(vert.clone())
@@ -7,20 +7,20 @@ function vertexAnimationInit(boid) {
 }
 
 var animationFrames = [];
+const animationFrameCount = 400;
 
 function fillFrames(boid) {
-  vertexAnimationInit(boid);
-
-  for (let i = 0; i < Math.PI * 2 * 100; i++) {
-    const time = i / 100;
+  animationFrames = [];
+  for (let i = 0; i < animationFrameCount; i++) {
+    const time = (i * Math.PI * 2) / animationFrameCount;
     const frameVertices = [];
 
-    // let oscillation = Math.sin(time + Math.PI * 0.5);
+    // const oscTime
     let s2sOscillation = Math.sin(
-      time + Math.PI * 0.5 + THREE.Math.degToRad(vars.s2sOffset)
+      time + Math.PI * 1 + THREE.Math.degToRad(vars.s2sOffset)
     );
     let linearYawOscillation = Math.sin(
-      time + Math.PI * 0.5 + THREE.Math.degToRad(vars.linearYawOffset)
+      time + Math.PI * 1 + THREE.Math.degToRad(vars.linearYawOffset)
     );
 
     boid.geometry.vertices.forEach((vert, i) => {
@@ -83,13 +83,19 @@ function fillFrames(boid) {
   }
 }
 
+let count = 0;
 function vertexAnimation(boid, acceleration) {
   boid.speedTime += acceleration.length();
-  time = boid.speedTime;
-  time *= vars.speed;
-  time %= Math.PI * 2;
 
-  frameVertices = animationFrames[Math.floor(time * 100)];
+  time = boid.speedTime * vars.speed * (animationFrameCount / 6.28);
+  time %= animationFrameCount;
+
+  if (count < 100) {
+    console.log(boid.geometry.id, time);
+    count++;
+  }
+
+  frameVertices = animationFrames[Math.floor(time)];
   boid.geometry.vertices.forEach((vert, i) => {
     vert.copy(frameVertices[i]);
   });

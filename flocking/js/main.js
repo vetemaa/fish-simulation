@@ -53,6 +53,7 @@ function init() {
       fishModel.geometry
     );
 
+    vertexAnimationInit(fishModel);
     fillFrames(fishModel);
     addBoids();
   });

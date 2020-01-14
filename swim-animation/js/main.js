@@ -39,7 +39,8 @@ function init() {
     );
     mesh = fishModel;
 
-    fillFrames(mesh);
+    vertexAnimationInit(mesh);
+    // fillFrames(mesh);
     initMesh();
   });
 }
@@ -57,18 +58,17 @@ function initMesh() {
 
   const axesHelper = new THREE.AxesHelper(1);
   // axesHelper.position.set(0.25, -0.25, 0);
-  axesHelper.position.set(0.5, -0.5, 0);
+  axesHelper.position.set(0.25, -0.25, 0);
   scene.add(axesHelper);
 
   scene.add(mesh);
   scene.add(new THREE.AxesHelper(10));
 
-  vertexAnimationInit(mesh);
   animate();
 }
 
 function datGui() {
-  return initDatGui();
+  return initDatGui(mesh);
 }
 
 function render() {

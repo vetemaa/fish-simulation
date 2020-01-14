@@ -1,4 +1,5 @@
 var folders = [];
+var controlMesh;
 
 function initDatGui() {
   var Variables = function() {};
@@ -9,12 +10,12 @@ function initDatGui() {
 
   folder = gui.addFolder("Vertex Animation");
 
-  vertexAnimationGUI(folder, variables, gui);
+  vertexAnimationGUI(folder, variables);
 
   return variables;
 }
 
-function vertexAnimationGUI(folder, variables, gui) {
+function vertexAnimationGUI(folder, variables) {
   variables["vertexAnimation"] = true;
   variables["speed"] = 1.2;
   variables["undulationWaveLen"] = 1.4;
@@ -31,9 +32,9 @@ function vertexAnimationGUI(folder, variables, gui) {
     {
       name: "s2s",
       folderName: "Side-to-side",
-      offset: 180,
+      offset: 0,
       enabled: true,
-      amplitude: 0.03
+      amplitude: 0.04
     },
     {
       name: "roll",
@@ -47,7 +48,7 @@ function vertexAnimationGUI(folder, variables, gui) {
     {
       name: "linearYaw",
       folderName: "Linear Yaw",
-      offset: 180,
+      offset: 0,
       enabled: true,
       angle: 12,
       maskWavLen: 1.2,

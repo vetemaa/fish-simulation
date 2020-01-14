@@ -21,6 +21,7 @@ function addBoid(position) {
   const coneMesh = new THREE.Mesh(coneGeom, mat);
   // const boxMesh = new THREE.Mesh(boxGeom, mat);
   const boxMesh = fishModel.clone();
+  boxMesh.geometry = fishModel.geometry.clone();
 
   coneMesh.geometry.rotateX(THREE.Math.degToRad(90));
   // boxMesh.geometry.rotateX(THREE.Math.degToRad(90));

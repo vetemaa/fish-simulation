@@ -15,11 +15,9 @@ function vertexAnimation(boid, acceleration) {
   time %= Math.PI * 2; // animatsiooni soovi korral salvestamiseks
 
   // let oscillation = Math.sin(time + Math.PI * 0.5);
-  let s2sOscillation = Math.sin(
-    time + Math.PI * 0.5 + THREE.Math.degToRad(vars.s2sOffset)
-  );
+  let s2sOscillation = Math.sin(time + THREE.Math.degToRad(vars.s2sOffset));
   let linearYawOscillation = Math.sin(
-    time + Math.PI * 0.5 + THREE.Math.degToRad(vars.linearYawOffset)
+    time + THREE.Math.degToRad(vars.linearYawOffset)
   );
 
   boid.geometry.vertices.forEach((vert, i) => {
