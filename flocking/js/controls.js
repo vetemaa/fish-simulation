@@ -5,15 +5,13 @@ function datGui() {
   var Variables = function() {
     this.play = true;
     this.playSpeed = 0.8;
-    this.maxSpeed = 0.1;
+    this.maxVelocity = 0.1;
     this.maxForce = 0.46;
-    // this.maxForce = 1000;
-    this.separationDist = 3.6;
-    this.alignmentDist = 7;
-    this.cohesionDist = 7;
+    this.separationDist = 3.2;
+    this.alignmentDist = 6;
+    this.cohesionDist = 8;
     this.boundSize = 46;
-    // this.boundSize = 2;
-    this.animateVertices = true;
+    this.animateVertices = false;
     this.showVectors = false;
   };
 
@@ -32,7 +30,7 @@ function datGui() {
 
   folder1.add(variables, "play").listen();
   folder1.add(variables, "playSpeed", 0, 1).step(0.01);
-  folder1.add(variables, "maxSpeed", 0, 1).step(0.01);
+  folder1.add(variables, "maxVelocity", 0, 1).step(0.01);
   folder2.add(variables, "maxForce", 0, 1).step(0.01);
   folder2.add(variables, "separationDist", 0, 10).step(0.1);
   folder2.add(variables, "alignmentDist", 0, 100).step(1);

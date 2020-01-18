@@ -1,7 +1,7 @@
 var boids = [];
 
 function addBoids() {
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 1; i++) {
     addBoid([
       variables.boundSize * Math.random(),
       variables.boundSize * Math.random(),
@@ -17,18 +17,11 @@ function addBoid(position) {
   const mat = new THREE.MeshBasicMaterial({ wireframe: true });
   const coneGeom = new THREE.ConeGeometry(0.3, 1);
   const boxGeom = new THREE.BoxGeometry(1, 0.5, 0.25, 4, 2, 1);
-  // const boxGeom = new THREE.BoxGeometry(1, 0.5, 0.25, 8, 4, 2);
   const coneMesh = new THREE.Mesh(coneGeom, mat);
-  // const boxMesh = new THREE.Mesh(boxGeom, mat);
   const boxMesh = fishModel.clone();
   boxMesh.geometry = fishModel.geometry.clone();
 
   coneMesh.geometry.rotateX(THREE.Math.degToRad(90));
-  // boxMesh.geometry.rotateX(THREE.Math.degToRad(90));
-  // coneMesh.rotateX(THREE.Math.degToRad(90));
-  // coneMesh.updateMatrix();
-  // coneMesh.geometry.applyMatrix(coneMesh.matrix);
-  // boxMesh.geometry.applyMatrix(coneMesh.matrix);
 
   boid.coneMesh = coneMesh;
   boid.boxMesh = boxMesh;
@@ -63,7 +56,7 @@ function addBoid(position) {
   boxMesh.lookAt(velClone);
   boxMesh.rotateY(THREE.Math.degToRad(-90));
 
-  changeGeometry(variables.vertexAnimation);
+  changeGeometry(variables.animateVertices);
   vertexAnimationInit(boid.boxMesh);
 }
 
@@ -78,8 +71,8 @@ function animateBoids(delta) {
     const ali = alignment(boid);
     const coh = cohesion(boid);
     const bnd = bounds(boid);
-    sep.multiplyScalar(0.3);
-    ali.multiplyScalar(2);
+    sep.multiplyScalar(0.4);
+    ali.multiplyScalar(1.6);
     coh.multiplyScalar(0.08);
     bnd.multiplyScalar(0.1);
     acceleration.add(sep);
@@ -93,7 +86,7 @@ function animateBoids(delta) {
       setArrow(boid.helpArrows[4], bnd);
       setArrow(boid.helpArrows[0], acceleration);
     }
-    acceleration.multiplyScalar(0.1);
+    acceleration.multiplyScalar(0.05);
 
     if (boid.subject) {
       // boid.coneMesh.material.color.setHex(0x00fff5);
@@ -105,16 +98,16 @@ function animateBoids(delta) {
       // console.log("");
     }
 
-    const { play, playSpeed, maxSpeed, animateVertices } = variables;
-    if (play && playSpeed !== 0 && maxSpeed !== 0) {
+    const { play, playSpeed, maxVelocity, animateVertices } = variables;
+    if (play && playSpeed !== 0 && maxVelocity !== 0) {
       // console.log(delta);
       // acceleration.multiplyScalar(variables.playSpeed * delta);
       velocity.add(acceleration);
 
-      // velocity.clampLength(0, variables.maxSpeed);
-      if (velocity.length() > maxSpeed) velocity.setLength(maxSpeed);
+      // velocity.clampLength(0, variables.maxVelocity);
+      if (velocity.length() > maxVelocity) velocity.setLength(maxVelocity);
 
-      // velocity.setLength(variables.maxSpeed); // TODO vb asendada hõõrdejõuga ja hõõrdejõu tugevus sõltuvalt cohesion tugevusest :OOOOOOO
+      // velocity.setLength(variables.maxVelocity); // TODO vb asendada hõõrdejõuga ja hõõrdejõu tugevus sõltuvalt cohesion tugevusest :OOOOOOO
       // setArrow(boid.helpArrows[5], velocity);
 
       const velClone = velocity.clone();
@@ -154,7 +147,7 @@ function separation(boid) {
 
   if (neighbourCount > 0) {
     steer.divideScalar(neighbourCount);
-    // steer.setLength(variables.maxSpeed);
+    // steer.setLength(variables.maxVelocity);
     // steer.sub(boid.velocity);
     steer.clampLength(0, variables.maxForce); // TODO eemaldada, rikub sujuvuse
   }

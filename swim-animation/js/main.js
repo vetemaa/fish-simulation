@@ -79,7 +79,7 @@ function render() {
 let then = Date.now();
 function animate(now) {
   const delta = now - then;
-  // delta && colorVert(mesh);
+  delta && colorVert(mesh);
   const testVec = new THREE.Vector3(0.003 * delta, 0, 0);
   delta && vertexAnimation(mesh, testVec);
   // delta && vertexAnimationOld(delta, mesh, new THREE.Vector3(0.001, 0, 0));

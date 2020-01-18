@@ -59,7 +59,7 @@ function vertexAnimationGUI(folder, variables) {
       folderName: "Yaw",
       offset: 0,
       enabled: true,
-      angle: 30,
+      angle: 50,
       maskWavLen: 0.7,
       maskOffset: 1.3
     }
