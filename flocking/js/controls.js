@@ -4,15 +4,15 @@ var boundBox;
 function datGui() {
   var Variables = function() {
     this.play = true;
-    this.playSpeed = 0.8;
+    this.playSpeed = 0.1;
     this.maxVelocity = 0.1;
-    this.maxForce = 0.46;
-    this.separationDist = 3.2;
+    this.chaseCamera = false;
+    this.separationDist = 2.8;
     this.alignmentDist = 6;
     this.cohesionDist = 8;
-    this.boundSize = 46;
+    this.boundSize = 3;
     this.animateVertices = false;
-    this.showVectors = false;
+    this.showVectors = true;
   };
 
   variables = new Variables();
@@ -31,7 +31,7 @@ function datGui() {
   folder1.add(variables, "play").listen();
   folder1.add(variables, "playSpeed", 0, 1).step(0.01);
   folder1.add(variables, "maxVelocity", 0, 1).step(0.01);
-  folder2.add(variables, "maxForce", 0, 1).step(0.01);
+  folder1.add(variables, "chaseCamera").listen();
   folder2.add(variables, "separationDist", 0, 10).step(0.1);
   folder2.add(variables, "alignmentDist", 0, 100).step(1);
   folder2.add(variables, "cohesionDist", 0, 100).step(1);
@@ -53,9 +53,9 @@ function datGui() {
 
 function initControls() {
   document.body.onkeyup = e => {
-    if (e.keyCode == 32) {
-      variables.play = !variables.play;
-    }
+    if (e.keyCode == 32) variables.play = !variables.play;
+    if (e.keyCode == 49) variables.chaseCamera = true;
+    if (e.keyCode == 50) variables.chaseCamera = false;
   };
 }
 

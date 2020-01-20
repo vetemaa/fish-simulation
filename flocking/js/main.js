@@ -1,5 +1,5 @@
 var stats, scene, renderer, composer;
-var camera, cameraControls;
+var camera, cameraControls, fishCamera;
 var geom, mat, mesh, axesHelper;
 var fishModel;
 
@@ -16,6 +16,7 @@ function init() {
   stats.domElement.style.bottom = "0px";
   document.body.appendChild(stats.domElement);
   window.addEventListener("resize", onWindowResize, false);
+  window.addEventListener("fullscreenchange", onWindowResize, false);
   initControls();
 
   scene = new THREE.Scene();
@@ -23,7 +24,13 @@ function init() {
     35,
     window.innerWidth / window.innerHeight,
     1,
-    10000
+    1000
+  );
+  fishCamera = new THREE.PerspectiveCamera(
+    90,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
   );
   camera.position.set(1, 1, 5);
   camera.position.set(94, 48, 60);
@@ -58,6 +65,9 @@ function init() {
     addBoids();
   });
 
+  scene.add(fishCamera);
+  // boids[0].add(fishCamera);
+
   addBounds();
   animate();
 }
@@ -68,13 +78,31 @@ function animate(now) {
   delta && animateBoids(delta);
   then = now;
 
+  delta && boids[0] && cameraChase(delta);
+
   requestAnimationFrame(animate);
   render();
   stats.update();
 }
 
+function cameraChase(delta) {
+  var relativeCameraOffset = new THREE.Vector3(0, 0.8, -2);
+  var cameraOffset = relativeCameraOffset.applyMatrix4(
+    boids[0].coneMesh.matrixWorld
+  );
+
+  fishCamera.position.copy(cameraOffset);
+
+  const velClone = boids[0].velocity.clone();
+  velClone.multiplyScalar(variables.playSpeed * (delta / 16));
+  velClone.add(boids[0].position);
+  velClone.y += 0.6;
+  fishCamera.lookAt(velClone);
+}
+
 function render() {
   cameraControls.update();
 
-  renderer.render(scene, camera);
+  if (variables.chaseCamera) renderer.render(scene, fishCamera);
+  else renderer.render(scene, camera);
 }

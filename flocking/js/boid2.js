@@ -1,7 +1,7 @@
 var boids = [];
 
 function addBoids() {
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < 3; i++) {
     addBoid([
       variables.boundSize * Math.random(),
       variables.boundSize * Math.random(),
@@ -71,15 +71,19 @@ function animateBoids(delta) {
     const ali = alignment(boid);
     const coh = cohesion(boid);
     const bnd = bounds(boid);
+    const ran = random(boid);
     sep.multiplyScalar(0.4);
     ali.multiplyScalar(1.6);
     coh.multiplyScalar(0.08);
-    bnd.multiplyScalar(0.1);
-    acceleration.add(sep);
-    acceleration.add(ali);
-    acceleration.add(coh);
+    bnd.multiplyScalar(0.01);
+    ran.multiplyScalar(1);
+    // acceleration.add(sep);
+    // acceleration.add(ali);
+    // acceleration.add(coh);
     acceleration.add(bnd);
+    // acceleration.add(ran);
     if (variables.showVectors) {
+      // setArrow(boid.helpArrows[1], ran);
       setArrow(boid.helpArrows[1], sep);
       setArrow(boid.helpArrows[2], ali);
       setArrow(boid.helpArrows[3], coh);
@@ -89,7 +93,8 @@ function animateBoids(delta) {
     acceleration.multiplyScalar(0.05);
 
     if (boid.subject) {
-      // boid.coneMesh.material.color.setHex(0x00fff5);
+      boid.coneMesh.material.color.setHex(0x00fff5);
+      // console.log(ali.length());
       // console.log("sep:", sep.length());
       // console.log("ali:", ali.length());
       // console.log("coh:", coh.length());
@@ -132,6 +137,7 @@ function animateBoids(delta) {
 function separation(boid) {
   const steer = new THREE.Vector3();
   let neighbourCount = 0;
+  let neighbourSmoothCount = 1;
 
   boids.forEach(flockmate => {
     const dist = boid.position.distanceTo(flockmate.position);
@@ -142,14 +148,15 @@ function separation(boid) {
       steer.add(diff);
 
       neighbourCount++;
+      neighbourSmoothCount += 1 - dist / variables.separationDist;
     }
   });
 
   if (neighbourCount > 0) {
-    steer.divideScalar(neighbourCount);
+    // steer.divideScalar(neighbourCount);
+    steer.divideScalar(neighbourSmoothCount);
     // steer.setLength(variables.maxVelocity);
     // steer.sub(boid.velocity);
-    steer.clampLength(0, variables.maxForce); // TODO eemaldada, rikub sujuvuse
   }
 
   return steer;
@@ -173,7 +180,6 @@ function alignment(boid) {
 
   if (neighbourCount > 0) {
     steer.divideScalar(neighbourCount);
-    steer.clampLength(0, variables.maxForce);
   }
 
   return steer;
@@ -190,13 +196,15 @@ function cohesion(boid) {
       const pos = flockmate.position.clone();
       steer.add(pos); // TODO sujuv kukkumine
       neighbourCount++;
+      // neighbourSmoothCount += 1 - dist / variables.separationDist;
     }
   });
 
   if (neighbourCount > 0) {
     steer.divideScalar(neighbourCount);
+    // steer.divideScalar(neighbourSmoothCount);
     steer.sub(boid.position);
-    steer.clampLength(0, variables.maxForce);
+    steer.multiplyScalar(0.1);
   }
 
   return steer;
@@ -215,9 +223,19 @@ function bounds(boid) {
   if (z < minBound) steer.z = 1;
   else if (z > maxBound) steer.z = -1;
 
-  steer.clampLength(0, variables.maxForce);
+  steer.normalize();
   steer.multiplyScalar(boundBox.boundBox3.distanceToPoint(boid.position)); // smooth
+  // TODO unsmoothness on edge of two axes bounds
 
+  return steer;
+}
+
+function random() {
+  const steer = new THREE.Vector3(
+    Math.random() - 0.5,
+    Math.random() - 0.5,
+    Math.random() - 0.5
+  );
   return steer;
 }
 
