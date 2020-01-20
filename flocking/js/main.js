@@ -2,8 +2,11 @@ var stats, scene, renderer, composer;
 var camera, cameraControls, fishCamera;
 var geom, mat, mesh, axesHelper;
 var fishModel;
+let fishCameraDist = 1,
+  fishCameraFOV = 90;
 
 function init() {
+  21;
   renderer = new THREE.WebGLRenderer({
     antialias: true
   });
@@ -63,22 +66,21 @@ function init() {
     vertexAnimationInit(fishModel);
     fillFrames(fishModel);
     addBoids();
+
+    scene.add(fishCamera);
+    // boids[0].add(fishCamera);
+
+    addBounds();
+    animate();
   });
-
-  scene.add(fishCamera);
-  // boids[0].add(fishCamera);
-
-  addBounds();
-  animate();
 }
 
 let then = Date.now();
 function animate(now) {
   const delta = now - then;
   delta && animateBoids(delta);
+  delta && cameraChase(delta);
   then = now;
-
-  delta && boids[0] && cameraChase(delta);
 
   requestAnimationFrame(animate);
   render();
@@ -86,16 +88,23 @@ function animate(now) {
 }
 
 function cameraChase(delta) {
-  var relativeCameraOffset = new THREE.Vector3(0, 0.8, -2);
+  var relativeCameraOffset = new THREE.Vector3(
+    0,
+    0.8 * fishCameraDist,
+    -2 * fishCameraDist
+  );
+
   var cameraOffset = relativeCameraOffset.applyMatrix4(
-    boids[0].coneMesh.matrixWorld
+    boids[0].meshTypes[0].matrixWorld
   );
 
   fishCamera.position.copy(cameraOffset);
 
   const velClone = boids[0].velocity.clone();
   velClone.add(boids[0].position);
-  velClone.y += 0.6;
+  let yOffset = 0.6;
+  if (fishCameraDist < 1) yOffset *= fishCameraDist;
+  velClone.y += yOffset;
   fishCamera.lookAt(velClone);
 }
 

@@ -1,32 +1,43 @@
 var boids = [];
+var boidTotalCount = 300;
+var boidStartCount = 300;
 
 function addBoids() {
-  for (let i = 0; i < 600; i++) {
-    addBoid([
-      variables.boundSize * Math.random(),
-      variables.boundSize * Math.random(),
-      variables.boundSize * Math.random()
-    ]);
+  for (let i = 0; i < boidTotalCount; i++) {
+    addBoid(
+      [
+        variables.boundSize * Math.random(),
+        variables.boundSize * Math.random(),
+        variables.boundSize * Math.random()
+      ],
+      i
+    );
     // addBoid([0, 0, i * 1]);
   }
   boids[0].subject = true;
+  hideBoids(variables.boidCount);
 }
 
-function addBoid(position) {
+function addBoid(position, index) {
   const boid = new THREE.Group();
+  boid.index = index;
+
   const mat = new THREE.MeshBasicMaterial({ wireframe: true });
+
   const coneGeom = new THREE.ConeGeometry(0.3, 1);
-  const boxGeom = new THREE.BoxGeometry(1, 0.5, 0.25, 4, 2, 1);
   const coneMesh = new THREE.Mesh(coneGeom, mat);
-  const boxMesh = fishModel.clone();
-  boxMesh.geometry = fishModel.geometry.clone();
-
   coneMesh.geometry.rotateX(THREE.Math.degToRad(90));
-
-  boid.coneMesh = coneMesh;
-  boid.boxMesh = boxMesh;
   boid.add(coneMesh);
+
+  const boxGeom = new THREE.BoxGeometry(1, 0.5, 0.25, 4, 2, 1);
+  const boxMesh = new THREE.Mesh(boxGeom, mat);
   boid.add(boxMesh);
+
+  const fishMesh = fishModel.clone();
+  fishMesh.geometry = fishModel.geometry.clone();
+  boid.add(fishMesh);
+
+  boid.meshTypes = [coneMesh, boxMesh, fishMesh];
 
   boid.velocity = new THREE.Vector3(
     Math.random() - 0.5,
@@ -51,20 +62,25 @@ function addBoid(position) {
 
   const velClone = boid.velocity.clone();
   velClone.add(boid.position);
-  // velClone.set(3, 0, 0);
-  coneMesh.lookAt(velClone);
-  boxMesh.lookAt(velClone);
-  boxMesh.rotateY(THREE.Math.degToRad(-90));
 
-  changeGeometry(variables.animateVertices);
-  vertexAnimationInit(boid.boxMesh);
+  // boid.meshTypes.forEach(mesh => {
+  //   mesh.lookAt(velClone)
+  // });
+  // coneMesh.lookAt(velClone);
+  // boxMesh.lookAt(velClone);
+  // boxMesh.rotateY(THREE.Math.degToRad(-90));
+
+  changeMesh(variables.meshType);
+  vertexAnimationInit(boid.meshTypes[1]);
+  vertexAnimationInit(boid.meshTypes[2]);
 }
 
 function animateBoids(delta) {
   if (delta > 1000) delta = 0; // when tab not open
 
-  boids.forEach(boid => {
-    const { velocity, acceleration, coneMesh, boxMesh, position } = boid;
+  for (let i = 0; i < variables.boidCount; i++) {
+    const boid = boids[i];
+    const { velocity, acceleration, position } = boid;
 
     // boid algorithm
     const sep = separation(boid);
@@ -93,7 +109,7 @@ function animateBoids(delta) {
     acceleration.multiplyScalar(0.05);
 
     if (boid.subject) {
-      boid.coneMesh.material.color.setHex(0x00fff5);
+      boid.meshTypes[0].material.color.setHex(0x00fff5);
       // console.log(ali.length());
       // console.log("sep:", sep.length());
       // console.log("ali:", ali.length());
@@ -103,7 +119,13 @@ function animateBoids(delta) {
       // console.log("");
     }
 
-    const { play, playSpeed, maxVelocity, animateVertices } = variables;
+    const {
+      play,
+      playSpeed,
+      maxVelocity,
+      animateVertices,
+      meshType
+    } = variables;
     if (play && playSpeed !== 0 && maxVelocity !== 0) {
       // console.log(delta);
       // acceleration.multiplyScalar(variables.playSpeed * delta);
@@ -120,31 +142,35 @@ function animateBoids(delta) {
       position.add(velClone);
 
       velClone.add(boid.position);
-      coneMesh.lookAt(velClone);
-      boxMesh.lookAt(velClone);
-      boxMesh.rotateY(THREE.Math.degToRad(-90));
+      const mesh = boid.meshTypes[meshType];
+      boid.meshTypes[0].lookAt(velClone);
+      mesh.lookAt(velClone);
 
-      if (animateVertices) {
-        acceleration.multiplyScalar(playSpeed * delta);
-        vertexAnimation(boid.boxMesh, acceleration);
+      if (meshType > 0) {
+        mesh.rotateY(THREE.Math.degToRad(-90));
+        if (animateVertices && meshType == 2) {
+          acceleration.multiplyScalar(playSpeed * delta);
+          vertexAnimation(mesh, acceleration);
+        }
       }
     }
 
     acceleration.multiplyScalar(0);
-  });
+  }
 }
 
 function separation(boid) {
   const steer = new THREE.Vector3();
 
-  boids.forEach(flockmate => {
+  for (let i = 0; i < variables.boidCount; i++) {
+    const flockmate = boids[i];
     const dist = boid.position.distanceTo(flockmate.position);
     if (dist > 0 && dist < variables.separationDist) {
       const diff = boid.position.clone().sub(flockmate.position);
       diff.setLength(1 - dist / variables.separationDist);
       steer.add(diff);
     }
-  });
+  }
 
   steer.clampLength(0, 1);
   return steer;
@@ -153,14 +179,15 @@ function separation(boid) {
 function alignment(boid) {
   const steer = new THREE.Vector3();
 
-  boids.forEach(flockmate => {
+  for (let i = 0; i < variables.boidCount; i++) {
+    const flockmate = boids[i];
     const dist = boid.position.distanceTo(flockmate.position);
     if (dist > 0 && dist < variables.alignmentDist) {
       const vel = flockmate.velocity.clone();
       vel.setLength(1 - dist / variables.alignmentDist);
       steer.add(vel);
     }
-  });
+  }
 
   steer.clampLength(0, 1);
   return steer;
@@ -170,7 +197,8 @@ function cohesion(boid) {
   const steer = new THREE.Vector3();
   let neighbourCount = 0;
 
-  boids.forEach(flockmate => {
+  for (let i = 0; i < variables.boidCount; i++) {
+    const flockmate = boids[i];
     const dist = boid.position.distanceTo(flockmate.position);
 
     if (dist > 0 && dist < variables.cohesionDist) {
@@ -178,7 +206,7 @@ function cohesion(boid) {
       steer.add(pos);
       neighbourCount++;
     }
-  });
+  }
 
   if (neighbourCount > 0) {
     steer.divideScalar(neighbourCount);
