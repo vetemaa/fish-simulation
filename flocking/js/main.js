@@ -33,8 +33,8 @@ function init() {
     1000
   );
   camera.position.set(1, 1, 5);
-  camera.position.set(94, 48, 60);
   camera.position.set(140, 54, 82);
+  camera.position.set(84, 33, 49);
 
   scene.add(camera);
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -94,7 +94,6 @@ function cameraChase(delta) {
   fishCamera.position.copy(cameraOffset);
 
   const velClone = boids[0].velocity.clone();
-  velClone.multiplyScalar(variables.playSpeed * (delta / 16));
   velClone.add(boids[0].position);
   velClone.y += 0.6;
   fishCamera.lookAt(velClone);

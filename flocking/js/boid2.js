@@ -1,7 +1,7 @@
 var boids = [];
 
 function addBoids() {
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 600; i++) {
     addBoid([
       variables.boundSize * Math.random(),
       variables.boundSize * Math.random(),
@@ -72,14 +72,14 @@ function animateBoids(delta) {
     const coh = cohesion(boid);
     const bnd = bounds(boid);
     const ran = random(boid);
-    sep.multiplyScalar(0.4);
-    ali.multiplyScalar(1.6);
+    sep.multiplyScalar(0.3);
+    ali.multiplyScalar(0.06);
     coh.multiplyScalar(0.08);
     bnd.multiplyScalar(0.01);
     ran.multiplyScalar(1);
-    // acceleration.add(sep);
-    // acceleration.add(ali);
-    // acceleration.add(coh);
+    acceleration.add(sep);
+    acceleration.add(ali);
+    acceleration.add(coh);
     acceleration.add(bnd);
     // acceleration.add(ran);
     if (variables.showVectors) {
@@ -136,52 +136,33 @@ function animateBoids(delta) {
 
 function separation(boid) {
   const steer = new THREE.Vector3();
-  let neighbourCount = 0;
-  let neighbourSmoothCount = 1;
 
   boids.forEach(flockmate => {
     const dist = boid.position.distanceTo(flockmate.position);
-
     if (dist > 0 && dist < variables.separationDist) {
       const diff = boid.position.clone().sub(flockmate.position);
-      diff.multiplyScalar(1 - dist / variables.separationDist); // sujuv kukkumine
+      diff.setLength(1 - dist / variables.separationDist);
       steer.add(diff);
-
-      neighbourCount++;
-      neighbourSmoothCount += 1 - dist / variables.separationDist;
     }
   });
 
-  if (neighbourCount > 0) {
-    // steer.divideScalar(neighbourCount);
-    steer.divideScalar(neighbourSmoothCount);
-    // steer.setLength(variables.maxVelocity);
-    // steer.sub(boid.velocity);
-  }
-
+  steer.clampLength(0, 1);
   return steer;
 }
 
 function alignment(boid) {
   const steer = new THREE.Vector3();
-  let neighbourCount = 0;
 
   boids.forEach(flockmate => {
     const dist = boid.position.distanceTo(flockmate.position);
-
     if (dist > 0 && dist < variables.alignmentDist) {
       const vel = flockmate.velocity.clone();
-      vel.multiplyScalar(1 - dist / variables.alignmentDist); // sujuv kukkumine
-
+      vel.setLength(1 - dist / variables.alignmentDist);
       steer.add(vel);
-      neighbourCount++;
     }
   });
 
-  if (neighbourCount > 0) {
-    steer.divideScalar(neighbourCount);
-  }
-
+  steer.clampLength(0, 1);
   return steer;
 }
 
@@ -194,15 +175,13 @@ function cohesion(boid) {
 
     if (dist > 0 && dist < variables.cohesionDist) {
       const pos = flockmate.position.clone();
-      steer.add(pos); // TODO sujuv kukkumine
+      steer.add(pos);
       neighbourCount++;
-      // neighbourSmoothCount += 1 - dist / variables.separationDist;
     }
   });
 
   if (neighbourCount > 0) {
     steer.divideScalar(neighbourCount);
-    // steer.divideScalar(neighbourSmoothCount);
     steer.sub(boid.position);
     steer.multiplyScalar(0.1);
   }
@@ -243,7 +222,7 @@ function setArrow(arrow, vec) {
   if (vec.length() <= 0) {
     arrow.visible = false;
   } else {
-    const len = vec.length() * 8;
+    const len = vec.length() * 12;
     arrow.setLength(len, 0.1, 0.1);
     arrow.setDirection(vec.clone().normalize());
     arrow.visible = true;

@@ -4,13 +4,13 @@ var boundBox;
 function datGui() {
   var Variables = function() {
     this.play = true;
-    this.playSpeed = 0.1;
+    this.playSpeed = 0.8;
     this.maxVelocity = 0.1;
     this.chaseCamera = false;
     this.separationDist = 2.8;
     this.alignmentDist = 6;
     this.cohesionDist = 8;
-    this.boundSize = 3;
+    this.boundSize = 36;
     this.animateVertices = false;
     this.showVectors = true;
   };
@@ -29,7 +29,7 @@ function datGui() {
   folder4.open();
 
   folder1.add(variables, "play").listen();
-  folder1.add(variables, "playSpeed", 0, 1).step(0.01);
+  folder1.add(variables, "playSpeed", 0, 3).step(0.01);
   folder1.add(variables, "maxVelocity", 0, 1).step(0.01);
   folder1.add(variables, "chaseCamera").listen();
   folder2.add(variables, "separationDist", 0, 10).step(0.1);
