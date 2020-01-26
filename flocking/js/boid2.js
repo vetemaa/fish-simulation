@@ -1,6 +1,6 @@
 var boids = [];
-var boidTotalCount = 300;
-var boidStartCount = 300;
+var boidTotalCount = 1000;
+var boidStartCount = 100;
 
 function addBoids() {
   for (let i = 0; i < boidTotalCount; i++) {
@@ -21,6 +21,7 @@ function addBoids() {
 function addBoid(position, index) {
   const boid = new THREE.Group();
   boid.index = index;
+  boid.ownTime = 0;
 
   const mat = new THREE.MeshBasicMaterial({ wireframe: true });
 
@@ -63,15 +64,7 @@ function addBoid(position, index) {
   const velClone = boid.velocity.clone();
   velClone.add(boid.position);
 
-  // boid.meshTypes.forEach(mesh => {
-  //   mesh.lookAt(velClone)
-  // });
-  // coneMesh.lookAt(velClone);
-  // boxMesh.lookAt(velClone);
-  // boxMesh.rotateY(THREE.Math.degToRad(-90));
-
   changeMesh(variables.meshType);
-  vertexAnimationInit(boid.meshTypes[1]);
   vertexAnimationInit(boid.meshTypes[2]);
 }
 
@@ -82,7 +75,6 @@ function animateBoids(delta) {
     const boid = boids[i];
     const { velocity, acceleration, position } = boid;
 
-    // boid algorithm
     const sep = separation(boid);
     const ali = alignment(boid);
     const coh = cohesion(boid);
@@ -92,15 +84,15 @@ function animateBoids(delta) {
     ali.multiplyScalar(0.06);
     coh.multiplyScalar(0.08);
     bnd.multiplyScalar(0.01);
-    ran.multiplyScalar(1);
+    ran.multiplyScalar(0.08);
     acceleration.add(sep);
     acceleration.add(ali);
     acceleration.add(coh);
     acceleration.add(bnd);
-    // acceleration.add(ran);
+    acceleration.add(ran);
     if (variables.showVectors) {
-      // setArrow(boid.helpArrows[1], ran);
-      setArrow(boid.helpArrows[1], sep);
+      setArrow(boid.helpArrows[1], ran);
+      // setArrow(boid.helpArrows[1], sep);
       setArrow(boid.helpArrows[2], ali);
       setArrow(boid.helpArrows[3], coh);
       setArrow(boid.helpArrows[4], bnd);
@@ -127,29 +119,53 @@ function animateBoids(delta) {
       meshType
     } = variables;
     if (play && playSpeed !== 0 && maxVelocity !== 0) {
-      // console.log(delta);
-      // acceleration.multiplyScalar(variables.playSpeed * delta);
       velocity.add(acceleration);
-
-      // velocity.clampLength(0, variables.maxVelocity);
       if (velocity.length() > maxVelocity) velocity.setLength(maxVelocity);
 
       // velocity.setLength(variables.maxVelocity); // TODO vb asendada hõõrdejõuga ja hõõrdejõu tugevus sõltuvalt cohesion tugevusest :OOOOOOO
       // setArrow(boid.helpArrows[5], velocity);
+      const playDelta = playSpeed * delta;
 
       const velClone = velocity.clone();
-      velClone.multiplyScalar(playSpeed * (delta / 16));
-      position.add(velClone);
+      velClone.multiplyScalar(playDelta / 16);
+
+      // let speed = (simplex.noise2D(boid.ownTime / 1, boid.index) + 1) / 2;
+
+      let speed =
+        (simplex.noise4D(
+          boid.position.x / 1000000,
+          boid.position.y / 1000000,
+          boid.position.z / 1000000,
+          boid.ownTime / 10000
+        ) +
+          1) /
+        2;
+      if (boid.subject) {
+        // console.log(speed);
+        if (speed < 0.2) speed *= speed;
+        // console.log(speed);
+        speed *= 3;
+        // console.log(speed);
+        // console.log("");
+      } else {
+        if (speed < 0.2) speed *= speed;
+        speed *= 3;
+      }
+
+      position.add(velClone.clone().multiplyScalar(speed));
+      // position.add(velClone);
 
       velClone.add(boid.position);
       const mesh = boid.meshTypes[meshType];
       boid.meshTypes[0].lookAt(velClone);
       mesh.lookAt(velClone);
 
+      acceleration.multiplyScalar(playDelta);
+      boid.ownTime += playDelta / 5000;
+
       if (meshType > 0) {
         mesh.rotateY(THREE.Math.degToRad(-90));
         if (animateVertices && meshType == 2) {
-          acceleration.multiplyScalar(playSpeed * delta);
           vertexAnimation(mesh, acceleration);
         }
       }
@@ -237,12 +253,24 @@ function bounds(boid) {
   return steer;
 }
 
-function random() {
+function random(boid) {
+  // const steer = new THREE.Vector3(
+  //   Math.random() - 0.5,
+  //   Math.random() - 0.5,
+  //   Math.random() - 0.5
+  // );
   const steer = new THREE.Vector3(
-    Math.random() - 0.5,
-    Math.random() - 0.5,
-    Math.random() - 0.5
+    simplex.noise2D(boid.ownTime, (boid.index + 1) * 10),
+    simplex.noise2D(boid.ownTime, (boid.index + 1) * 100) / 2,
+    simplex.noise2D(boid.ownTime, (boid.index + 1) * 1000)
   );
+
+  // let speed = (simplex.noise2D(boid.ownTime / 1, boid.index) + 1) / 2;
+  // steer.setLength(speed);
+
+  // if (boid.subject) {
+  //   console.log(steer);
+  // }
   return steer;
 }
 

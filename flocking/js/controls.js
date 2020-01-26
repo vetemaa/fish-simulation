@@ -9,8 +9,8 @@ function datGui() {
     this.maxVelocity = 0.1;
     this.chaseCamera = false;
     this.separationDist = 2.8;
-    this.alignmentDist = 6;
-    this.cohesionDist = 8;
+    this.alignmentDist = 8;
+    this.cohesionDist = 11;
     this.boundSize = 36;
     this.animateVertices = false;
     this.meshType = 0;

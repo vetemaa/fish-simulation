@@ -4,9 +4,9 @@ var geom, mat, mesh, axesHelper;
 var fishModel;
 let fishCameraDist = 1,
   fishCameraFOV = 90;
+var simplex = new SimplexNoise(1);
 
 function init() {
-  21;
   renderer = new THREE.WebGLRenderer({
     antialias: true
   });
@@ -35,8 +35,8 @@ function init() {
     0.1,
     1000
   );
-  camera.position.set(1, 1, 5);
-  camera.position.set(140, 54, 82);
+  // camera.position.set(42, 16, 25);
+  // camera.position.set(140, 54, 82);
   camera.position.set(84, 33, 49);
 
   scene.add(camera);
@@ -45,11 +45,6 @@ function init() {
 
   axesHelper = new THREE.AxesHelper(100);
   scene.add(axesHelper);
-
-  // const mat = new THREE.MeshBasicMaterial({ wireframe: true });
-  // const boxGeom = new THREE.BoxGeometry(1, 0.5, 0.25, 4, 2, 1);
-  // const boxMesh = new THREE.Mesh(boxGeom, mat);
-  // scene.add(boxMesh);
 
   scene.add(new THREE.AmbientLight(0xffffff));
   const loader = new THREE.GLTFLoader();
