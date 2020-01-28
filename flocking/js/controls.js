@@ -5,16 +5,25 @@ function datGui() {
   var Variables = function() {
     this.boidCount = boidStartCount;
     this.play = true;
-    this.playSpeed = 0.8;
-    this.maxVelocity = 0.1;
+    this.playSpeed = 1;
+    this.maxVelocity = 0.02;
     this.chaseCamera = false;
-    this.separationDist = 2.8;
-    this.alignmentDist = 8;
-    this.cohesionDist = 11;
-    this.boundSize = 36;
-    this.animateVertices = false;
-    this.meshType = 0;
-    this.showVectors = true;
+    this.separationDist = 2.4;
+    this.alignmentDist = 6;
+    this.cohesionDist = 8;
+    this.boundSize = 30;
+    this.animateVertices = true;
+    this.meshType = 2;
+    this.showVectors = false;
+    this.showBounds = true;
+    this.separationScalar = 0.6;
+    this.alignmentScalar = 0.08;
+    this.cohesionScalar = 0.1;
+    this.boundsScalar = 0.02;
+    this.randomScalar = 0.08;
+    this.ruleScalar = 0.5;
+    // this.floorScalar = 0.1;
+    this.shuffleBoids = () => shuffleBoids();
   };
 
   variables = new Variables();
@@ -27,17 +36,18 @@ function datGui() {
 
   // folMain.open();
   // folRules.open();
-  folVisual.open();
+  // folVisual.open();
 
   folMain
     .add(variables, "boidCount", 0, boidTotalCount)
     .step(1)
     .onChange(value => hideBoids(value));
   folMain.add(variables, "play").listen();
-  folMain.add(variables, "playSpeed", 0, 3).step(0.01);
-  folMain.add(variables, "maxVelocity", 0, 1).step(0.01);
+  folMain.add(variables, "playSpeed", 0, 10).step(0.01);
+  folMain.add(variables, "maxVelocity", 0, 0.1).step(0.01);
   folMain.add(variables, "chaseCamera").listen();
 
+  folRules.add(variables, "ruleScalar", 0, 1).step(0.01);
   folRules.add(variables, "separationDist", 0, 10).step(0.1);
   folRules.add(variables, "alignmentDist", 0, 100).step(1);
   folRules.add(variables, "cohesionDist", 0, 100).step(1);
@@ -45,10 +55,19 @@ function datGui() {
     .add(variables, "boundSize", 0, 100)
     .step(1)
     .onChange(value => updateBounds(value));
+  folRules.add(variables, "separationScalar", 0, 1).step(0.01);
+  folRules.add(variables, "alignmentScalar", 0, 1).step(0.01);
+  folRules.add(variables, "cohesionScalar", 0, 1).step(0.01);
+  folRules.add(variables, "boundsScalar", 0, 1).step(0.01);
+  folRules.add(variables, "randomScalar", 0, 1).step(0.01);
+  // folRules.add(variables, "floorScalar", 0, 10).step(0.01);
 
   folVisual
     .add(variables, "showVectors")
     .onChange(value => changeVectorVisibility(value));
+  folVisual
+    .add(variables, "showBounds")
+    .onChange(value => (boundBox.visible = value));
   folVisual
     .add(variables, "meshType", { ConeMesh: 0, BoxMesh: 1, FishMesh: 2 })
     .onChange(value => changeMesh(value));
@@ -57,14 +76,27 @@ function datGui() {
   folVertexAnim.add(variables, "animateVertices");
   vertexAnimationGUI(folVertexAnim, variables, gui);
 
+  gui.add(variables, "shuffleBoids");
+
+  gui.domElement.style.opacity = 0.8;
+  gui.__folders.UI.__folders[
+    "Vertex Animation (only FishMesh)"
+  ].domElement.style.opacity = 0.4;
+
   return variables;
 }
 
 function initControls() {
   renderer.domElement.onkeyup = e => {
     if (e.keyCode == 32) variables.play = !variables.play;
-    if (e.keyCode == 49) variables.chaseCamera = true;
-    if (e.keyCode == 50) variables.chaseCamera = false;
+    if (e.keyCode == 49) {
+      variables.chaseCamera = true;
+      scene.fog = new THREE.Fog(backColor, 0.1, 100);
+    }
+    if (e.keyCode == 50) {
+      variables.chaseCamera = false;
+      setFog();
+    }
   };
 
   window.addEventListener(
@@ -82,10 +114,19 @@ function initControls() {
         else if (fishCameraFOV < 30) fishCameraFOV = 30;
         fishCamera.fov = fishCameraFOV;
         fishCamera.updateProjectionMatrix();
-      }
+      } else if (typeof env !== "undefined") setFog();
     },
     true
   );
+}
+
+function setFog() {
+  camDist = camera.position.length();
+  camDist = Math.pow(camDist, 0.96);
+  // console.log(camDist);
+  scene.fog = new THREE.Fog(backColor, -60 + camDist, 480 + camDist);
+  // scene.fog = new THREE.FogExp2(backColor, 0.0035);
+  // scene.fog = new THREE.Fog(backColor, 0 + camDist, 460 + camDist);
 }
 
 function onWindowResize() {
@@ -104,6 +145,21 @@ function hideBoids(boidCount) {
   }
 }
 
+function shuffleBoids() {
+  boids.forEach(boid => {
+    boid.position.set(
+      variables.boundSize * Math.random(),
+      variables.boundSize * Math.random(),
+      variables.boundSize * Math.random()
+    );
+    boid.velocity.set(
+      Math.random() - 0.5,
+      Math.random() - 0.5,
+      Math.random() - 0.5
+    );
+  });
+}
+
 function addBounds() {
   boundBox = new THREE.Group();
 
@@ -114,12 +170,15 @@ function addBounds() {
   box.visible = false;
   boundBox.add(box);
 
-  var helper = new THREE.BoxHelper(boundBox, 0x777777);
+  var helper = new THREE.BoxHelper(boundBox, "#ffffff");
   boundBox.add(helper);
+  helper.material.opacity = 0.25;
+  helper.material.transparent = true;
 
   boundBox.boundBox3 = new THREE.Box3();
 
   scene.add(boundBox);
+  boundBox.visible = variables.showBounds;
   updateBounds(variables.boundSize);
 }
 
@@ -134,14 +193,9 @@ function updateBounds(size) {
 }
 
 function changeMesh(value) {
-  // console.log(variables.meshType);
-
   boids.forEach(boid => {
     boid.meshTypes.forEach(mesh => (mesh.visible = false));
     boid.meshTypes[value].visible = true;
-
-    // boid.coneMesh.visible = !value;
-    // boid.boxMesh.visible = value;
   });
 }
 

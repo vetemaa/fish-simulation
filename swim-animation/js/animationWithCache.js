@@ -86,7 +86,7 @@ function fillFrames(boid) {
 let count = 0;
 function vertexAnimation(boid, acceleration) {
   boid.speedTime += acceleration.length();
-  time = boid.speedTime * vars.speed;
+  time = boid.speedTime * vars.speed * 100;
   time *= animationFrameCount / 6.28;
   time %= animationFrameCount;
 

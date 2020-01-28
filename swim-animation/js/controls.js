@@ -17,13 +17,13 @@ function initDatGui() {
 
 function vertexAnimationGUI(folder, variables) {
   variables["vertexAnimation"] = true;
-  variables["speed"] = 1.2;
+  variables["speed"] = 4;
   variables["undulationWaveLen"] = 1.4;
   variables["masks"] = true;
 
   // folder = gui.addFolder("Vertex animation");
   // folder.add(variables, "vertexAnimation");
-  folder.add(variables, "speed", 0, 3);
+  folder.add(variables, "speed", 0, 10);
   folder.add(variables, "undulationWaveLen", -5, 5).step(0.1);
   folder.add(variables, "masks");
   // folder.open();

@@ -1,5 +1,5 @@
 var boids = [];
-var boidTotalCount = 1000;
+var boidTotalCount = 100;
 var boidStartCount = 100;
 
 function addBoids() {
@@ -57,15 +57,16 @@ function addBoid(position, index) {
     boid.helpArrows.push(arrow);
   });
 
+  // position[1] = noisePlane(position[0], -position[2]);
+
   boid.position.set(...position);
   boids.push(boid);
   scene.add(boid);
 
-  const velClone = boid.velocity.clone();
-  velClone.add(boid.position);
-
   changeMesh(variables.meshType);
   vertexAnimationInit(boid.meshTypes[2]);
+
+  boidDirection(boid.velocity.clone(), boid);
 }
 
 function animateBoids(delta) {
@@ -75,40 +76,46 @@ function animateBoids(delta) {
     const boid = boids[i];
     const { velocity, acceleration, position } = boid;
 
+    // rules = [
+    //   { name: "separation", vector: separation(boid), scalar: 0.3, add: true },
+    //   { name: "alignment", vector: alignment(boid), scalar: 0.06, add: true },
+    //   { name: "cohesion", vector: cohesion(boid), scalar: 0.06, add: true },
+    //   { name: "bounds", vector: bounds(boid), scalar: 0.06, add: true },
+    //   { name: "random", vector: random(boid), scalar: 0.06, add: true },
+    //   { name: "floor", vector: floor(boid), scalar: 0.06, add: true }
+    // ];
+
     const sep = separation(boid);
     const ali = alignment(boid);
     const coh = cohesion(boid);
     const bnd = bounds(boid);
     const ran = random(boid);
-    sep.multiplyScalar(0.3);
-    ali.multiplyScalar(0.06);
-    coh.multiplyScalar(0.08);
-    bnd.multiplyScalar(0.01);
-    ran.multiplyScalar(0.08);
+    const flr = floor(boid);
+    sep.multiplyScalar(variables.separationScalar);
+    ali.multiplyScalar(variables.alignmentScalar);
+    coh.multiplyScalar(variables.cohesionScalar);
+    bnd.multiplyScalar(variables.boundsScalar);
+    ran.multiplyScalar(variables.randomScalar);
     acceleration.add(sep);
     acceleration.add(ali);
     acceleration.add(coh);
     acceleration.add(bnd);
     acceleration.add(ran);
+    acceleration.add(flr);
     if (variables.showVectors) {
-      setArrow(boid.helpArrows[1], ran);
-      // setArrow(boid.helpArrows[1], sep);
+      // setArrow(boid.helpArrows[1], ran);
+      setArrow(boid.helpArrows[1], sep);
       setArrow(boid.helpArrows[2], ali);
       setArrow(boid.helpArrows[3], coh);
       setArrow(boid.helpArrows[4], bnd);
       setArrow(boid.helpArrows[0], acceleration);
     }
-    acceleration.multiplyScalar(0.05);
+    acceleration.multiplyScalar(0.005);
+    acceleration.multiplyScalar(variables.ruleScalar);
+    acceleration.y *= 0.8;
 
     if (boid.subject) {
       boid.meshTypes[0].material.color.setHex(0x00fff5);
-      // console.log(ali.length());
-      // console.log("sep:", sep.length());
-      // console.log("ali:", ali.length());
-      // console.log("coh:", coh.length());
-      // console.log("bnd:", bnd.length());
-      // console.log("acc:", acceleration.length());
-      // console.log("");
     }
 
     const {
@@ -119,15 +126,16 @@ function animateBoids(delta) {
       meshType
     } = variables;
     if (play && playSpeed !== 0 && maxVelocity !== 0) {
-      velocity.add(acceleration);
-      if (velocity.length() > maxVelocity) velocity.setLength(maxVelocity);
+      const playDelta = (playSpeed * delta) / 16;
 
+      acceleration.multiplyScalar(playDelta);
+      velocity.add(acceleration);
+      velocity.setLength(maxVelocity);
       // velocity.setLength(variables.maxVelocity); // TODO vb asendada hõõrdejõuga ja hõõrdejõu tugevus sõltuvalt cohesion tugevusest :OOOOOOO
       // setArrow(boid.helpArrows[5], velocity);
-      const playDelta = playSpeed * delta;
 
       const velClone = velocity.clone();
-      velClone.multiplyScalar(playDelta / 16);
+      velClone.multiplyScalar(playDelta);
 
       // let speed = (simplex.noise2D(boid.ownTime / 1, boid.index) + 1) / 2;
 
@@ -141,37 +149,37 @@ function animateBoids(delta) {
           1) /
         2;
       if (boid.subject) {
-        // console.log(speed);
-        if (speed < 0.2) speed *= speed;
-        // console.log(speed);
+        if (speed < variables.maxVelocity) speed *= speed;
         speed *= 3;
-        // console.log(speed);
-        // console.log("");
       } else {
-        if (speed < 0.2) speed *= speed;
+        if (speed < variables.maxVelocity) speed *= speed;
         speed *= 3;
       }
 
-      position.add(velClone.clone().multiplyScalar(speed));
-      // position.add(velClone);
+      // position.add(velClone.multiplyScalar(speed));
+      position.add(velClone);
 
-      velClone.add(boid.position);
-      const mesh = boid.meshTypes[meshType];
-      boid.meshTypes[0].lookAt(velClone);
-      mesh.lookAt(velClone);
+      boidDirection(velClone, boid);
 
-      acceleration.multiplyScalar(playDelta);
       boid.ownTime += playDelta / 5000;
 
-      if (meshType > 0) {
-        mesh.rotateY(THREE.Math.degToRad(-90));
-        if (animateVertices && meshType == 2) {
-          vertexAnimation(mesh, acceleration);
-        }
+      if (variables.animateVertices && variables.meshType == 2) {
+        vertexAnimation(boid.meshTypes[meshType], acceleration);
       }
     }
 
     acceleration.multiplyScalar(0);
+  }
+}
+
+function boidDirection(velClone, boid) {
+  velClone.add(boid.position);
+  const mesh = boid.meshTypes[variables.meshType];
+  boid.meshTypes[0].lookAt(velClone);
+  mesh.lookAt(velClone);
+
+  if (variables.meshType > 0) {
+    mesh.rotateY(THREE.Math.degToRad(-90));
   }
 }
 
@@ -230,6 +238,8 @@ function cohesion(boid) {
     steer.multiplyScalar(0.1);
   }
 
+  // steer.y = -1;
+
   return steer;
 }
 
@@ -249,6 +259,26 @@ function bounds(boid) {
   steer.normalize();
   steer.multiplyScalar(boundBox.boundBox3.distanceToPoint(boid.position)); // smooth
   // TODO unsmoothness on edge of two axes bounds
+
+  return steer;
+}
+
+function floor(boid) {
+  const floorDist = 5;
+  const steer = new THREE.Vector3();
+
+  if (typeof env !== "undefined") {
+    const x = boid.position.x;
+    const z = boid.position.z;
+    const y = boid.position.y;
+    const floorY = noisePlane(x, -z);
+
+    if (floorY + floorDist > y) {
+      steerY = (floorDist - (y - floorY)) / floorDist;
+      steerY = Math.pow(steerY, 2);
+      steer.y = steerY;
+    }
+  }
 
   return steer;
 }

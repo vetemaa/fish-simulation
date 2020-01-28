@@ -27,7 +27,9 @@ function init() {
 
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
 
-  scene.add(new THREE.AmbientLight(0xffffff));
+  scene.add(new THREE.DirectionalLight(0xffffff, 0.3));
+  scene.add(new THREE.AmbientLight(0xffffff, 1));
+
   const loader = new THREE.GLTFLoader();
   loader.load("../../flocking/tang.glb", gltf => {
     fishModel = gltf.scene.children[0];
@@ -80,7 +82,7 @@ let then = Date.now();
 function animate(now) {
   const delta = now - then;
   delta && colorVert(mesh);
-  const testVec = new THREE.Vector3(0.003 * delta, 0, 0);
+  const testVec = new THREE.Vector3(0.0005 * delta, 0, 0);
   delta && vertexAnimation(mesh, testVec);
   // delta && vertexAnimationOld(delta, mesh, new THREE.Vector3(0.001, 0, 0));
   then = now;
@@ -92,9 +94,9 @@ function animate(now) {
 
 function colorVert(mesh) {
   if (!currentMask || !vars.masks) {
-    mesh.material = new THREE.MeshNormalMaterial({});
-    mesh.geometry.elementsNeedUpdate = true;
-    mesh.geometry.normalsNeedUpdate = true;
+    // mesh.material = new THREE.MeshNormalMaterial({});
+    // mesh.geometry.elementsNeedUpdate = true;
+    // mesh.geometry.normalsNeedUpdate = true;
     return;
   }
 

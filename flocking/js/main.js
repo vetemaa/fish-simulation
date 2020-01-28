@@ -5,12 +5,13 @@ var fishModel;
 let fishCameraDist = 1,
   fishCameraFOV = 90;
 var simplex = new SimplexNoise(1);
+const backColor = "#111";
 
 function init() {
   renderer = new THREE.WebGLRenderer({
     antialias: true
   });
-  renderer.setClearColor("#111");
+  renderer.setClearColor(backColor);
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.getElementById("container").appendChild(renderer.domElement);
 
@@ -42,11 +43,15 @@ function init() {
   scene.add(camera);
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
   cameraControls.rotateSpeed = 0.2;
+  cameraControls.maxDistance = 300;
+  cameraControls.minDistance = 1;
 
   axesHelper = new THREE.AxesHelper(100);
   scene.add(axesHelper);
 
-  scene.add(new THREE.AmbientLight(0xffffff));
+  // scene.add(new THREE.DirectionalLight(0xffffff, 0.2));
+  scene.add(new THREE.AmbientLight(0xffffff, 1));
+
   const loader = new THREE.GLTFLoader();
 
   loader.load("tang.glb", gltf => {
@@ -73,8 +78,10 @@ function init() {
 let then = Date.now();
 function animate(now) {
   const delta = now - then;
-  delta && animateBoids(delta);
-  delta && cameraChase(delta);
+  if (delta && variables.play) {
+    animateBoids(delta);
+    cameraChase(delta);
+  }
   then = now;
 
   requestAnimationFrame(animate);
