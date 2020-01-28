@@ -141,23 +141,26 @@ function animateBoids(delta) {
 
       let speed =
         (simplex.noise4D(
-          boid.position.x / 1000000,
-          boid.position.y / 1000000,
-          boid.position.z / 1000000,
-          boid.ownTime / 10000
+          boid.position.x * 0.2,
+          boid.position.y * 0.2,
+          boid.position.z * 0.2,
+          boid.ownTime * 0.01
         ) +
           1) /
         2;
-      if (boid.subject) {
-        if (speed < variables.maxVelocity) speed *= speed;
-        speed *= 3;
-      } else {
-        if (speed < variables.maxVelocity) speed *= speed;
-        speed *= 3;
-      }
 
-      // position.add(velClone.multiplyScalar(speed));
-      position.add(velClone);
+      // speed *= speed;
+      if (speed < variables.randomSpeedMin) speed = variables.randomSpeedMin;
+
+      // if (boid.subject) {
+      //   console.log(
+      //     "-".repeat(10 * speed) + "#" + "-".repeat(10 * (1 - speed)),
+      //     speed
+      //   );
+      // }
+      // if (boid.subject) console.log(speed * 2);
+      position.add(velClone.multiplyScalar(speed * 2));
+      // position.add(velClone);
 
       boidDirection(velClone, boid);
 

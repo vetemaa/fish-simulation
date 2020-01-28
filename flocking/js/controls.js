@@ -6,21 +6,22 @@ function datGui() {
     this.boidCount = boidStartCount;
     this.play = true;
     this.playSpeed = 1;
-    this.maxVelocity = 0.02;
+    this.maxVelocity = 0.03;
     this.chaseCamera = false;
     this.separationDist = 2.4;
     this.alignmentDist = 6;
     this.cohesionDist = 8;
     this.boundSize = 30;
     this.animateVertices = true;
-    this.meshType = 2;
+    this.meshType = 0;
     this.showVectors = false;
     this.showBounds = true;
     this.separationScalar = 0.6;
     this.alignmentScalar = 0.08;
-    this.cohesionScalar = 0.1;
+    this.cohesionScalar = 0.12;
     this.boundsScalar = 0.02;
     this.randomScalar = 0.08;
+    this.randomSpeedMin = 0.3;
     this.ruleScalar = 0.5;
     // this.floorScalar = 0.1;
     this.shuffleBoids = () => shuffleBoids();
@@ -45,22 +46,34 @@ function datGui() {
   folMain.add(variables, "play").listen();
   folMain.add(variables, "playSpeed", 0, 10).step(0.01);
   folMain.add(variables, "maxVelocity", 0, 0.1).step(0.01);
-  folMain.add(variables, "chaseCamera").listen();
+  folMain
+    .add(variables, "chaseCamera")
+    .listen()
+    .onChange(value => {
+      changeCamera(value);
+    });
 
   folRules.add(variables, "ruleScalar", 0, 1).step(0.01);
-  folRules.add(variables, "separationDist", 0, 10).step(0.1);
-  folRules.add(variables, "alignmentDist", 0, 100).step(1);
-  folRules.add(variables, "cohesionDist", 0, 100).step(1);
+
+  folWeights = folRules.addFolder("Rule Weights");
+  folWeights.open();
+  folWeights.add(variables, "separationScalar", 0, 1).step(0.01);
+  folWeights.add(variables, "alignmentScalar", 0, 1).step(0.01);
+  folWeights.add(variables, "cohesionScalar", 0, 1).step(0.01);
+  folWeights.add(variables, "boundsScalar", 0, 1).step(0.01);
+  folWeights.add(variables, "randomScalar", 0, 1).step(0.01);
+  // folRules.add(variables, "floorScalar", 0, 10).step(0.01);
+
+  folDists = folRules.addFolder("Rule Distances");
+  folDists.open();
+  folDists.add(variables, "separationDist", 0, 10).step(0.1);
+  folDists.add(variables, "alignmentDist", 0, 100).step(1);
+  folDists.add(variables, "cohesionDist", 0, 100).step(1);
   folRules
     .add(variables, "boundSize", 0, 100)
     .step(1)
     .onChange(value => updateBounds(value));
-  folRules.add(variables, "separationScalar", 0, 1).step(0.01);
-  folRules.add(variables, "alignmentScalar", 0, 1).step(0.01);
-  folRules.add(variables, "cohesionScalar", 0, 1).step(0.01);
-  folRules.add(variables, "boundsScalar", 0, 1).step(0.01);
-  folRules.add(variables, "randomScalar", 0, 1).step(0.01);
-  // folRules.add(variables, "floorScalar", 0, 10).step(0.01);
+  folRules.add(variables, "randomSpeedMin", 0, 1).step(0.01);
 
   folVisual
     .add(variables, "showVectors")
@@ -86,16 +99,24 @@ function datGui() {
   return variables;
 }
 
+function changeCamera(chaseCamera) {
+  if (chaseCamera) {
+    variables.chaseCamera = true;
+    scene.fog = new THREE.Fog(backColor, 0.1, 100);
+  } else {
+    variables.chaseCamera = false;
+    setFog();
+  }
+}
+
 function initControls() {
   renderer.domElement.onkeyup = e => {
     if (e.keyCode == 32) variables.play = !variables.play;
     if (e.keyCode == 49) {
-      variables.chaseCamera = true;
-      scene.fog = new THREE.Fog(backColor, 0.1, 100);
+      changeCamera(true);
     }
     if (e.keyCode == 50) {
-      variables.chaseCamera = false;
-      setFog();
+      changeCamera(false);
     }
   };
 
