@@ -39,7 +39,8 @@ function init() {
   );
   // camera.position.set(42, 16, 25);
   // camera.position.set(140, 54, 82);
-  camera.position.set(84, 33, 49);
+  // camera.position.set(84, 33, 49);
+  camera.position.set(160, 60, 93);
 
   scene.add(camera);
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
