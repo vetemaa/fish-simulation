@@ -7,6 +7,10 @@ let fishCameraDist = 1,
 var simplex = new SimplexNoise(1);
 const backColor = "#111";
 
+var boids = [];
+var boidTotalCount = 500;
+var boidStartCount = 500;
+
 function init() {
   renderer = new THREE.WebGLRenderer({
     antialias: true
@@ -61,7 +65,7 @@ function init() {
 let then = Date.now();
 function animate(now) {
   const delta = now - then;
-  if (delta && variables.play) {
+  if (delta && vars.play) {
     animateBoids(delta);
     cameraChase(delta);
   }
@@ -96,6 +100,6 @@ function cameraChase(delta) {
 function render() {
   cameraControls.update();
 
-  if (variables.chaseCamera) renderer.render(scene, fishCamera);
+  if (vars.chaseCamera) renderer.render(scene, fishCamera);
   else renderer.render(scene, camera);
 }

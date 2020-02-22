@@ -2,7 +2,7 @@ var folders = [];
 var boundBox;
 
 function datGui() {
-  var Variables = function() {
+  var vars = function() {
     this.boidCount = boidStartCount;
     this.play = true;
     this.playSpeed = 10;
@@ -26,7 +26,7 @@ function datGui() {
     this.shuffleBoids = () => shuffleBoids();
   };
 
-  variables = new Variables();
+  vars = new vars();
   gui = new dat.GUI();
   gui.width = 333;
 
@@ -39,71 +39,71 @@ function datGui() {
   // folVisual.open();
 
   folMain
-    .add(variables, "boidCount", 0, boidTotalCount)
+    .add(vars, "boidCount", 0, boidTotalCount)
     .step(1)
     .onChange(value => hideBoids(value));
-  folMain.add(variables, "play").listen();
-  folMain.add(variables, "playSpeed", 0, 10).step(0.01);
-  folMain.add(variables, "maxVelocity", 0, 0.1).step(0.01);
+  folMain.add(vars, "play").listen();
+  folMain.add(vars, "playSpeed", 0, 10).step(0.01);
+  folMain.add(vars, "maxVelocity", 0, 0.1).step(0.01);
   folMain
-    .add(variables, "chaseCamera")
+    .add(vars, "chaseCamera")
     .listen()
     .onChange(value => {
       changeCamera(value);
     });
 
-  folRules.add(variables, "ruleScalar", 0, 1).step(0.01);
+  folRules.add(vars, "ruleScalar", 0, 1).step(0.01);
 
   folWeights = folRules.addFolder("Rule Weights");
   folWeights.open();
-  folWeights.add(variables, "separationScalar", 0, 1).step(0.01);
-  folWeights.add(variables, "alignmentScalar", 0, 1).step(0.01);
-  folWeights.add(variables, "cohesionScalar", 0, 1).step(0.01);
-  folWeights.add(variables, "boundsScalar", 0, 1).step(0.01);
-  folWeights.add(variables, "randomScalar", 0, 1).step(0.01);
-  // folRules.add(variables, "floorScalar", 0, 10).step(0.01);
+  folWeights.add(vars, "separationScalar", 0, 1).step(0.01);
+  folWeights.add(vars, "alignmentScalar", 0, 1).step(0.01);
+  folWeights.add(vars, "cohesionScalar", 0, 1).step(0.01);
+  folWeights.add(vars, "boundsScalar", 0, 1).step(0.01);
+  folWeights.add(vars, "randomScalar", 0, 1).step(0.01);
+  // folRules.add(vars, "floorScalar", 0, 10).step(0.01);
 
   folDists = folRules.addFolder("Rule Distances");
   folDists.open();
-  folDists.add(variables, "separationDist", 0, 10).step(0.1);
-  folDists.add(variables, "alignmentDist", 0, 100).step(1);
-  folDists.add(variables, "cohesionDist", 0, 100).step(1);
+  folDists.add(vars, "separationDist", 0, 10).step(0.1);
+  folDists.add(vars, "alignmentDist", 0, 100).step(1);
+  folDists.add(vars, "cohesionDist", 0, 100).step(1);
   folRules
-    .add(variables, "boundSize", 0, 100)
+    .add(vars, "boundSize", 0, 100)
     .step(1)
     .onChange(value => updateBounds(value));
-  folRules.add(variables, "randomSpeedMin", 0, 1).step(0.01);
+  folRules.add(vars, "randomSpeedMin", 0, 1).step(0.01);
 
   folVisual
-    .add(variables, "showVectors")
+    .add(vars, "showVectors")
     .onChange(value => changeVectorVisibility(value));
   folVisual
-    .add(variables, "showBounds")
+    .add(vars, "showBounds")
     .onChange(value => (boundBox.visible = value));
 
   folVertexAnim = folVisual.addFolder("Vertex Animation (only FishMesh)");
-  folVertexAnim.add(variables, "animateVertices");
+  folVertexAnim.add(vars, "animateVertices");
 
-  gui.add(variables, "shuffleBoids");
+  gui.add(vars, "shuffleBoids");
 
   gui.domElement.style.opacity = 0.8;
 
-  return variables;
+  return vars;
 }
 
 function changeCamera(chaseCamera) {
   if (chaseCamera) {
-    variables.chaseCamera = true;
+    vars.chaseCamera = true;
     scene.fog = new THREE.Fog(backColor, 0.1, 100);
   } else {
-    variables.chaseCamera = false;
+    vars.chaseCamera = false;
     setFog();
   }
 }
 
 function initControls() {
   renderer.domElement.onkeyup = e => {
-    if (e.keyCode == 32) variables.play = !variables.play;
+    if (e.keyCode == 32) vars.play = !vars.play;
     if (e.keyCode == 49) {
       changeCamera(true);
     }
@@ -115,7 +115,7 @@ function initControls() {
   window.addEventListener(
     "mousewheel",
     e => {
-      if (variables.chaseCamera) {
+      if (vars.chaseCamera) {
         if (e.deltaY > 0) fishCameraDist += 0.1;
         else if (e.deltaY < 0 && fishCameraDist > 0.1) fishCameraDist -= 0.1;
         if (fishCameraDist < 0.1) boids[0].visible = false;
@@ -161,9 +161,9 @@ function hideBoids(boidCount) {
 function shuffleBoids() {
   boids.forEach(boid => {
     boid.position.set(
-      variables.boundSize * Math.random(),
-      variables.boundSize * Math.random(),
-      variables.boundSize * Math.random()
+      vars.boundSize * Math.random(),
+      vars.boundSize * Math.random(),
+      vars.boundSize * Math.random()
     );
     boid.velocity.set(
       Math.random() - 0.5,
@@ -191,8 +191,8 @@ function addBounds() {
   boundBox.boundBox3 = new THREE.Box3();
 
   scene.add(boundBox);
-  boundBox.visible = variables.showBounds;
-  updateBounds(variables.boundSize);
+  boundBox.visible = vars.showBounds;
+  updateBounds(vars.boundSize);
 }
 
 function updateBounds(size) {
@@ -201,7 +201,7 @@ function updateBounds(size) {
   boundBox.position.set(pos, pos, pos);
 
   boundBox.boundBox3.setFromObject(boundBox);
-  const target = variables.boundSize / 2;
+  const target = vars.boundSize / 2;
   cameraControls.target.set(target, target / 1.26, target);
 }
 
@@ -214,8 +214,9 @@ function changeMesh(value) {
 
 function changeVectorVisibility(value) {
   boids.forEach(boid => {
-    boid.helpArrows.forEach(arrow => {
-      arrow.visible = value;
-    });
+    // boid.helpArrows.forEach(arrow => {
+    //   arrow.visible = value;
+    // });
+    boid.helpArrows.visible = value;
   });
 }
