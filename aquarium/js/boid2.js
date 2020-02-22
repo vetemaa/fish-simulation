@@ -1,6 +1,6 @@
 var boids = [];
-var boidTotalCount = 1000;
-var boidStartCount = 1000;
+var boidTotalCount = 500;
+var boidStartCount = 500;
 
 function addBoids() {
   for (let i = 0; i < boidTotalCount; i++) {
@@ -29,7 +29,16 @@ function addBoid(position, index) {
   const coneMesh = new THREE.Mesh(coneGeom, mat);
   coneMesh.geometry.rotateX(THREE.Math.degToRad(90));
   boid.add(coneMesh);
-  boid.mesh = coneMesh;
+
+  const boxGeom = new THREE.BoxBufferGeometry(1, 0.5, 0.25, 4, 2, 1);
+  const boxMesh = new THREE.Mesh(boxGeom, mat);
+  boid.add(boxMesh);
+
+  const fishMesh = fishModel.clone();
+  fishMesh.geometry = fishModel.geometry.clone();
+  boid.add(fishMesh);
+
+  boid.meshTypes = [coneMesh, boxMesh, fishMesh];
 
   boid.velocity = new THREE.Vector3(
     Math.random() - 0.5,
@@ -48,9 +57,14 @@ function addBoid(position, index) {
     boid.helpArrows.push(arrow);
   });
 
+  // position[1] = noisePlane(position[0], -position[2]);
+
   boid.position.set(...position);
   boids.push(boid);
   scene.add(boid);
+
+  changeMesh(variables.meshType);
+  vertexAnimationInit(boid.meshTypes[2]);
 
   boidDirection(boid.velocity.clone(), boid);
 }
@@ -78,11 +92,11 @@ function animateBoids(delta) {
     acceleration.add(ran);
     acceleration.add(flr);
     if (variables.showVectors) {
+      // setArrow(boid.helpArrows[1], ran);
       setArrow(boid.helpArrows[1], sep);
       setArrow(boid.helpArrows[2], ali);
       setArrow(boid.helpArrows[3], coh);
       setArrow(boid.helpArrows[4], bnd);
-      // setArrow(boid.helpArrows[4], ran);
       setArrow(boid.helpArrows[0], acceleration);
     }
     acceleration.multiplyScalar(0.005);
@@ -90,7 +104,7 @@ function animateBoids(delta) {
     acceleration.y *= 0.8;
 
     if (boid.subject) {
-      boid.mesh.material.color.setHex(0x00fff5);
+      boid.meshTypes[0].material.color.setHex(0x00fff5);
     }
 
     const { play, playSpeed, maxVelocity, meshType } = variables;
@@ -144,7 +158,13 @@ function animateBoids(delta) {
 
 function boidDirection(velClone, boid) {
   velClone.add(boid.position);
-  boid.mesh.lookAt(velClone);
+  const mesh = boid.meshTypes[variables.meshType];
+  boid.meshTypes[0].lookAt(velClone);
+  mesh.lookAt(velClone);
+
+  if (variables.meshType > 0) {
+    mesh.rotateY(THREE.Math.degToRad(-90));
+  }
 }
 
 function rules(boid) {

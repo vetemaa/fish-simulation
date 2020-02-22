@@ -31,7 +31,7 @@ function init() {
   scene.add(new THREE.AmbientLight(0xffffff, 1));
 
   const loader = new THREE.GLTFLoader();
-  loader.load("../../flocking/tang.glb", gltf => {
+  loader.load("tang.glb", gltf => {
     fishModel = gltf.scene.children[0];
     fishModel.position.set(0, 0, 0);
     fishModel.scale.set(1, 1, 1);

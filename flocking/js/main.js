@@ -50,30 +50,12 @@ function init() {
   axesHelper = new THREE.AxesHelper(100);
   scene.add(axesHelper);
 
-  // scene.add(new THREE.DirectionalLight(0xffffff, 0.2));
-  scene.add(new THREE.AmbientLight(0xffffff, 1));
+  addBoids();
 
-  const loader = new THREE.GLTFLoader();
+  scene.add(fishCamera);
 
-  loader.load("tang.glb", gltf => {
-    fishModel = gltf.scene.children[0];
-    fishModel.position.set(0, 0, 0);
-    fishModel.scale.set(1, 1, 1);
-
-    fishModel.geometry = new THREE.Geometry().fromBufferGeometry(
-      fishModel.geometry
-    );
-
-    vertexAnimationInit(fishModel);
-    fillFrames(fishModel);
-    addBoids();
-
-    scene.add(fishCamera);
-    // boids[0].add(fishCamera);
-
-    addBounds();
-    animate();
-  });
+  addBounds();
+  animate();
 }
 
 let then = Date.now();
@@ -98,7 +80,7 @@ function cameraChase(delta) {
   );
 
   var cameraOffset = relativeCameraOffset.applyMatrix4(
-    boids[0].meshTypes[0].matrixWorld
+    boids[0].mesh.matrixWorld
   );
 
   fishCamera.position.copy(cameraOffset);

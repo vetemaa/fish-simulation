@@ -5,14 +5,15 @@ function datGui() {
   var Variables = function() {
     this.boidCount = boidStartCount;
     this.play = true;
-    this.playSpeed = 10;
+    this.playSpeed = 1;
     this.maxVelocity = 0.03;
     this.chaseCamera = false;
     this.separationDist = 2.4;
     this.alignmentDist = 8;
     this.cohesionDist = 12;
-    this.boundSize = 60;
+    this.boundSize = 36;
     this.animateVertices = true;
+    this.meshType = 2;
     this.showVectors = false;
     this.showBounds = true;
     this.separationScalar = 0.34;
@@ -80,13 +81,20 @@ function datGui() {
   folVisual
     .add(variables, "showBounds")
     .onChange(value => (boundBox.visible = value));
+  folVisual
+    .add(variables, "meshType", { ConeMesh: 0, BoxMesh: 1, FishMesh: 2 })
+    .onChange(value => changeMesh(value));
 
   folVertexAnim = folVisual.addFolder("Vertex Animation (only FishMesh)");
   folVertexAnim.add(variables, "animateVertices");
+  vertexAnimationGUI(folVertexAnim, variables, gui);
 
   gui.add(variables, "shuffleBoids");
 
   gui.domElement.style.opacity = 0.8;
+  gui.__folders.UI.__folders[
+    "Vertex Animation (only FishMesh)"
+  ].domElement.style.opacity = 0.4;
 
   return variables;
 }

@@ -12,7 +12,7 @@ function vertexAnimation(boid, acceleration) {
   boid.speedTime += acceleration.length();
   time = boid.speedTime;
   time *= vars.speed;
-  time %= Math.PI * 2; // animatsiooni soovi korral salvestamiseks
+  time %= Math.PI * 2;
 
   // let oscillation = Math.sin(time + Math.PI * 0.5);
   let s2sOscillation = Math.sin(time + THREE.Math.degToRad(vars.s2sOffset));
