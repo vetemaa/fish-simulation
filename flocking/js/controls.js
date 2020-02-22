@@ -81,8 +81,8 @@ function datGui() {
     .add(vars, "showBounds")
     .onChange(value => (boundBox.visible = value));
 
-  folVertexAnim = folVisual.addFolder("Vertex Animation (only FishMesh)");
-  folVertexAnim.add(vars, "animateVertices");
+  // folVertexAnim = folVisual.addFolder("Vertex Animation (only FishMesh)");
+  // folVertexAnim.add(vars, "animateVertices");
 
   gui.add(vars, "shuffleBoids");
 

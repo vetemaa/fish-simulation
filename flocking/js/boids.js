@@ -1,15 +1,9 @@
 function addBoids() {
+  const { boundSize } = vars;
   for (let i = 0; i < boidTotalCount; i++) {
-    addBoid(
-      [
-        vars.boundSize * Math.random(),
-        vars.boundSize * Math.random(),
-        vars.boundSize * Math.random()
-      ],
-      i
-    );
-    // addBoid([0, 0, i * 1]);
+    addBoid([boundSize / 2, boundSize / 2, boundSize / 2], i);
   }
+  // shuffleBoids();
   boids[0].subject = true;
   hideBoids(vars.boidCount);
 }
@@ -38,7 +32,9 @@ function addBoid(position, index) {
   helpArrows.visible = vars.showVectors;
   boid.helpArrows = helpArrows;
   boid.add(helpArrows);
-  [0xffffff, 0xff9999, 0x99ff99, 0x9999ff, 0xf6ff99, 0x00fff5].forEach(
+  // [0xff9999, 0x99ff99, 0x9999ff, 0xf6ff99, 0x00fff5, 0xffffff].forEach(
+  // green, red, indigo, yellow, orange, grey
+  [0x66bb6a, 0xe57373, 0x5c6bc0, 0xdce775, 0xffb74d, 0xbdbdbd].forEach(
     color => {
       const arrow = new THREE.ArrowHelper();
       arrow.setColor(color);
@@ -70,7 +66,7 @@ function animateBoids(delta) {
       { vec: ali, enabled: 1, arr: 0, scalar: vars.alignmentScalar },
       { vec: coh, enabled: 1, arr: 0, scalar: vars.cohesionScalar },
       { vec: bnd, enabled: 1, arr: 0, scalar: vars.boundsScalar },
-      { vec: ran, enabled: 1, arr: 0, scalar: vars.randomScalar },
+      { vec: ran, enabled: 1, arr: 1, scalar: vars.randomScalar },
       { vec: flr, enabled: 1, arr: 0, scalar: null }
     ];
     for (let i = 0; i < rules.length; i++) {
@@ -78,6 +74,10 @@ function animateBoids(delta) {
       rule.scalar && rule.vec.multiplyScalar(rule.scalar);
       rule.enabled && acceleration.add(rule.vec);
       rule.arr && setArrow(boid.helpArrows.children[i], rule.vec);
+
+      if (boid.subject) {
+        // console.log(rule.vec);
+      }
     }
 
     acceleration.multiplyScalar(0.005);
@@ -95,35 +95,12 @@ function animateBoids(delta) {
       acceleration.multiplyScalar(playDelta);
       velocity.add(acceleration);
       velocity.setLength(maxVelocity);
-      // velocity.setLength(vars.maxVelocity); // TODO vb asendada hõõrdejõuga ja hõõrdejõu tugevus sõltuvalt cohesion tugevusest :OOOOOOO
-      // setArrow(boid.helpArrows[5], velocity);
+      // TODO vb asendada hõõrdejõuga ja
+      // hõõrdejõu tugevus sõltuvalt cohesion tugevusest :O
 
       const velClone = velocity.clone();
       velClone.multiplyScalar(playDelta);
 
-      // let speed = (simplex.noise2D(boid.ownTime / 1, boid.index) + 1) / 2;
-
-      // let speed =
-      //   (simplex.noise4D(
-      //     boid.position.x * 0.2,
-      //     boid.position.y * 0.2,
-      //     boid.position.z * 0.2,
-      //     boid.ownTime * 0.01
-      //   ) +
-      //     1) /
-      //   2;
-
-      // if (vars.randomSpeedMin !== 1) {
-      //   if (speed < vars.randomSpeedMin) speed = vars.randomSpeedMin;
-      //   position.add(velClone.multiplyScalar(speed * 2));
-      //   // if (boid.subject)
-      //   //   console.log(
-      //   //     "-".repeat(10 * speed) + "#" + "-".repeat(10 * (1 - speed)),
-      //   //     speed
-      //   //   );
-      // } else {
-      //   position.add(velClone);
-      // }
       position.add(velClone);
 
       boidDirection(velClone, boid);
