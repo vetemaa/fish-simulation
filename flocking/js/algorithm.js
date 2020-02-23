@@ -1,11 +1,23 @@
-function reynolds(boid) {
+function reynolds(boid, flockmates, flockmateCount) {
+  // if (!predator) {
+  //   flockmates = boids;
+  //   flockmateCount = vars.boidCount;
+  //   separationDist = vars.separationDist;
+  // } else {
+  //   flockmates = predators;
+  //   flockmateCount = vars.predatorCount;
+  //   separationDist = vars.separationDist_p;
+  // }
+  // alignmentDist = vars.alignmentDist;
+  // cohesionDist = vars.cohesionDist;
+
   const sep = new THREE.Vector3();
   const ali = new THREE.Vector3();
   const coh = new THREE.Vector3();
   let cohNeighbours = 0;
 
-  for (let i = 0; i < vars.boidCount; i++) {
-    const flockmate = boids[i];
+  for (let i = 0; i < flockmateCount; i++) {
+    const flockmate = flockmates[i];
     const dist = boid.position.distanceTo(flockmate.position);
 
     if (boid.index !== flockmate.index) {
@@ -44,6 +56,90 @@ function reynolds(boid) {
   return { ali, sep, coh };
 }
 
+function escape(boid, predators, predatorCount) {
+  const steer = new THREE.Vector3();
+
+  for (let i = 0; i < predatorCount; i++) {
+    const predator = predators[i];
+    const dist = boid.position.distanceTo(predator.position);
+
+    if (dist < vars.escapeDist) {
+      // if (boid.subject) console.log("aa");
+      const diff = boid.position.clone().sub(predator.position);
+      diff.setLength(1 - dist / vars.escapeDist);
+      steer.add(diff);
+    }
+  }
+
+  steer.clampLength(0, 1);
+
+  return steer;
+}
+
+function attack(boid, prey, preyCount) {
+  const steer = new THREE.Vector3();
+
+  // TODO otsi lähim ja vali uus siis kui on x ühikut lähemal kui eelmine
+
+  let closestPrey;
+  let closestDist = Infinity;
+
+  for (let i = 0; i < preyCount; i++) {
+    const singlePrey = prey[i];
+    const dist = boid.position.distanceTo(singlePrey.position);
+
+    if (dist < closestDist) {
+      closestDist = dist;
+      closestPrey = singlePrey;
+    }
+  }
+
+  if (closestDist < vars.attackDist) {
+    steer.add(closestPrey.position);
+    steer.sub(boid.position);
+    steer.multiplyScalar(0.1);
+
+    boid.preyIndex = closestPrey.index;
+
+    return steer;
+  } else {
+    boid.preyIndex = null;
+  }
+
+  // if (boid.preyIndex) {
+  //   const selectedPrey = prey[boid.preyIndex];
+  //   const selectedPreyDist = boid.position.distanceTo(selectedPrey.position);
+
+  //   if (selectedPreyDist < vars.attackDist) {
+
+  //   } else {
+  //     selectedPrey = null;
+  //   }
+  // }
+
+  // if (boid.preyIndex) {
+  //   const singlePrey = prey[boid.preyIndex];
+  //   const dist = boid.position.distanceTo(singlePrey.position);
+
+  //   if (dist < vars.attackDist) {
+  //     steer.add(singlePrey.position);
+  //     steer.sub(boid.position);
+  //     steer.multiplyScalar(0.1);
+  //     return steer;
+  //   } else {
+  //     boid.preyIndex = null;
+  //   }
+  // }
+
+  // for (let i = 0; i < preyCount; i++) {
+  //   const singlePrey = prey[i]; // TODO find closest
+  //   const dist = boid.position.distanceTo(singlePrey.position);
+  //   if (dist < vars.attackDist) boid.preyIndex = singlePrey.index;
+  // }
+
+  return steer;
+}
+
 function bounds(boid) {
   const minBound = 0;
   const maxBound = vars.boundSize;
@@ -60,26 +156,6 @@ function bounds(boid) {
   steer.normalize();
   steer.multiplyScalar(boundBox.boundBox3.distanceToPoint(boid.position)); // smooth
   // TODO unsmooth on edge of two axes bounds
-
-  return steer;
-}
-
-function floor(boid) {
-  const floorDist = 5;
-  const steer = new THREE.Vector3();
-
-  if (typeof env !== "undefined") {
-    const x = boid.position.x;
-    const z = boid.position.z;
-    const y = boid.position.y;
-    const floorY = noisePlane(x, -z);
-
-    if (floorY + floorDist > y) {
-      steerY = (floorDist - (y - floorY)) / floorDist;
-      steerY = Math.pow(steerY, 2);
-      steer.y = steerY;
-    }
-  }
 
   return steer;
 }

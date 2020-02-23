@@ -2,14 +2,17 @@ var stats, scene, renderer, composer;
 var camera, cameraControls, fishCamera;
 var geom, mat, mesh, axesHelper;
 var fishModel;
-let fishCameraDist = 1,
+let fishCameraDist = 1.5,
   fishCameraFOV = 90;
 var simplex = new SimplexNoise(1);
 const backColor = "#111";
 
 var boids = [];
-var boidTotalCount = 500;
-var boidStartCount = 500;
+var predators = [];
+var boidTotalCount = 700;
+var boidStartCount = 100;
+var predatorTotalCount = 5;
+var predatorStartCount = 0;
 
 function init() {
   renderer = new THREE.WebGLRenderer({
@@ -42,8 +45,8 @@ function init() {
   );
   // camera.position.set(42, 16, 25);
   // camera.position.set(140, 54, 82);
-  // camera.position.set(84, 33, 49);
-  camera.position.set(160, 60, 93);
+  camera.position.set(84, 33, 49);
+  // camera.position.set(160, 60, 93);
 
   scene.add(camera);
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -55,6 +58,7 @@ function init() {
   scene.add(axesHelper);
 
   addBoids();
+  addPredators();
 
   scene.add(fishCamera);
 
@@ -66,7 +70,7 @@ let then = Date.now();
 function animate(now) {
   const delta = now - then;
   if (delta && vars.play) {
-    animateBoids(delta);
+    moveBoids(delta);
     cameraChase(delta);
   }
   then = now;

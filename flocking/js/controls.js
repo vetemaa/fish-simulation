@@ -3,26 +3,38 @@ var boundBox;
 
 function datGui() {
   var vars = function() {
-    this.boidCount = boidStartCount;
     this.play = true;
-    this.playSpeed = 10;
-    this.maxVelocity = 0.03;
+    this.playSpeed = 5;
     this.chaseCamera = false;
-    this.separationDist = 2.4;
+
+    this.boundSize = 20;
+
+    this.boidCount = boidStartCount;
+    this.ruleScalar = 0.5;
+    this.maxVelocity = 0.03;
+    this.escapeDist = 24;
+    this.escapeScalar = 0.3;
     this.alignmentDist = 8;
+    this.alignmentScalar = 0.08;
     this.cohesionDist = 12;
-    this.boundSize = 60;
-    this.animateVertices = true;
+    this.cohesionScalar = 0.11;
+    this.separationDist = 2.4;
+    this.separationScalar = 0.34;
+    this.randomScalar = 0.08;
+    this.boundsScalar = 0.04;
+
+    this.predatorCount = predatorStartCount;
+    this.ruleScalar_p = 0.5;
+    this.maxVelocity_p = 0.03;
+    this.attackDist = 24;
+    this.attackScalar = 0.06;
+    // this.separationDist_p = 2.4;
+    // this.separationScalar_p = 0.34;
+    // this.randomScalar_p = 0.08;
+    // this.boundsScalar_p = 0.04;
+
     this.showVectors = false;
     this.showBounds = true;
-    this.separationScalar = 0.34;
-    this.alignmentScalar = 0.08;
-    this.cohesionScalar = 0.11;
-    this.boundsScalar = 0.01;
-    this.randomScalar = 0.08;
-    this.randomSpeedMin = 0.3;
-    this.ruleScalar = 0.5;
-    // this.floorScalar = 0.1;
     this.shuffleBoids = () => shuffleBoids();
   };
 
@@ -31,48 +43,70 @@ function datGui() {
   gui.width = 333;
 
   folMain = gui.addFolder("Main");
-  folRules = gui.addFolder("Rules");
+  folBoids = gui.addFolder("Boids");
+  folPredators = gui.addFolder("Predators");
   folVisual = gui.addFolder("UI");
 
   // folMain.open();
-  // folRules.open();
+  // folBoids.open();
   // folVisual.open();
 
-  folMain
-    .add(vars, "boidCount", 0, boidTotalCount)
-    .step(1)
-    .onChange(value => hideBoids(value));
   folMain.add(vars, "play").listen();
   folMain.add(vars, "playSpeed", 0, 10).step(0.01);
-  folMain.add(vars, "maxVelocity", 0, 0.1).step(0.01);
   folMain
     .add(vars, "chaseCamera")
     .listen()
     .onChange(value => {
       changeCamera(value);
     });
+  folMain
+    .add(vars, "boundSize", 0, 100)
+    .step(1)
+    .onChange(value => updateBounds(value));
 
-  folRules.add(vars, "ruleScalar", 0, 1).step(0.01);
+  folBoids
+    .add(vars, "boidCount", 0, boidTotalCount)
+    .step(1)
+    .onChange(value => hideBoids(boids, value));
+  folBoids.add(vars, "ruleScalar", 0, 1).step(0.01);
+  folBoids.add(vars, "maxVelocity", 0, 0.1).step(0.01);
 
-  folWeights = folRules.addFolder("Rule Weights");
+  folWeights = folBoids.addFolder("Rule Weights");
   folWeights.open();
   folWeights.add(vars, "separationScalar", 0, 1).step(0.01);
   folWeights.add(vars, "alignmentScalar", 0, 1).step(0.01);
   folWeights.add(vars, "cohesionScalar", 0, 1).step(0.01);
   folWeights.add(vars, "boundsScalar", 0, 1).step(0.01);
   folWeights.add(vars, "randomScalar", 0, 1).step(0.01);
-  // folRules.add(vars, "floorScalar", 0, 10).step(0.01);
+  folWeights.add(vars, "escapeScalar", 0, 1).step(0.01);
 
-  folDists = folRules.addFolder("Rule Distances");
+  folDists = folBoids.addFolder("Rule Distances");
   folDists.open();
   folDists.add(vars, "separationDist", 0, 10).step(0.1);
   folDists.add(vars, "alignmentDist", 0, 100).step(1);
   folDists.add(vars, "cohesionDist", 0, 100).step(1);
-  folRules
-    .add(vars, "boundSize", 0, 100)
+  folDists.add(vars, "escapeDist", 0, 100).step(1);
+
+  // PREDATORS --------------------------
+  folPredators
+    .add(vars, "predatorCount", 0, predatorTotalCount)
     .step(1)
-    .onChange(value => updateBounds(value));
-  folRules.add(vars, "randomSpeedMin", 0, 1).step(0.01);
+    .onChange(value => hideBoids(predators, value));
+  folPredators.add(vars, "ruleScalar_p", 0, 1).step(0.01);
+  folPredators.add(vars, "maxVelocity_p", 0, 0.1).step(0.01);
+
+  folWeights = folPredators.addFolder("Rule Weights");
+  folWeights.open();
+  // folWeights.add(vars, "separationScalar_p", 0, 1).step(0.01);
+  // folWeights.add(vars, "boundsScalar_p", 0, 1).step(0.01);
+  // folWeights.add(vars, "randomScalar_p", 0, 1).step(0.01);
+  folWeights.add(vars, "attackScalar", 0, 1).step(0.01);
+
+  folDists = folPredators.addFolder("Rule Distances");
+  folDists.open();
+  // folDists.add(vars, "separationDist_p", 0, 10).step(0.1);
+  folDists.add(vars, "attackDist", 0, 100).step(1);
+  // /PREDATORS --------------------------
 
   folVisual
     .add(vars, "showVectors")
@@ -81,9 +115,6 @@ function datGui() {
     .add(vars, "showBounds")
     .onChange(value => (boundBox.visible = value));
 
-  // folVertexAnim = folVisual.addFolder("Vertex Animation (only FishMesh)");
-  // folVertexAnim.add(vars, "animateVertices");
-
   gui.add(vars, "shuffleBoids");
 
   gui.domElement.style.opacity = 0.8;
@@ -91,14 +122,8 @@ function datGui() {
   return vars;
 }
 
-function changeCamera(chaseCamera) {
-  if (chaseCamera) {
-    vars.chaseCamera = true;
-    scene.fog = new THREE.Fog(backColor, 0.1, 100);
-  } else {
-    vars.chaseCamera = false;
-    setFog();
-  }
+function changeCamera(value) {
+  vars.chaseCamera = value;
 }
 
 function initControls() {
@@ -121,25 +146,17 @@ function initControls() {
         if (fishCameraDist < 0.1) boids[0].visible = false;
         else boids[0].visible = true;
 
+        // side-scroll
         if (e.deltaX < 0) fishCameraFOV += e.deltaX * 0.01;
         else if (e.deltaX > 0) fishCameraFOV += e.deltaX * 0.01;
         if (fishCameraFOV > 160) fishCameraFOV = 160;
         else if (fishCameraFOV < 30) fishCameraFOV = 30;
         fishCamera.fov = fishCameraFOV;
         fishCamera.updateProjectionMatrix();
-      } else if (typeof env !== "undefined") setFog();
+      } else if (typeof env !== "undefined");
     },
     true
   );
-}
-
-function setFog() {
-  camDist = camera.position.length();
-  camDist = Math.pow(camDist, 0.96);
-  // console.log(camDist);
-  scene.fog = new THREE.Fog(backColor, -60 + camDist, 480 + camDist);
-  // scene.fog = new THREE.FogExp2(backColor, 0.0035);
-  // scene.fog = new THREE.Fog(backColor, 0 + camDist, 460 + camDist);
 }
 
 function onWindowResize() {
@@ -150,9 +167,9 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function hideBoids(boidCount) {
-  for (let i = 0; i < boids.length; i++) {
-    const boid = boids[i];
+function hideBoids(boidArray, boidCount) {
+  for (let i = 0; i < boidArray.length; i++) {
+    const boid = boidArray[i];
     if (boidCount > i) boid.visible = true;
     else boid.visible = false;
   }
@@ -205,18 +222,8 @@ function updateBounds(size) {
   cameraControls.target.set(target, target / 1.26, target);
 }
 
-function changeMesh(value) {
-  boids.forEach(boid => {
-    boid.meshTypes.forEach(mesh => (mesh.visible = false));
-    boid.meshTypes[value].visible = true;
-  });
-}
-
 function changeVectorVisibility(value) {
   boids.forEach(boid => {
-    // boid.helpArrows.forEach(arrow => {
-    //   arrow.visible = value;
-    // });
     boid.helpArrows.visible = value;
   });
 }
