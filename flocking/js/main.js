@@ -1,7 +1,6 @@
 var stats, scene, renderer, composer;
 var camera, cameraControls, fishCamera;
-var geom, mat, mesh, axesHelper;
-var fishModel;
+var geom, mat, mesh, axesHelper, subject;
 let fishCameraDist = 1.5,
   fishCameraFOV = 90;
 var simplex = new SimplexNoise(1);
@@ -10,7 +9,7 @@ const backColor = "#111";
 var boids = [];
 var predators = [];
 var boidTotalCount = 700;
-var boidStartCount = 100;
+var boidStartCount = 30;
 var predatorTotalCount = 5;
 var predatorStartCount = 0;
 
@@ -80,7 +79,7 @@ function animate(now) {
   stats.update();
 }
 
-function cameraChase(delta) {
+function cameraChase() {
   var relativeCameraOffset = new THREE.Vector3(
     0,
     0.8 * fishCameraDist,

@@ -28,13 +28,11 @@ function datGui() {
     this.maxVelocity_p = 0.03;
     this.attackDist = 24;
     this.attackScalar = 0.06;
-    // this.separationDist_p = 2.4;
-    // this.separationScalar_p = 0.34;
-    // this.randomScalar_p = 0.08;
-    // this.boundsScalar_p = 0.04;
 
     this.showVectors = false;
     this.showBounds = true;
+    this.drawTail = true;
+    this.removeTail = () => removeTail();
     this.shuffleBoids = () => shuffleBoids();
   };
 
@@ -87,7 +85,7 @@ function datGui() {
   folDists.add(vars, "cohesionDist", 0, 100).step(1);
   folDists.add(vars, "escapeDist", 0, 100).step(1);
 
-  // PREDATORS --------------------------
+  // PREDATORS -------------------------- TODO vars asemel mingi muu
   folPredators
     .add(vars, "predatorCount", 0, predatorTotalCount)
     .step(1)
@@ -97,14 +95,10 @@ function datGui() {
 
   folWeights = folPredators.addFolder("Rule Weights");
   folWeights.open();
-  // folWeights.add(vars, "separationScalar_p", 0, 1).step(0.01);
-  // folWeights.add(vars, "boundsScalar_p", 0, 1).step(0.01);
-  // folWeights.add(vars, "randomScalar_p", 0, 1).step(0.01);
   folWeights.add(vars, "attackScalar", 0, 1).step(0.01);
 
   folDists = folPredators.addFolder("Rule Distances");
   folDists.open();
-  // folDists.add(vars, "separationDist_p", 0, 10).step(0.1);
   folDists.add(vars, "attackDist", 0, 100).step(1);
   // /PREDATORS --------------------------
 
@@ -114,12 +108,19 @@ function datGui() {
   folVisual
     .add(vars, "showBounds")
     .onChange(value => (boundBox.visible = value));
+  folVisual.add(vars, "drawTail");
+  folVisual.add(vars, "removeTail");
 
   gui.add(vars, "shuffleBoids");
 
   gui.domElement.style.opacity = 0.8;
 
   return vars;
+}
+
+function removeTail() {
+  const tailLines = boids[0].tailLines;
+  tailLines.children = [];
 }
 
 function changeCamera(value) {

@@ -7,7 +7,12 @@ function addBoids() {
   // shuffleBoids();
 
   boids[0].subject = true;
-  boids[0].mesh.material.color.setHex(0x00fff5);
+  subject = boids[0];
+  var tailLines = new THREE.Group();
+  tailLines.name = "tailLines";
+  boids[0].tailLines = tailLines;
+  tailLines.previous = new THREE.Vector3(boids[0].position);
+  scene.add(tailLines);
 
   hideBoids(boids, vars.boidCount);
 }
@@ -36,12 +41,12 @@ function addBoid(position, index) {
   boid.mesh = mesh;
   boid.add(mesh);
 
-  boid.velocity = new THREE.Vector3();
-  // boid.velocity = new THREE.Vector3(
-  //    Math.random() - 0.5,
-  //    Math.random() - 0.5,
-  //    Math.random() - 0.5
-  // );
+  // boid.velocity = new THREE.Vector3();
+  boid.velocity = new THREE.Vector3(
+    Math.random() - 0.5,
+    Math.random() - 0.5,
+    Math.random() - 0.5
+  );
   boid.acceleration = new THREE.Vector3();
 
   var helpArrows = new THREE.Group();
@@ -66,6 +71,23 @@ function addBoid(position, index) {
   return boid;
 }
 
+function addTailSegment(boid) {
+  const lineGeometry = new THREE.Geometry();
+  lineGeometry.vertices.push(boid.tailLines.previous.clone());
+  lineGeometry.vertices.push(boid.position);
+  const line = new THREE.Line(
+    lineGeometry,
+    new THREE.LineBasicMaterial({
+      color: 0xff00ff
+      // transparent: true,
+      // opacity: 1
+    })
+  );
+
+  boid.tailLines.add(line);
+  boid.tailLines.previous.copy(boid.position);
+}
+
 function moveBoids(delta) {
   if (delta > 1000) delta = 0; // when tab not open
 
@@ -79,7 +101,7 @@ function moveBoids(delta) {
     moveBoid(delta, boids[i]);
     if (preys.includes(boids[i].index))
       boids[i].mesh.material.color.setHex(0x66ff66);
-    else if (boids[i].subject) boids[i].mesh.material.color.setHex(0x33aaff);
+    else if (boids[i].subject) boids[i].mesh.material.color.setHex(0xff00ff);
     else boids[i].mesh.material.color.setHex(0xffffff);
   }
 }
@@ -90,17 +112,20 @@ function moveBoid(delta, boid) {
   const bnd = bounds(boid);
   const ran = random(boid);
   rules = [
-    { vec: avd, enabled: 1, arr: 1, scalar: vars.predatorDist },
-    { vec: sep, enabled: 1, arr: 0, scalar: vars.separationScalar },
-    { vec: ali, enabled: 1, arr: 0, scalar: vars.alignmentScalar },
+    { vec: avd, enabled: 1, arr: 0, scalar: vars.predatorDist },
+    { vec: sep, enabled: 1, arr: 1, scalar: vars.separationScalar },
+    { vec: ali, enabled: 1, arr: 2, scalar: vars.alignmentScalar },
     { vec: coh, enabled: 1, arr: 0, scalar: vars.cohesionScalar },
     { vec: bnd, enabled: 1, arr: 0, scalar: vars.boundsScalar },
-    { vec: ran, enabled: 1, arr: 0, scalar: vars.randomScalar }
+    { vec: ran, enabled: 0, arr: 0, scalar: vars.randomScalar }
   ];
 
   calculateAcceleration(boid, rules);
   boid.acceleration.multiplyScalar(vars.ruleScalar);
   applyAcceleration(delta, boid, vars.maxVelocity);
+
+  if (boid.subject && vars.drawTail) addTailSegment(boid);
+  // addTailSegment(boid);
 }
 
 function movePredator(delta, boid) {
@@ -130,7 +155,7 @@ function calculateAcceleration(boid, rules) {
     if (rule.scalar === 0) continue;
     rule.scalar && rule.vec.multiplyScalar(rule.scalar);
     rule.enabled && acceleration.add(rule.vec);
-    rule.arr && setArrow(boid.helpArrows.children[i], rule.vec);
+    rule.arr && setArrow(boid.helpArrows.children[rule.arr - 1], rule.vec);
   }
 
   acceleration.multiplyScalar(0.005);
@@ -170,7 +195,7 @@ function setArrow(arrow, vec) {
   if (vec.length() <= 0) {
     arrow.visible = false;
   } else {
-    const len = vec.length() * 12;
+    const len = vec.length() * 8;
     arrow.setLength(len, 0.1, 0.1);
     arrow.setDirection(vec.clone().normalize());
     arrow.visible = true;

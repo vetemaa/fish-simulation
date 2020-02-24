@@ -1,16 +1,4 @@
 function reynolds(boid, flockmates, flockmateCount) {
-  // if (!predator) {
-  //   flockmates = boids;
-  //   flockmateCount = vars.boidCount;
-  //   separationDist = vars.separationDist;
-  // } else {
-  //   flockmates = predators;
-  //   flockmateCount = vars.predatorCount;
-  //   separationDist = vars.separationDist_p;
-  // }
-  // alignmentDist = vars.alignmentDist;
-  // cohesionDist = vars.cohesionDist;
-
   const sep = new THREE.Vector3();
   const ali = new THREE.Vector3();
   const coh = new THREE.Vector3();
@@ -105,37 +93,6 @@ function attack(boid, prey, preyCount) {
   } else {
     boid.preyIndex = null;
   }
-
-  // if (boid.preyIndex) {
-  //   const selectedPrey = prey[boid.preyIndex];
-  //   const selectedPreyDist = boid.position.distanceTo(selectedPrey.position);
-
-  //   if (selectedPreyDist < vars.attackDist) {
-
-  //   } else {
-  //     selectedPrey = null;
-  //   }
-  // }
-
-  // if (boid.preyIndex) {
-  //   const singlePrey = prey[boid.preyIndex];
-  //   const dist = boid.position.distanceTo(singlePrey.position);
-
-  //   if (dist < vars.attackDist) {
-  //     steer.add(singlePrey.position);
-  //     steer.sub(boid.position);
-  //     steer.multiplyScalar(0.1);
-  //     return steer;
-  //   } else {
-  //     boid.preyIndex = null;
-  //   }
-  // }
-
-  // for (let i = 0; i < preyCount; i++) {
-  //   const singlePrey = prey[i]; // TODO find closest
-  //   const dist = boid.position.distanceTo(singlePrey.position);
-  //   if (dist < vars.attackDist) boid.preyIndex = singlePrey.index;
-  // }
 
   return steer;
 }
