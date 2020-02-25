@@ -9,7 +9,7 @@ const backColor = "#111";
 var boids = [];
 var predators = [];
 var boidTotalCount = 700;
-var boidStartCount = 30;
+var boidStartCount = 3;
 var predatorTotalCount = 5;
 var predatorStartCount = 0;
 
@@ -46,6 +46,7 @@ function init() {
   // camera.position.set(140, 54, 82);
   camera.position.set(84, 33, 49);
   // camera.position.set(160, 60, 93);
+  camera.position.set(10.0001, 30, 10);
 
   scene.add(camera);
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -62,6 +63,12 @@ function init() {
   scene.add(fishCamera);
 
   addBounds();
+
+  // animate couple of frames for paused analysis
+  moveBoids(1);
+  moveBoids(1);
+  cameraChase(1);
+
   animate();
 }
 

@@ -2,6 +2,8 @@ function reynolds(boid, flockmates, flockmateCount) {
   const sep = new THREE.Vector3();
   const ali = new THREE.Vector3();
   const coh = new THREE.Vector3();
+  let sepNeighbours = 0;
+  let aliNeighbours = 0;
   let cohNeighbours = 0;
 
   for (let i = 0; i < flockmateCount; i++) {
@@ -9,21 +11,43 @@ function reynolds(boid, flockmates, flockmateCount) {
     const dist = boid.position.distanceTo(flockmate.position);
 
     if (boid.index !== flockmate.index) {
-      // separation
+      // TODO: see true siin
+
+      // separation - mine
+      // if (dist < vars.separationDist) {
+      //   const diff = boid.position.clone().sub(flockmate.position);
+      //   diff.setLength(1 - dist / vars.separationDist);
+      //   sep.add(diff);
+      // }
+
+      // separation - {4}
       if (dist < vars.separationDist) {
         const diff = boid.position.clone().sub(flockmate.position);
-        diff.setLength(1 - dist / vars.separationDist);
         sep.add(diff);
+        sepNeighbours++;
       }
 
-      // alignment
+      // alignment - mine
+      // if (dist < vars.alignmentDist) {
+      //   const vel = flockmate.velocity.clone();
+      //   vel.setLength(1 - dist / vars.alignmentDist);
+      //   ali.add(vel);
+      // }
+
+      // alignment - {4}
       if (dist < vars.alignmentDist) {
         const vel = flockmate.velocity.clone();
-        vel.setLength(1 - dist / vars.alignmentDist);
         ali.add(vel);
       }
 
-      // cohesion
+      // cohesion - mine
+      // if (dist < vars.cohesionDist) {
+      //   const pos = flockmate.position.clone();
+      //   coh.add(pos);
+      //   cohNeighbours++;
+      // }
+
+      // cohesion - {4}
       if (dist < vars.cohesionDist) {
         const pos = flockmate.position.clone();
         coh.add(pos);
@@ -32,13 +56,30 @@ function reynolds(boid, flockmates, flockmateCount) {
     }
   }
 
-  sep.clampLength(0, 1);
-  ali.clampLength(0, 1);
+  // separation - mine
+  // sep.clampLength(0, 1);
 
+  // separation - {4}
+  // if (sepNeighbours > 0) sep.divideScalar(sepNeighbours);
+
+  // alignment - mine
+  // ali.clampLength(0, 1);
+  ali.multiplyScalar(10);
+
+  // alignment - {4}
+  if (aliNeighbours > 0) ali.divideScalar(aliNeighbours);
+
+  // cohesion - mine
+  // if (cohNeighbours > 0) {
+  //   coh.divideScalar(cohNeighbours);
+  //   coh.sub(boid.position);
+  //   coh.multiplyScalar(0.1);
+  // }
+
+  // cohesion - {4}
   if (cohNeighbours > 0) {
     coh.divideScalar(cohNeighbours);
     coh.sub(boid.position);
-    coh.multiplyScalar(0.1);
   }
 
   return { ali, sep, coh };

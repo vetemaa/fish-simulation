@@ -8,11 +8,21 @@ function addBoids() {
 
   boids[0].subject = true;
   subject = boids[0];
-  var tailLines = new THREE.Group();
-  tailLines.name = "tailLines";
-  boids[0].tailLines = tailLines;
-  tailLines.previous = new THREE.Vector3(boids[0].position);
-  scene.add(tailLines);
+  subject.mesh.material.wireframe = false;
+  drawCircle(subject, vars.separationDist);
+
+  // boidpos = [
+  //   [9.9, 10, 9.9], [11.3, 10, 11.3], [10.7, 10, 9.3]
+  // ];
+  boid1pos = new THREE.Vector3(9.9, 10, 9.9);
+  boid2pos = new THREE.Vector3(10.7, 10, 11.5);
+  boid3pos = new THREE.Vector3(10.9, 10, 9.5);
+  boids[0].velocity = boid1pos.clone().sub(new THREE.Vector3(10, 10, 10));
+  boids[1].velocity = boid2pos.clone().sub(new THREE.Vector3(10, 10, 10));
+  boids[2].velocity = boid3pos.clone().sub(new THREE.Vector3(10, 10, 10));
+  boids[0].position.copy(boid1pos);
+  boids[1].position.copy(boid2pos);
+  boids[2].position.copy(boid3pos);
 
   hideBoids(boids, vars.boidCount);
 }
@@ -33,7 +43,9 @@ function addBoid(position, index) {
   boid.index = index;
   boid.ownTime = 0;
 
-  const mat = new THREE.MeshBasicMaterial({ wireframe: true });
+  const mat = new THREE.MeshBasicMaterial({
+    wireframe: true
+  });
 
   const geom = new THREE.ConeBufferGeometry(0.3, 1);
   const mesh = new THREE.Mesh(geom, mat);
@@ -41,12 +53,12 @@ function addBoid(position, index) {
   boid.mesh = mesh;
   boid.add(mesh);
 
-  // boid.velocity = new THREE.Vector3();
-  boid.velocity = new THREE.Vector3(
-    Math.random() - 0.5,
-    Math.random() - 0.5,
-    Math.random() - 0.5
-  );
+  boid.velocity = new THREE.Vector3();
+  // boid.velocity = new THREE.Vector3(
+  //   Math.random() - 0.5,
+  //   Math.random() - 0.5,
+  //   Math.random() - 0.5
+  // );
   boid.acceleration = new THREE.Vector3();
 
   var helpArrows = new THREE.Group();
@@ -63,6 +75,12 @@ function addBoid(position, index) {
     }
   );
 
+  var tailLines = new THREE.Group();
+  tailLines.name = "tailLines";
+  boid.tailLines = tailLines;
+  // tailLines.previous = new THREE.Vector3(...position);
+  scene.add(tailLines);
+
   boid.position.set(...position);
   scene.add(boid);
 
@@ -71,8 +89,25 @@ function addBoid(position, index) {
   return boid;
 }
 
+function drawCircle(boid, dist) {
+  const circleGeom = new THREE.Geometry();
+  for (let i = 0; i < 2.1 * Math.PI; i += 0.1) {
+    circleGeom.vertices.push(new THREE.Vector3(Math.sin(i), 0, Math.cos(i)));
+  }
+  const circle = new THREE.Line(
+    circleGeom,
+    new THREE.LineBasicMaterial({
+      color: 0x66bb6a
+    })
+  );
+
+  circle.scale.set(dist, dist, dist);
+  boid.add(circle);
+}
+
 function addTailSegment(boid) {
   const lineGeometry = new THREE.Geometry();
+  if (!boid.tailLines.previous) boid.tailLines.previous = boid.position.clone();
   lineGeometry.vertices.push(boid.tailLines.previous.clone());
   lineGeometry.vertices.push(boid.position);
   const line = new THREE.Line(
@@ -89,7 +124,7 @@ function addTailSegment(boid) {
 }
 
 function moveBoids(delta) {
-  if (delta > 1000) delta = 0; // when tab not open
+  if (delta > 3000) delta = 0; // when tab not open
 
   preys = [];
   for (let i = 0; i < vars.predatorCount; i++) {
@@ -111,13 +146,14 @@ function moveBoid(delta, boid) {
   const avd = escape(boid, predators, vars.predatorCount);
   const bnd = bounds(boid);
   const ran = random(boid);
+  if (boid.subject) console.log("sub", ali);
   rules = [
-    { vec: avd, enabled: 1, arr: 0, scalar: vars.predatorDist },
-    { vec: sep, enabled: 1, arr: 1, scalar: vars.separationScalar },
-    { vec: ali, enabled: 1, arr: 2, scalar: vars.alignmentScalar },
-    { vec: coh, enabled: 1, arr: 0, scalar: vars.cohesionScalar },
+    { vec: ali, enabled: 1, arr: 1, scalar: vars.alignmentScalar },
+    { vec: sep, enabled: 0, arr: 2, scalar: vars.separationScalar },
+    { vec: coh, enabled: 0, arr: 3, scalar: vars.cohesionScalar },
     { vec: bnd, enabled: 1, arr: 0, scalar: vars.boundsScalar },
-    { vec: ran, enabled: 0, arr: 0, scalar: vars.randomScalar }
+    { vec: ran, enabled: 0, arr: 0, scalar: vars.randomScalar },
+    { vec: avd, enabled: 0, arr: 0, scalar: vars.predatorDist }
   ];
 
   calculateAcceleration(boid, rules);
@@ -154,8 +190,10 @@ function calculateAcceleration(boid, rules) {
 
     if (rule.scalar === 0) continue;
     rule.scalar && rule.vec.multiplyScalar(rule.scalar);
-    rule.enabled && acceleration.add(rule.vec);
-    rule.arr && setArrow(boid.helpArrows.children[rule.arr - 1], rule.vec);
+    if (rule.enabled) {
+      acceleration.add(rule.vec);
+      rule.arr && setArrow(boid.helpArrows.children[rule.arr - 1], rule.vec);
+    }
   }
 
   acceleration.multiplyScalar(0.005);
@@ -166,7 +204,7 @@ function applyAcceleration(delta, boid, maxVelocity) {
   const { velocity, acceleration, position } = boid;
   const { play, playSpeed } = vars;
 
-  if (!play || playSpeed == 0 || maxVelocity == 0) return;
+  if (playSpeed == 0 || maxVelocity == 0) return;
 
   const playDelta = (playSpeed * delta) / 16;
   boid.ownTime += playDelta / 5000;
@@ -195,9 +233,16 @@ function setArrow(arrow, vec) {
   if (vec.length() <= 0) {
     arrow.visible = false;
   } else {
-    const len = vec.length() * 8;
-    arrow.setLength(len, 0.1, 0.1);
+    // const len = vec.length() * vars.vectorLenMultiplier;
+    // arrow.setLength(len, 0.1, 0.1);
+    arrow.len = vec.length();
+    setArrowLen(arrow);
     arrow.setDirection(vec.clone().normalize());
     arrow.visible = true;
   }
+}
+
+function setArrowLen(arrow) {
+  const len = arrow.len * vars.vectorLenMultiplier;
+  arrow.setLength(len, 0.1, 0.1);
 }

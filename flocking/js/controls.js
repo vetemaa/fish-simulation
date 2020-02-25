@@ -3,8 +3,8 @@ var boundBox;
 
 function datGui() {
   var vars = function() {
-    this.play = true;
-    this.playSpeed = 5;
+    this.play = false;
+    this.playSpeed = 0.1;
     this.chaseCamera = false;
 
     this.boundSize = 20;
@@ -14,12 +14,12 @@ function datGui() {
     this.maxVelocity = 0.03;
     this.escapeDist = 24;
     this.escapeScalar = 0.3;
-    this.alignmentDist = 8;
-    this.alignmentScalar = 0.08;
-    this.cohesionDist = 12;
-    this.cohesionScalar = 0.11;
+    this.alignmentDist = 2.4;
+    this.alignmentScalar = 1;
+    this.cohesionDist = 2.4;
+    this.cohesionScalar = 1;
     this.separationDist = 2.4;
-    this.separationScalar = 0.34;
+    this.separationScalar = 1;
     this.randomScalar = 0.08;
     this.boundsScalar = 0.04;
 
@@ -29,7 +29,8 @@ function datGui() {
     this.attackDist = 24;
     this.attackScalar = 0.06;
 
-    this.showVectors = false;
+    this.showVectors = true;
+    this.vectorLenMultiplier = 5;
     this.showBounds = true;
     this.drawTail = true;
     this.removeTail = () => removeTail();
@@ -105,6 +106,10 @@ function datGui() {
   folVisual
     .add(vars, "showVectors")
     .onChange(value => changeVectorVisibility(value));
+  folVisual
+    .add(vars, "vectorLenMultiplier", 0, 20)
+    .step(1)
+    .onChange(changeArrowLens);
   folVisual
     .add(vars, "showBounds")
     .onChange(value => (boundBox.visible = value));
@@ -226,5 +231,13 @@ function updateBounds(size) {
 function changeVectorVisibility(value) {
   boids.forEach(boid => {
     boid.helpArrows.visible = value;
+  });
+}
+
+function changeArrowLens() {
+  boids.forEach(boid => {
+    boid.helpArrows.children.forEach(arrow => {
+      setArrowLen(arrow);
+    });
   });
 }
