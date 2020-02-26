@@ -3,23 +3,23 @@ var boundBox;
 
 function datGui() {
   var vars = function() {
-    this.play = false;
-    this.playSpeed = 0.1;
+    this.play = true;
+    this.playSpeed = 10;
     this.chaseCamera = false;
 
-    this.boundSize = 20;
+    this.boundSize = 30;
 
     this.boidCount = boidStartCount;
     this.ruleScalar = 0.5;
     this.maxVelocity = 0.03;
     this.escapeDist = 24;
     this.escapeScalar = 0.3;
-    this.alignmentDist = 2.4;
-    this.alignmentScalar = 1;
-    this.cohesionDist = 2.4;
-    this.cohesionScalar = 1;
+    this.alignmentDist = 8;
+    this.alignmentScalar = 0.08;
+    this.cohesionDist = 12;
+    this.cohesionScalar = 0.11;
     this.separationDist = 2.4;
-    this.separationScalar = 1;
+    this.separationScalar = 0.34;
     this.randomScalar = 0.08;
     this.boundsScalar = 0.04;
 
@@ -32,6 +32,7 @@ function datGui() {
     this.showVectors = true;
     this.vectorLenMultiplier = 5;
     this.showBounds = true;
+    this.showAxes = true;
     this.drawTail = true;
     this.removeTail = () => removeTail();
     this.shuffleBoids = () => shuffleBoids();
@@ -113,6 +114,9 @@ function datGui() {
   folVisual
     .add(vars, "showBounds")
     .onChange(value => (boundBox.visible = value));
+  folVisual
+    .add(vars, "showAxes")
+    .onChange(value => (axesHelper.visible = value));
   folVisual.add(vars, "drawTail");
   folVisual.add(vars, "removeTail");
 
@@ -184,14 +188,14 @@ function hideBoids(boidArray, boidCount) {
 function shuffleBoids() {
   boids.forEach(boid => {
     boid.position.set(
-      vars.boundSize * Math.random(),
-      vars.boundSize * Math.random(),
-      vars.boundSize * Math.random()
+      vars.boundSize * ran.nextFloat(),
+      vars.boundSize * ran.nextFloat(),
+      vars.boundSize * ran.nextFloat()
     );
     boid.velocity.set(
-      Math.random() - 0.5,
-      Math.random() - 0.5,
-      Math.random() - 0.5
+      ran.nextFloat() - 0.5,
+      ran.nextFloat() - 0.5,
+      ran.nextFloat() - 0.5
     );
   });
 }

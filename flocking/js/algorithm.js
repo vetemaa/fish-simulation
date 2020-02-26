@@ -1,4 +1,5 @@
 function reynolds(boid, flockmates, flockmateCount) {
+  const mine = true;
   const sep = new THREE.Vector3();
   const ali = new THREE.Vector3();
   const coh = new THREE.Vector3();
@@ -11,75 +12,79 @@ function reynolds(boid, flockmates, flockmateCount) {
     const dist = boid.position.distanceTo(flockmate.position);
 
     if (boid.index !== flockmate.index) {
-      // TODO: see true siin
+      if (mine) {
+        // separation - mine
+        if (dist < vars.separationDist) {
+          const diff = boid.position.clone().sub(flockmate.position);
+          diff.setLength(1 - dist / vars.separationDist);
+          sep.add(diff);
+        }
 
-      // separation - mine
-      // if (dist < vars.separationDist) {
-      //   const diff = boid.position.clone().sub(flockmate.position);
-      //   diff.setLength(1 - dist / vars.separationDist);
-      //   sep.add(diff);
-      // }
+        // alignment - mine
+        if (dist < vars.alignmentDist) {
+          const vel = flockmate.velocity.clone();
+          vel.setLength(1 - dist / vars.alignmentDist);
+          ali.add(vel);
+        }
 
-      // separation - {4}
-      if (dist < vars.separationDist) {
-        const diff = boid.position.clone().sub(flockmate.position);
-        sep.add(diff);
-        sepNeighbours++;
-      }
+        // cohesion - mine
+        if (dist < vars.cohesionDist) {
+          const pos = flockmate.position.clone();
+          coh.add(pos);
+          cohNeighbours++;
+        }
+      } else {
+        // separation - {4}
+        if (dist < vars.separationDist) {
+          const diff = boid.position.clone().sub(flockmate.position);
+          sep.add(diff);
+          sepNeighbours++;
+        }
 
-      // alignment - mine
-      // if (dist < vars.alignmentDist) {
-      //   const vel = flockmate.velocity.clone();
-      //   vel.setLength(1 - dist / vars.alignmentDist);
-      //   ali.add(vel);
-      // }
+        // alignment - {4}
+        if (dist < vars.alignmentDist) {
+          const vel = flockmate.velocity.clone();
+          ali.add(vel);
+        }
 
-      // alignment - {4}
-      if (dist < vars.alignmentDist) {
-        const vel = flockmate.velocity.clone();
-        ali.add(vel);
-      }
-
-      // cohesion - mine
-      // if (dist < vars.cohesionDist) {
-      //   const pos = flockmate.position.clone();
-      //   coh.add(pos);
-      //   cohNeighbours++;
-      // }
-
-      // cohesion - {4}
-      if (dist < vars.cohesionDist) {
-        const pos = flockmate.position.clone();
-        coh.add(pos);
-        cohNeighbours++;
+        // cohesion - {4}
+        if (dist < vars.cohesionDist) {
+          const pos = flockmate.position.clone();
+          coh.add(pos);
+          cohNeighbours++;
+        }
       }
     }
   }
 
-  // separation - mine
-  // sep.clampLength(0, 1);
+  if (mine) {
+    // separation - mine
+    sep.clampLength(0, 1);
 
-  // separation - {4}
-  // if (sepNeighbours > 0) sep.divideScalar(sepNeighbours);
+    // alignment - mine
+    ali.clampLength(0, 1);
 
-  // alignment - mine
-  // ali.clampLength(0, 1);
-  ali.multiplyScalar(10);
+    // cohesion - mine
+    if (cohNeighbours > 0) {
+      coh.divideScalar(cohNeighbours);
+      coh.sub(boid.position);
+      coh.multiplyScalar(0.1);
+    }
+  } else {
+    // separation - {4}
+    if (sepNeighbours > 0) sep.divideScalar(sepNeighbours);
+    sep.divideScalar(2);
 
-  // alignment - {4}
-  if (aliNeighbours > 0) ali.divideScalar(aliNeighbours);
+    // alignment - {4}
+    if (aliNeighbours > 0) ali.divideScalar(aliNeighbours);
+    ali.divideScalar(6);
 
-  // cohesion - mine
-  // if (cohNeighbours > 0) {
-  //   coh.divideScalar(cohNeighbours);
-  //   coh.sub(boid.position);
-  //   coh.multiplyScalar(0.1);
-  // }
-
-  // cohesion - {4}
-  if (cohNeighbours > 0) {
-    coh.divideScalar(cohNeighbours);
-    coh.sub(boid.position);
+    // cohesion - {4}
+    if (cohNeighbours > 0) {
+      coh.divideScalar(cohNeighbours);
+      coh.sub(boid.position);
+      coh.divideScalar(10);
+    }
   }
 
   return { ali, sep, coh };

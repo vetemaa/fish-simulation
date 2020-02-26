@@ -1,0 +1,11 @@
+boids.forEach(boid => {
+    separationVec = separation(boid)
+    alignmentVec = alignment(boid)
+    cohesionVec = cohesion(boid)
+  
+    velocityVec.add(separationVec.multiplyScalar(separationScalar));
+    velocityVec.add(alignmentVec.multiplyScalar(alignmentScalar));
+    velocityVec.add(cohesionVec.multiplyScalar(cohesionScalar));
+  
+    boid.position.add(velocityVec)
+});

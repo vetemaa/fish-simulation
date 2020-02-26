@@ -4,25 +4,26 @@ function addBoids() {
     const boid = addBoid([boundSize / 2, boundSize / 2, boundSize / 2], i);
     boids.push(boid);
   }
-  // shuffleBoids();
+  shuffleBoids();
 
   boids[0].subject = true;
   subject = boids[0];
-  subject.mesh.material.wireframe = false;
+  // subject.mesh.material.wireframe = false;
+
   drawCircle(subject, vars.separationDist);
 
   // boidpos = [
   //   [9.9, 10, 9.9], [11.3, 10, 11.3], [10.7, 10, 9.3]
   // ];
-  boid1pos = new THREE.Vector3(9.9, 10, 9.9);
-  boid2pos = new THREE.Vector3(10.7, 10, 11.5);
-  boid3pos = new THREE.Vector3(10.9, 10, 9.5);
-  boids[0].velocity = boid1pos.clone().sub(new THREE.Vector3(10, 10, 10));
-  boids[1].velocity = boid2pos.clone().sub(new THREE.Vector3(10, 10, 10));
-  boids[2].velocity = boid3pos.clone().sub(new THREE.Vector3(10, 10, 10));
-  boids[0].position.copy(boid1pos);
-  boids[1].position.copy(boid2pos);
-  boids[2].position.copy(boid3pos);
+  // boid1pos = new THREE.Vector3(9.9, 10, 9.9);
+  // boid2pos = new THREE.Vector3(10.7, 10, 11.5);
+  // boid3pos = new THREE.Vector3(10.9, 10, 9.5);
+  // boids[0].velocity = boid1pos.clone().sub(new THREE.Vector3(10, 10, 10));
+  // boids[1].velocity = boid2pos.clone().sub(new THREE.Vector3(10, 10, 10));
+  // boids[2].velocity = boid3pos.clone().sub(new THREE.Vector3(10, 10, 10));
+  // boids[0].position.copy(boid1pos);
+  // boids[1].position.copy(boid2pos);
+  // boids[2].position.copy(boid3pos);
 
   hideBoids(boids, vars.boidCount);
 }
@@ -53,12 +54,17 @@ function addBoid(position, index) {
   boid.mesh = mesh;
   boid.add(mesh);
 
-  boid.velocity = new THREE.Vector3();
+  // boid.velocity = new THREE.Vector3();
   // boid.velocity = new THREE.Vector3(
   //   Math.random() - 0.5,
   //   Math.random() - 0.5,
   //   Math.random() - 0.5
   // );
+  boid.velocity = new THREE.Vector3(
+    ran.nextFloat(),
+    ran.nextFloat(),
+    ran.nextFloat()
+  );
   boid.acceleration = new THREE.Vector3();
 
   var helpArrows = new THREE.Group();
@@ -146,15 +152,22 @@ function moveBoid(delta, boid) {
   const avd = escape(boid, predators, vars.predatorCount);
   const bnd = bounds(boid);
   const ran = random(boid);
-  if (boid.subject) console.log("sub", ali);
   rules = [
+    { vec: sep, enabled: 1, arr: 2, scalar: vars.separationScalar },
     { vec: ali, enabled: 1, arr: 1, scalar: vars.alignmentScalar },
-    { vec: sep, enabled: 0, arr: 2, scalar: vars.separationScalar },
-    { vec: coh, enabled: 0, arr: 3, scalar: vars.cohesionScalar },
+    { vec: coh, enabled: 1, arr: 3, scalar: vars.cohesionScalar },
     { vec: bnd, enabled: 1, arr: 0, scalar: vars.boundsScalar },
     { vec: ran, enabled: 0, arr: 0, scalar: vars.randomScalar },
     { vec: avd, enabled: 0, arr: 0, scalar: vars.predatorDist }
   ];
+
+  // if (boid.subject) {
+  //   // 0.1-0.5, 1, 0.5
+  //   console.log(sep.length());
+  //   console.log(ali.length());
+  //   console.log(coh.length());
+  //   console.log("");
+  // }
 
   calculateAcceleration(boid, rules);
   boid.acceleration.multiplyScalar(vars.ruleScalar);
@@ -192,7 +205,9 @@ function calculateAcceleration(boid, rules) {
     rule.scalar && rule.vec.multiplyScalar(rule.scalar);
     if (rule.enabled) {
       acceleration.add(rule.vec);
-      rule.arr && setArrow(boid.helpArrows.children[rule.arr - 1], rule.vec);
+      rule.arr &&
+        boid.subject &&
+        setArrow(boid.helpArrows.children[rule.arr - 1], rule.vec);
     }
   }
 
@@ -222,6 +237,8 @@ function applyAcceleration(delta, boid, maxVelocity) {
 
   boidDirection(velClone, boid);
   acceleration.multiplyScalar(0);
+  // acceleration.set(0, 0, 0);
+  console.log(acceleration);
 }
 
 function boidDirection(velClone, boid) {

@@ -6,14 +6,18 @@ let fishCameraDist = 1.5,
 var simplex = new SimplexNoise(1);
 const backColor = "#111";
 
+var ran;
+
 var boids = [];
 var predators = [];
 var boidTotalCount = 700;
-var boidStartCount = 3;
+var boidStartCount = 70;
 var predatorTotalCount = 5;
 var predatorStartCount = 0;
 
 function init() {
+  ran = new Random(1);
+
   renderer = new THREE.WebGLRenderer({
     antialias: true
   });
@@ -36,6 +40,14 @@ function init() {
     1,
     1000
   );
+  // camera = new THREE.OrthographicCamera(
+  //   window.innerWidth / -120,
+  //   window.innerWidth / 120,
+  //   window.innerHeight / 120,
+  //   window.innerHeight / -120,
+  //   1,
+  //   1000
+  // );
   fishCamera = new THREE.PerspectiveCamera(
     90,
     window.innerWidth / window.innerHeight,
@@ -46,7 +58,8 @@ function init() {
   // camera.position.set(140, 54, 82);
   camera.position.set(84, 33, 49);
   // camera.position.set(160, 60, 93);
-  camera.position.set(10.0001, 30, 10);
+  // camera.position.set(10.001, 20, 10);
+  // camera.position.set(15.001, 30, 15);
 
   scene.add(camera);
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -112,4 +125,31 @@ function render() {
 
   if (vars.chaseCamera) renderer.render(scene, fishCamera);
   else renderer.render(scene, camera);
+}
+
+// seedable random number generator
+// author: blixt on GitHub
+// url: https://gist.github.com/blixt/f17b47c62508be59987b
+/**
+ * Uses an optimized version of the Park-Miller PRNG.
+ * http://www.firstpr.com.au/dsp/rand31/
+ */
+class Random {
+  constructor(seed) {
+    this._seed = seed % 2147483647;
+    if (this._seed <= 0) this._seed += 2147483646;
+  }
+  /**
+   * Returns a pseudo-random value between 1 and 2^32 - 2.
+   */
+  next() {
+    return (this._seed = (this._seed * 16807) % 2147483647);
+  }
+  /**
+   * Returns a pseudo-random floating point number in range [0, 1).
+   */
+  nextFloat(opt_minOrMax, opt_max) {
+    // We know that result of next() will be 1 to 2147483646 (inclusive).
+    return (this.next() - 1) / 2147483646;
+  }
 }
