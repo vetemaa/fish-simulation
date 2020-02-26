@@ -7,11 +7,11 @@ function datGui() {
     this.playSpeed = 10;
     this.chaseCamera = false;
 
-    this.boundSize = 30;
+    this.boundSize = 60;
 
     this.boidCount = boidStartCount;
     this.ruleScalar = 0.5;
-    this.maxVelocity = 0.03;
+    this.maxSpeed = 0.03;
     this.escapeDist = 24;
     this.escapeScalar = 0.3;
     this.alignmentDist = 8;
@@ -25,7 +25,7 @@ function datGui() {
 
     this.predatorCount = predatorStartCount;
     this.ruleScalar_p = 0.5;
-    this.maxVelocity_p = 0.03;
+    this.maxSpeed_p = 0.03;
     this.attackDist = 24;
     this.attackScalar = 0.06;
 
@@ -33,7 +33,7 @@ function datGui() {
     this.vectorLenMultiplier = 5;
     this.showBounds = true;
     this.showAxes = true;
-    this.drawTail = true;
+    this.drawTail = false;
     this.removeTail = () => removeTail();
     this.shuffleBoids = () => shuffleBoids();
   };
@@ -69,7 +69,7 @@ function datGui() {
     .step(1)
     .onChange(value => hideBoids(boids, value));
   folBoids.add(vars, "ruleScalar", 0, 1).step(0.01);
-  folBoids.add(vars, "maxVelocity", 0, 0.1).step(0.01);
+  folBoids.add(vars, "maxSpeed", 0, 0.1).step(0.01);
 
   folWeights = folBoids.addFolder("Rule Weights");
   folWeights.open();
@@ -93,7 +93,7 @@ function datGui() {
     .step(1)
     .onChange(value => hideBoids(predators, value));
   folPredators.add(vars, "ruleScalar_p", 0, 1).step(0.01);
-  folPredators.add(vars, "maxVelocity_p", 0, 0.1).step(0.01);
+  folPredators.add(vars, "maxSpeed_p", 0, 0.1).step(0.01);
 
   folWeights = folPredators.addFolder("Rule Weights");
   folWeights.open();
@@ -197,6 +197,7 @@ function shuffleBoids() {
       ran.nextFloat() - 0.5,
       ran.nextFloat() - 0.5
     );
+    boid.velocity.setLength(0.1);
   });
 }
 

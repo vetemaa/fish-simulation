@@ -10,7 +10,7 @@ function addBoids() {
   subject = boids[0];
   // subject.mesh.material.wireframe = false;
 
-  drawCircle(subject, vars.separationDist);
+  // drawCircle(subject, vars.separationDist);
 
   // boidpos = [
   //   [9.9, 10, 9.9], [11.3, 10, 11.3], [10.7, 10, 9.3]
@@ -65,6 +65,7 @@ function addBoid(position, index) {
     ran.nextFloat(),
     ran.nextFloat()
   );
+  boid.velocity.setLength(0.1);
   boid.acceleration = new THREE.Vector3();
 
   var helpArrows = new THREE.Group();
@@ -149,16 +150,17 @@ function moveBoids(delta) {
 
 function moveBoid(delta, boid) {
   const { sep, ali, coh } = reynolds(boid, boids, vars.boidCount);
-  const avd = escape(boid, predators, vars.predatorCount);
+  // const avd = escape(boid, predators, vars.predatorCount);
   const bnd = bounds(boid);
   const ran = random(boid);
+  if (boid.subject) console.log(ran);
   rules = [
     { vec: sep, enabled: 1, arr: 2, scalar: vars.separationScalar },
     { vec: ali, enabled: 1, arr: 1, scalar: vars.alignmentScalar },
     { vec: coh, enabled: 1, arr: 3, scalar: vars.cohesionScalar },
     { vec: bnd, enabled: 1, arr: 0, scalar: vars.boundsScalar },
-    { vec: ran, enabled: 0, arr: 0, scalar: vars.randomScalar },
-    { vec: avd, enabled: 0, arr: 0, scalar: vars.predatorDist }
+    { vec: ran, enabled: 1, arr: 0, scalar: vars.randomScalar }
+    // { vec: avd, enabled: 0, arr: 0, scalar: vars.predatorDist }
   ];
 
   // if (boid.subject) {
@@ -171,7 +173,7 @@ function moveBoid(delta, boid) {
 
   calculateAcceleration(boid, rules);
   boid.acceleration.multiplyScalar(vars.ruleScalar);
-  applyAcceleration(delta, boid, vars.maxVelocity);
+  applyAcceleration(delta, boid, vars.maxSpeed);
 
   if (boid.subject && vars.drawTail) addTailSegment(boid);
   // addTailSegment(boid);
@@ -192,7 +194,7 @@ function movePredator(delta, boid) {
 
   calculateAcceleration(boid, rules);
   boid.acceleration.multiplyScalar(vars.ruleScalar_p);
-  applyAcceleration(delta, boid, vars.maxVelocity_p);
+  applyAcceleration(delta, boid, vars.maxSpeed_p);
 }
 
 function calculateAcceleration(boid, rules) {
@@ -202,6 +204,7 @@ function calculateAcceleration(boid, rules) {
     const rule = rules[i];
 
     if (rule.scalar === 0) continue;
+
     rule.scalar && rule.vec.multiplyScalar(rule.scalar);
     if (rule.enabled) {
       acceleration.add(rule.vec);
@@ -215,30 +218,46 @@ function calculateAcceleration(boid, rules) {
   acceleration.y *= 0.8;
 }
 
-function applyAcceleration(delta, boid, maxVelocity) {
+function applyAcceleration(delta, boid, maxSpeed) {
   const { velocity, acceleration, position } = boid;
-  const { play, playSpeed } = vars;
+  const { playSpeed } = vars;
+  const mine = true;
+  let velClone;
 
-  if (playSpeed == 0 || maxVelocity == 0) return;
-
+  if (playSpeed == 0 || maxSpeed == 0) return;
   const playDelta = (playSpeed * delta) / 16;
-  boid.ownTime += playDelta / 5000;
 
-  acceleration.multiplyScalar(playDelta);
-  velocity.add(acceleration);
-  velocity.setLength(maxVelocity);
+  if (mine) {
+    acceleration.multiplyScalar(playDelta);
+    velocity.add(acceleration);
+    velocity.setLength(maxSpeed);
+    velClone = velocity.clone();
+    velClone.multiplyScalar(playDelta);
+    position.add(velClone);
+  } else {
+    // acceleration.multiplyScalar(playDelta);
+    // velClone = acceleration.clone();
+    // velClone.multiplyScalar(20);
+    // velClone.multiplyScalar(3);
+    // position.add(velClone);
+    // acceleration.multiplyScalar(0.01);
+    acceleration.multiplyScalar(playDelta);
+    acceleration.multiplyScalar(0.1);
+    velocity.add(acceleration);
+    if (velocity.length() > maxSpeed) velocity.setLength(maxSpeed);
+    velClone = velocity.clone();
+    velClone.multiplyScalar(playDelta);
+    // velClone.multiplyScalar(0.001);
+    position.add(velClone);
+  }
 
-  // TODO vb asendada hõõrdejõuga ja
-  // hõõrdejõu tugevus sõltuvalt cohesion tugevusest :O
-
-  const velClone = velocity.clone();
-  velClone.multiplyScalar(playDelta);
-  position.add(velClone);
+  if (boid.subject) console.log(velClone.length());
 
   boidDirection(velClone, boid);
-  acceleration.multiplyScalar(0);
-  // acceleration.set(0, 0, 0);
-  console.log(acceleration);
+
+  acceleration.set(0, 0, 0);
+
+  boid.ownTime += playDelta / 5000;
 }
 
 function boidDirection(velClone, boid) {

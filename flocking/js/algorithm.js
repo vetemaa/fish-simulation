@@ -60,9 +60,11 @@ function reynolds(boid, flockmates, flockmateCount) {
   if (mine) {
     // separation - mine
     sep.clampLength(0, 1);
+    // if (sepNeighbours > 0) sep.divideScalar(sepNeighbours);
 
     // alignment - mine
     ali.clampLength(0, 1);
+    // if (aliNeighbours > 0) ali.divideScalar(aliNeighbours);
 
     // cohesion - mine
     if (cohNeighbours > 0) {
@@ -88,26 +90,6 @@ function reynolds(boid, flockmates, flockmateCount) {
   }
 
   return { ali, sep, coh };
-}
-
-function escape(boid, predators, predatorCount) {
-  const steer = new THREE.Vector3();
-
-  for (let i = 0; i < predatorCount; i++) {
-    const predator = predators[i];
-    const dist = boid.position.distanceTo(predator.position);
-
-    if (dist < vars.escapeDist) {
-      // if (boid.subject) console.log("aa");
-      const diff = boid.position.clone().sub(predator.position);
-      diff.setLength(1 - dist / vars.escapeDist);
-      steer.add(diff);
-    }
-  }
-
-  steer.clampLength(0, 1);
-
-  return steer;
 }
 
 function attack(boid, prey, preyCount) {
