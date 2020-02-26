@@ -150,7 +150,7 @@ function moveBoids(delta) {
 
 function moveBoid(delta, boid) {
   const { sep, ali, coh } = reynolds(boid, boids, vars.boidCount);
-  // const avd = escape(boid, predators, vars.predatorCount);
+  const avd = escape(boid, predators, vars.predatorCount);
   const bnd = bounds(boid);
   const ran = random(boid);
   if (boid.subject) console.log(ran);
@@ -159,24 +159,15 @@ function moveBoid(delta, boid) {
     { vec: ali, enabled: 1, arr: 1, scalar: vars.alignmentScalar },
     { vec: coh, enabled: 1, arr: 3, scalar: vars.cohesionScalar },
     { vec: bnd, enabled: 1, arr: 0, scalar: vars.boundsScalar },
-    { vec: ran, enabled: 1, arr: 0, scalar: vars.randomScalar }
-    // { vec: avd, enabled: 0, arr: 0, scalar: vars.predatorDist }
+    { vec: ran, enabled: 1, arr: 0, scalar: vars.randomScalar },
+    { vec: avd, enabled: 1, arr: 0, scalar: vars.predatorDist }
   ];
-
-  // if (boid.subject) {
-  //   // 0.1-0.5, 1, 0.5
-  //   console.log(sep.length());
-  //   console.log(ali.length());
-  //   console.log(coh.length());
-  //   console.log("");
-  // }
 
   calculateAcceleration(boid, rules);
   boid.acceleration.multiplyScalar(vars.ruleScalar);
   applyAcceleration(delta, boid, vars.maxSpeed);
 
   if (boid.subject && vars.drawTail) addTailSegment(boid);
-  // addTailSegment(boid);
 }
 
 function movePredator(delta, boid) {
@@ -221,42 +212,20 @@ function calculateAcceleration(boid, rules) {
 function applyAcceleration(delta, boid, maxSpeed) {
   const { velocity, acceleration, position } = boid;
   const { playSpeed } = vars;
-  const mine = true;
   let velClone;
 
   if (playSpeed == 0 || maxSpeed == 0) return;
   const playDelta = (playSpeed * delta) / 16;
 
-  if (mine) {
-    acceleration.multiplyScalar(playDelta);
-    velocity.add(acceleration);
-    velocity.setLength(maxSpeed);
-    velClone = velocity.clone();
-    velClone.multiplyScalar(playDelta);
-    position.add(velClone);
-  } else {
-    // acceleration.multiplyScalar(playDelta);
-    // velClone = acceleration.clone();
-    // velClone.multiplyScalar(20);
-    // velClone.multiplyScalar(3);
-    // position.add(velClone);
-    // acceleration.multiplyScalar(0.01);
-    acceleration.multiplyScalar(playDelta);
-    acceleration.multiplyScalar(0.1);
-    velocity.add(acceleration);
-    if (velocity.length() > maxSpeed) velocity.setLength(maxSpeed);
-    velClone = velocity.clone();
-    velClone.multiplyScalar(playDelta);
-    // velClone.multiplyScalar(0.001);
-    position.add(velClone);
-  }
-
-  if (boid.subject) console.log(velClone.length());
+  acceleration.multiplyScalar(playDelta);
+  velocity.add(acceleration);
+  velocity.setLength(maxSpeed);
+  velClone = velocity.clone();
+  velClone.multiplyScalar(playDelta);
+  position.add(velClone);
 
   boidDirection(velClone, boid);
-
   acceleration.set(0, 0, 0);
-
   boid.ownTime += playDelta / 5000;
 }
 
@@ -269,8 +238,6 @@ function setArrow(arrow, vec) {
   if (vec.length() <= 0) {
     arrow.visible = false;
   } else {
-    // const len = vec.length() * vars.vectorLenMultiplier;
-    // arrow.setLength(len, 0.1, 0.1);
     arrow.len = vec.length();
     setArrowLen(arrow);
     arrow.setDirection(vec.clone().normalize());
