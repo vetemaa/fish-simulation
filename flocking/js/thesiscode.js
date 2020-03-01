@@ -21,9 +21,26 @@ function separation(boid) {
   sepNeighbours = 0;
   dist = boid.position.distanceTo(flockmate.position);
   flockmates.forEach(flockmate => {
-    if (dist < separationDist) {
-      diff = boid.position.clone().sub(flockmate.position);
-      sep.add(diff);
+    if (dist < separationRadius) {
+      difference = boid.position.clone().sub(flockmate.position);
+      sep.add(difference);
+      sepNeighbours++;
+    }
+  });
+  if (sepNeighbours > 0) sep.divideScalar(sepNeighbours);
+  return sep;
+}
+
+// SEPARATION - improved
+function separation(boid) {
+  sep = new THREE.Vector3();
+  sepNeighbours = 0;
+  dist = boid.position.distanceTo(flockmate.position);
+  flockmates.forEach(flockmate => {
+    if (dist < separationRadius) {
+      difference = boid.position.clone().sub(flockmate.position);
+      difference.setLength(1 - dist / vars.separationRadius);
+      sep.add(difference);
       sepNeighbours++;
     }
   });
@@ -37,7 +54,7 @@ function alignment(boid) {
   aliNeighbours = 0;
   dist = boid.position.distanceTo(flockmate.position);
   flockmates.forEach(flockmate => {
-    if (dist < alignmentDist) {
+    if (dist < alignmentRadius) {
       vel = flockmate.velocity.clone();
       ali.add(vel);
     }
@@ -52,7 +69,7 @@ function cohesion(boid) {
   cohNeighbours = 0;
   dist = boid.position.distanceTo(flockmate.position);
   flockmates.forEach(flockmate => {
-    if (dist < cohesionDist) {
+    if (dist < cohesionRadius) {
       pos = flockmate.position.clone();
       coh.add(pos);
       cohNeighbours++;

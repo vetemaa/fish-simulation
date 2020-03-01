@@ -14,41 +14,41 @@ function reynolds(boid, flockmates, flockmateCount) {
     if (boid.index !== flockmate.index) {
       if (mine) {
         // separation - mine
-        if (dist < vars.separationDist) {
+        if (dist < vars.separationRadius) {
           const diff = boid.position.clone().sub(flockmate.position);
-          diff.setLength(1 - dist / vars.separationDist);
+          diff.setLength(1 - dist / vars.separationRadius);
           sep.add(diff);
         }
 
         // alignment - mine
-        if (dist < vars.alignmentDist) {
+        if (dist < vars.alignmentRadius) {
           const vel = flockmate.velocity.clone();
-          vel.setLength(1 - dist / vars.alignmentDist);
+          vel.setLength(1 - dist / vars.alignmentRadius);
           ali.add(vel);
         }
 
         // cohesion - mine
-        if (dist < vars.cohesionDist) {
+        if (dist < vars.cohesionRadius) {
           const pos = flockmate.position.clone();
           coh.add(pos);
           cohNeighbours++;
         }
       } else {
         // separation - {4}
-        if (dist < vars.separationDist) {
+        if (dist < vars.separationRadius) {
           const diff = boid.position.clone().sub(flockmate.position);
           sep.add(diff);
           sepNeighbours++;
         }
 
         // alignment - {4}
-        if (dist < vars.alignmentDist) {
+        if (dist < vars.alignmentRadius) {
           const vel = flockmate.velocity.clone();
           ali.add(vel);
         }
 
         // cohesion - {4}
-        if (dist < vars.cohesionDist) {
+        if (dist < vars.cohesionRadius) {
           const pos = flockmate.position.clone();
           coh.add(pos);
           cohNeighbours++;
@@ -99,9 +99,9 @@ function escape(boid, predators, predatorCount) {
     const predator = predators[i];
     const dist = boid.position.distanceTo(predator.position);
 
-    if (dist < vars.escapeDist) {
+    if (dist < vars.escapeRadius) {
       const diff = boid.position.clone().sub(predator.position);
-      diff.setLength(1 - dist / vars.escapeDist);
+      diff.setLength(1 - dist / vars.escapeRadius);
       steer.add(diff);
     }
   }
@@ -114,19 +114,8 @@ function escape(boid, predators, predatorCount) {
 function attack(boid, prey, preyCount) {
   const steer = new THREE.Vector3();
 
-  // TODO otsi lähim ja vali uus siis kui on x ühikut lähemal kui eelmine
-
   let closestPrey;
   let closestDist = Infinity;
-
-  // if (boid.lastAttack === undefined) boid.lastAttack = boid.ownTime;
-  // if (boid.rest === undefined) boid.rest = true;
-
-  // if (boid.rest && boid.lastAttack + 1 < boid.ownTime) boid.rest = false;
-  // if (!boid.rest && boid.lastAttack + 1 > boid.ownTime) boid.rest = true;
-
-  // if (boid.rest) return steer;
-  // if ( boid.lastAttack + 1 > boid.ownTime) boid.lastAttack = boid.ownTime;
 
   if (boid.rest) {
     if (boid.lastTime + 0.3 < boid.ownTime) {
@@ -141,8 +130,6 @@ function attack(boid, prey, preyCount) {
       boid.rest = true;
     }
   }
-
-  // console.log(boid.ownTime);
 
   for (let i = 0; i < preyCount; i++) {
     const singlePrey = prey[i];
@@ -161,7 +148,7 @@ function attack(boid, prey, preyCount) {
     }
   }
 
-  if (closestDist < vars.attackDist) {
+  if (closestDist < vars.attackRadius) {
     steer.add(closestPrey.position);
     steer.sub(boid.position);
     boid.preyIndex = closestPrey.index;

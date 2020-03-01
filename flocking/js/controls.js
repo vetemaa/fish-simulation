@@ -12,13 +12,13 @@ function datGui() {
     this.boidCount = boidStartCount;
     this.ruleScalar = 0.5;
     this.maxSpeed = 0.03;
-    this.escapeDist = 24;
+    this.escapeRadius = 24;
     this.escapeScalar = 0.3;
-    this.alignmentDist = 8;
+    this.alignmentRadius = 8;
     this.alignmentScalar = 0.08;
-    this.cohesionDist = 12;
+    this.cohesionRadius = 12;
     this.cohesionScalar = 0.11;
-    this.separationDist = 2.4;
+    this.separationRadius = 2.4;
     this.separationScalar = 0.34;
     this.randomScalar = 0.08;
     this.boundsScalar = 0.045;
@@ -26,7 +26,7 @@ function datGui() {
     this.predatorCount = predatorStartCount;
     this.ruleScalar_p = 0.3;
     this.maxSpeed_p = 0.04;
-    this.attackDist = 24;
+    this.attackRadius = 24;
     this.attackScalar = 0.3;
 
     this.showVectors = true;
@@ -80,12 +80,12 @@ function datGui() {
   folWeights.add(vars, "randomScalar", 0, 1).step(0.01);
   folWeights.add(vars, "escapeScalar", 0, 1).step(0.01);
 
-  folDists = folBoids.addFolder("Rule Distances");
+  folDists = folBoids.addFolder("Rule Radiuses");
   folDists.open();
-  folDists.add(vars, "separationDist", 0, 10).step(0.1);
-  folDists.add(vars, "alignmentDist", 0, 100).step(1);
-  folDists.add(vars, "cohesionDist", 0, 100).step(1);
-  folDists.add(vars, "escapeDist", 0, 100).step(1);
+  folDists.add(vars, "separationRadius", 0, 10).step(0.1);
+  folDists.add(vars, "alignmentRadius", 0, 100).step(1);
+  folDists.add(vars, "cohesionRadius", 0, 100).step(1);
+  folDists.add(vars, "escapeRadius", 0, 100).step(1);
 
   // PREDATORS -------------------------- TODO vars asemel mingi muu
   folPredators
@@ -99,9 +99,9 @@ function datGui() {
   folWeights.open();
   folWeights.add(vars, "attackScalar", 0, 1).step(0.01);
 
-  folDists = folPredators.addFolder("Rule Distances");
+  folDists = folPredators.addFolder("Rule Radiuses");
   folDists.open();
-  folDists.add(vars, "attackDist", 0, 100).step(1);
+  folDists.add(vars, "attackRadius", 0, 100).step(1);
   // /PREDATORS --------------------------
 
   folVisual

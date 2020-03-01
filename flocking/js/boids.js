@@ -10,7 +10,7 @@ function addBoids() {
   subject = boids[0];
   // subject.mesh.material.wireframe = false;
 
-  // drawCircle(subject, vars.separationDist);
+  // drawCircle(subject, vars.separationRadius);
 
   // boidpos = [
   //   [9.9, 10, 9.9], [11.3, 10, 11.3], [10.7, 10, 9.3]
