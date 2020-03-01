@@ -21,13 +21,13 @@ function datGui() {
     this.separationDist = 2.4;
     this.separationScalar = 0.34;
     this.randomScalar = 0.08;
-    this.boundsScalar = 0.04;
+    this.boundsScalar = 0.045;
 
     this.predatorCount = predatorStartCount;
-    this.ruleScalar_p = 0.5;
-    this.maxSpeed_p = 0.03;
+    this.ruleScalar_p = 0.3;
+    this.maxSpeed_p = 0.04;
     this.attackDist = 24;
-    this.attackScalar = 0.06;
+    this.attackScalar = 0.3;
 
     this.showVectors = true;
     this.vectorLenMultiplier = 5;
@@ -68,7 +68,7 @@ function datGui() {
     .add(vars, "boidCount", 0, boidTotalCount)
     .step(1)
     .onChange(value => hideBoids(boids, value));
-  folBoids.add(vars, "ruleScalar", 0, 1).step(0.01);
+  folBoids.add(vars, "ruleScalar", 0, 3).step(0.01);
   folBoids.add(vars, "maxSpeed", 0, 0.1).step(0.01);
 
   folWeights = folBoids.addFolder("Rule Weights");
@@ -92,7 +92,7 @@ function datGui() {
     .add(vars, "predatorCount", 0, predatorTotalCount)
     .step(1)
     .onChange(value => hideBoids(predators, value));
-  folPredators.add(vars, "ruleScalar_p", 0, 1).step(0.01);
+  folPredators.add(vars, "ruleScalar_p", 0, 3).step(0.01);
   folPredators.add(vars, "maxSpeed_p", 0, 0.1).step(0.01);
 
   folWeights = folPredators.addFolder("Rule Weights");

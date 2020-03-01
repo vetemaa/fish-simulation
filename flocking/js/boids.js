@@ -31,6 +31,9 @@ function addBoids() {
 function addPredators() {
   for (let i = 0; i < predatorTotalCount; i++) {
     const predator = addBoid([0, 0, 0], i);
+    predator.predator = true;
+    predator.rest = true;
+    predator.lastTime = predator.ownTime;
     predator.scale.set(2, 2, 2);
     predator.mesh.material.color.setHex(0xff5555);
     predators.push(predator);
@@ -55,11 +58,6 @@ function addBoid(position, index) {
   boid.add(mesh);
 
   // boid.velocity = new THREE.Vector3();
-  // boid.velocity = new THREE.Vector3(
-  //   Math.random() - 0.5,
-  //   Math.random() - 0.5,
-  //   Math.random() - 0.5
-  // );
   boid.velocity = new THREE.Vector3(
     ran.nextFloat(),
     ran.nextFloat(),
@@ -153,14 +151,14 @@ function moveBoid(delta, boid) {
   const avd = escape(boid, predators, vars.predatorCount);
   const bnd = bounds(boid);
   const ran = random(boid);
-  if (boid.subject) console.log(ran);
+  // if (boid.subject) console.log(ran);
   rules = [
     { vec: sep, enabled: 1, arr: 2, scalar: vars.separationScalar },
     { vec: ali, enabled: 1, arr: 1, scalar: vars.alignmentScalar },
     { vec: coh, enabled: 1, arr: 3, scalar: vars.cohesionScalar },
     { vec: bnd, enabled: 1, arr: 0, scalar: vars.boundsScalar },
     { vec: ran, enabled: 1, arr: 0, scalar: vars.randomScalar },
-    { vec: avd, enabled: 1, arr: 0, scalar: vars.predatorDist }
+    { vec: avd, enabled: 1, arr: 0, scalar: vars.escapeScalar }
   ];
 
   calculateAcceleration(boid, rules);
@@ -177,9 +175,9 @@ function movePredator(delta, boid) {
   const ran = random(boid);
 
   rules = [
-    { vec: atk, enabled: 1, arr: 0, scalar: vars.attackScalar },
-    { vec: sep, enabled: 1, arr: 0, scalar: vars.separationScalar },
-    { vec: bnd, enabled: 1, arr: 0, scalar: vars.boundsScalar * 4 },
+    { vec: atk, enabled: 1, arr: 1, scalar: vars.attackScalar },
+    { vec: sep, enabled: 1, arr: 2, scalar: vars.separationScalar },
+    { vec: bnd, enabled: 1, arr: 3, scalar: vars.boundsScalar / 10 },
     { vec: ran, enabled: 1, arr: 0, scalar: vars.randomScalar / 2 }
   ];
 
@@ -200,7 +198,7 @@ function calculateAcceleration(boid, rules) {
     if (rule.enabled) {
       acceleration.add(rule.vec);
       rule.arr &&
-        boid.subject &&
+        boid.predator &&
         setArrow(boid.helpArrows.children[rule.arr - 1], rule.vec);
     }
   }

@@ -3,10 +3,12 @@ boids.forEach(boid => {
   separation = getSeparation(boid);
   alignment = getAlignment(boid);
   cohesion = getCohesion(boid);
+  bounds = getBounds(boid);
 
-  acceleration.add(separationVec.multiplyScalar(separationScalar));
-  acceleration.add(alignmentVec.multiplyScalar(alignmentScalar));
-  acceleration.add(cohesionVec.multiplyScalar(cohesionScalar));
+  acceleration.add(separation.multiplyScalar(separationScalar));
+  acceleration.add(alignment.multiplyScalar(alignmentScalar));
+  acceleration.add(cohesion.multiplyScalar(cohesionScalar));
+  acceleration.add(bounds.multiplyScalar(boundsScalar));
 
   boid.velocity.add(acceleration);
   boid.velocity.capLength(0, maxSpeed);

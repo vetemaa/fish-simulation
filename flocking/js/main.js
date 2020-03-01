@@ -11,12 +11,15 @@ var ran;
 var boids = [];
 var predators = [];
 var boidTotalCount = 1000;
-var boidStartCount = 1000;
+var boidStartCount = 500;
 var predatorTotalCount = 5;
-var predatorStartCount = 0;
+var predatorStartCount = 1;
 
 function init() {
   ran = new Random(1);
+  ran.nextFloat();
+  ran.nextFloat();
+  ran.nextFloat();
 
   renderer = new THREE.WebGLRenderer({
     antialias: true
@@ -107,13 +110,13 @@ function cameraChase() {
   );
 
   var cameraOffset = relativeCameraOffset.applyMatrix4(
-    boids[0].mesh.matrixWorld
+    predators[0].mesh.matrixWorld
   );
 
   fishCamera.position.copy(cameraOffset);
 
-  const velClone = boids[0].velocity.clone();
-  velClone.add(boids[0].position);
+  const velClone = predators[0].velocity.clone();
+  velClone.add(predators[0].position);
   let yOffset = 0.6;
   if (fishCameraDist < 1) yOffset *= fishCameraDist;
   velClone.y += yOffset;
