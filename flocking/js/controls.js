@@ -14,20 +14,22 @@ function datGui() {
     this.maxSpeed = 0.03;
     this.escapeRadius = 24;
     this.escapeScalar = 0.3;
+    this.feedRadius = 24;
+    this.feedScalar = 0.3;
     this.alignmentRadius = 8;
     this.alignmentScalar = 0.08;
     this.cohesionRadius = 12;
-    this.cohesionScalar = 0.11;
+    this.cohesionScalar = 0.011;
     this.separationRadius = 2.4;
     this.separationScalar = 0.34;
     this.randomScalar = 0.08;
-    this.boundsScalar = 0.045;
+    this.boundsScalar = 0.01;
 
     this.predatorCount = predatorStartCount;
     this.ruleScalar_p = 0.3;
     this.maxSpeed_p = 0.04;
     this.attackRadius = 24;
-    this.attackScalar = 0.3;
+    this.attackScalar = 0.03;
 
     this.showVectors = true;
     this.vectorLenMultiplier = 5;
@@ -69,16 +71,17 @@ function datGui() {
     .step(1)
     .onChange(value => hideBoids(boids, value));
   folBoids.add(vars, "ruleScalar", 0, 3).step(0.01);
-  folBoids.add(vars, "maxSpeed", 0, 0.1).step(0.01);
+  folBoids.add(vars, "maxSpeed", 0, 0.1).step(0.001);
 
   folWeights = folBoids.addFolder("Rule Weights");
   folWeights.open();
   folWeights.add(vars, "separationScalar", 0, 1).step(0.01);
   folWeights.add(vars, "alignmentScalar", 0, 1).step(0.01);
-  folWeights.add(vars, "cohesionScalar", 0, 1).step(0.01);
+  folWeights.add(vars, "cohesionScalar", 0, 0.1).step(0.001);
   folWeights.add(vars, "boundsScalar", 0, 1).step(0.01);
   folWeights.add(vars, "randomScalar", 0, 1).step(0.01);
   folWeights.add(vars, "escapeScalar", 0, 1).step(0.01);
+  folWeights.add(vars, "feedScalar", 0, 1).step(0.01);
 
   folDists = folBoids.addFolder("Rule Radiuses");
   folDists.open();
@@ -86,6 +89,7 @@ function datGui() {
   folDists.add(vars, "alignmentRadius", 0, 100).step(1);
   folDists.add(vars, "cohesionRadius", 0, 100).step(1);
   folDists.add(vars, "escapeRadius", 0, 100).step(1);
+  folDists.add(vars, "feedRadius", 0, 100).step(1);
 
   // PREDATORS -------------------------- TODO vars asemel mingi muu
   folPredators
@@ -97,7 +101,7 @@ function datGui() {
 
   folWeights = folPredators.addFolder("Rule Weights");
   folWeights.open();
-  folWeights.add(vars, "attackScalar", 0, 1).step(0.01);
+  folWeights.add(vars, "attackScalar", 0, 0.1).step(0.001);
 
   folDists = folPredators.addFolder("Rule Radiuses");
   folDists.open();

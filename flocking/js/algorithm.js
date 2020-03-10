@@ -70,7 +70,7 @@ function reynolds(boid, flockmates, flockmateCount) {
     if (cohNeighbours > 0) {
       coh.divideScalar(cohNeighbours);
       coh.sub(boid.position);
-      coh.multiplyScalar(0.1);
+      // coh.multiplyScalar(0.1);
     }
   } else {
     // separation - {4}
@@ -85,7 +85,7 @@ function reynolds(boid, flockmates, flockmateCount) {
     if (cohNeighbours > 0) {
       coh.divideScalar(cohNeighbours);
       coh.sub(boid.position);
-      coh.divideScalar(10);
+      // coh.multiplyScalar(0.1);
     }
   }
 
@@ -111,7 +111,7 @@ function escape(boid, predators, predatorCount) {
   return steer;
 }
 
-function attack(boid, prey, preyCount) {
+function attack(boid, preys, preyCount) {
   const steer = new THREE.Vector3();
 
   let closestPrey;
@@ -132,23 +132,23 @@ function attack(boid, prey, preyCount) {
   }
 
   for (let i = 0; i < preyCount; i++) {
-    const singlePrey = prey[i];
-    const dist = boid.position.distanceTo(singlePrey.position);
+    const prey = preys[i];
+    const dist = boid.position.distanceTo(prey.position);
 
     if (dist < 1) console.log(dist);
 
     if (boid.preyIndex == null && dist < closestDist) {
       // esimesel kaardril otsib lähima // vb pigem statest sõltuv
       closestDist = dist;
-      closestPrey = singlePrey;
+      closestPrey = prey;
     } else if (dist + 5 < closestDist) {
       // hiljem lähima kui see 10 uniti jagu lähemal
       closestDist = dist;
-      closestPrey = singlePrey;
+      closestPrey = prey;
     }
   }
 
-  if (closestDist < vars.attackRadius) {
+  if (closestDist < feed) {
     steer.add(closestPrey.position);
     steer.sub(boid.position);
     boid.preyIndex = closestPrey.index;
@@ -157,7 +157,39 @@ function attack(boid, prey, preyCount) {
   }
 
   if (boid.rest) steer.multiplyScalar(0.3);
-  steer.multiplyScalar(0.1);
+  return steer;
+}
+
+function feed(boid) {
+  const steer = new THREE.Vector3();
+
+  let closestFood;
+  let closestDist = Infinity;
+
+  for (let i = 0; i < 100; i++) {
+    const food = foods[i];
+    if (!food.visible) continue;
+    const dist = boid.position.distanceTo(food.position);
+
+    if (dist < 0.3) eatFood(i);
+
+    if (boid.preyIndex == null && dist < closestDist) {
+      closestDist = dist;
+      closestFood = food;
+    } else if (dist < closestDist) {
+      closestDist = dist;
+      closestFood = food;
+    }
+  }
+
+  if (closestDist < vars.feedRadius) {
+    steer.add(closestFood.position);
+    steer.sub(boid.position);
+    boid.preyIndex = closestFood.index;
+  } else {
+    boid.preyIndex = null;
+  }
+
   return steer;
 }
 

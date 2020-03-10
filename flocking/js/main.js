@@ -10,10 +10,11 @@ var ran;
 
 var boids = [];
 var predators = [];
+var foods = [];
 var boidTotalCount = 1000;
-var boidStartCount = 500;
+var boidStartCount = 1;
 var predatorTotalCount = 5;
-var predatorStartCount = 1;
+var predatorStartCount = 0;
 
 function init() {
   ran = new Random(1);
@@ -75,6 +76,7 @@ function init() {
 
   addBoids();
   addPredators();
+  addFood();
 
   scene.add(fishCamera);
 
@@ -93,6 +95,7 @@ function animate(now) {
   const delta = now - then;
   if (delta && vars.play) {
     moveBoids(delta);
+    animateFood(delta);
     cameraChase(delta);
   }
   then = now;
@@ -110,13 +113,13 @@ function cameraChase() {
   );
 
   var cameraOffset = relativeCameraOffset.applyMatrix4(
-    predators[0].mesh.matrixWorld
+    boids[0].mesh.matrixWorld
   );
 
   fishCamera.position.copy(cameraOffset);
 
-  const velClone = predators[0].velocity.clone();
-  velClone.add(predators[0].position);
+  const velClone = boids[0].velocity.clone();
+  velClone.add(boids[0].position);
   let yOffset = 0.6;
   if (fishCameraDist < 1) yOffset *= fishCameraDist;
   velClone.y += yOffset;

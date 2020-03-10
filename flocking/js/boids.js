@@ -151,6 +151,7 @@ function moveBoid(delta, boid) {
   const avd = escape(boid, predators, vars.predatorCount);
   const bnd = bounds(boid);
   const ran = random(boid);
+  const fed = feed(boid);
   // if (boid.subject) console.log(ran);
   rules = [
     { vec: sep, enabled: 1, arr: 2, scalar: vars.separationScalar },
@@ -158,7 +159,8 @@ function moveBoid(delta, boid) {
     { vec: coh, enabled: 1, arr: 3, scalar: vars.cohesionScalar },
     { vec: bnd, enabled: 1, arr: 0, scalar: vars.boundsScalar },
     { vec: ran, enabled: 1, arr: 0, scalar: vars.randomScalar },
-    { vec: avd, enabled: 1, arr: 0, scalar: vars.escapeScalar }
+    { vec: avd, enabled: 1, arr: 0, scalar: vars.escapeScalar },
+    { vec: fed, enabled: 1, arr: 4, scalar: vars.feedScalar }
   ];
 
   calculateAcceleration(boid, rules);
@@ -188,6 +190,7 @@ function movePredator(delta, boid) {
 
 function calculateAcceleration(boid, rules) {
   const { acceleration } = boid;
+  acceleration.set(0, 0, 0);
 
   for (let i = 0; i < rules.length; i++) {
     const rule = rules[i];
@@ -198,10 +201,12 @@ function calculateAcceleration(boid, rules) {
     if (rule.enabled) {
       acceleration.add(rule.vec);
       rule.arr &&
-        boid.predator &&
+        vars.showVectors &&
         setArrow(boid.helpArrows.children[rule.arr - 1], rule.vec);
     }
   }
+
+  setArrow(boid.helpArrows.children[3], boid.acceleration);
 
   acceleration.multiplyScalar(0.005);
   acceleration.y *= 0.8;
@@ -217,13 +222,14 @@ function applyAcceleration(delta, boid, maxSpeed) {
 
   acceleration.multiplyScalar(playDelta);
   velocity.add(acceleration);
-  velocity.setLength(maxSpeed);
+  velocity.multiplyScalar(0.8); // drag
+  // velocity.setLength(maxSpeed); // constspeed
+  velocity.clampLength(0, maxSpeed); // maxspeed
   velClone = velocity.clone();
   velClone.multiplyScalar(playDelta);
   position.add(velClone);
 
   boidDirection(velClone, boid);
-  acceleration.set(0, 0, 0);
   boid.ownTime += playDelta / 5000;
 }
 
