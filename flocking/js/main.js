@@ -11,10 +11,12 @@ var ran;
 var boids = [];
 var predators = [];
 var foods = [];
-var boidTotalCount = 1000;
-var boidStartCount = 1;
+var boidTotalCount = 700;
+var boidStartCount = 700;
 var predatorTotalCount = 5;
 var predatorStartCount = 0;
+var foodTotalCount = 0;
+var foodStartCount = 0;
 
 function init() {
   ran = new Random(1);
@@ -82,7 +84,7 @@ function init() {
 
   addBounds();
 
-  // animate couple of frames for paused analysis
+  // animate frame(s) for paused analysis
   moveBoids(1);
   moveBoids(1);
   cameraChase(1);

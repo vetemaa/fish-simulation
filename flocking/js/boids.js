@@ -71,14 +71,20 @@ function addBoid(position, index) {
   boid.helpArrows = helpArrows;
   boid.add(helpArrows);
   // green, red, indigo, yellow, orange, grey
-  [0x66bb6a, 0xe57373, 0x5c6bc0, 0xdce775, 0xffb74d, 0xbdbdbd].forEach(
-    color => {
-      const arrow = new THREE.ArrowHelper();
-      arrow.setColor(color);
-      helpArrows.add(arrow);
-      arrow.visible = false;
-    }
-  );
+  [
+    0xffffff,
+    0x66bb6a,
+    0xe57373,
+    0x5c6bc0,
+    0xdce775,
+    0xffb74d,
+    0xbdbdbd
+  ].forEach(color => {
+    const arrow = new THREE.ArrowHelper();
+    arrow.setColor(color);
+    helpArrows.add(arrow);
+    arrow.visible = false;
+  });
 
   var tailLines = new THREE.Group();
   tailLines.name = "tailLines";
@@ -202,11 +208,15 @@ function calculateAcceleration(boid, rules) {
       acceleration.add(rule.vec);
       rule.arr &&
         vars.showVectors &&
-        setArrow(boid.helpArrows.children[rule.arr - 1], rule.vec);
+        setArrow(boid.helpArrows.children[rule.arr], rule.vec);
     }
   }
 
-  setArrow(boid.helpArrows.children[3], boid.acceleration);
+  // setArrow(boid.helpArrows.children[0], boid.acceleration);
+  setArrow(
+    boid.helpArrows.children[0],
+    boid.acceleration.clone().multiplyScalar(1)
+  );
 
   acceleration.multiplyScalar(0.005);
   acceleration.y *= 0.8;
@@ -221,8 +231,12 @@ function applyAcceleration(delta, boid, maxSpeed) {
   const playDelta = (playSpeed * delta) / 16;
 
   acceleration.multiplyScalar(playDelta);
+  // acceleration.clampLength(0, maxSpeed); // maxspeed other option
+  // console.log(acceleration.length());
+  // acceleration.clampLength(0, vars.maxAcceleration); // maxspeed other option
+  // acceleration.multiplyScalar(0.1);
   velocity.add(acceleration);
-  velocity.multiplyScalar(0.8); // drag
+  // velocity.multiplyScalar(0.96); // drag
   // velocity.setLength(maxSpeed); // constspeed
   velocity.clampLength(0, maxSpeed); // maxspeed
   velClone = velocity.clone();

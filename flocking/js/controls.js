@@ -10,12 +10,14 @@ function datGui() {
     this.boundSize = 60;
 
     this.boidCount = boidStartCount;
+    this.foodCount = foodStartCount;
     this.ruleScalar = 0.5;
     this.maxSpeed = 0.03;
+    this.maxAcceleration = 0.01;
     this.escapeRadius = 24;
     this.escapeScalar = 0.3;
     this.feedRadius = 24;
-    this.feedScalar = 0.3;
+    this.feedScalar = 0;
     this.alignmentRadius = 8;
     this.alignmentScalar = 0.08;
     this.cohesionRadius = 12;
@@ -31,8 +33,8 @@ function datGui() {
     this.attackRadius = 24;
     this.attackScalar = 0.03;
 
-    this.showVectors = true;
-    this.vectorLenMultiplier = 5;
+    this.showVectors = false;
+    this.vectorLenMultiplier = 20;
     this.showBounds = true;
     this.showAxes = true;
     this.drawTail = false;
@@ -72,6 +74,7 @@ function datGui() {
     .onChange(value => hideBoids(boids, value));
   folBoids.add(vars, "ruleScalar", 0, 3).step(0.01);
   folBoids.add(vars, "maxSpeed", 0, 0.1).step(0.001);
+  folBoids.add(vars, "maxAcceleration", 0, 0.01).step(0.001);
 
   folWeights = folBoids.addFolder("Rule Weights");
   folWeights.open();

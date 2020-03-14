@@ -166,7 +166,7 @@ function feed(boid) {
   let closestFood;
   let closestDist = Infinity;
 
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < vars.foodCount; i++) {
     const food = foods[i];
     if (!food.visible) continue;
     const dist = boid.position.distanceTo(food.position);
@@ -189,6 +189,9 @@ function feed(boid) {
   } else {
     boid.preyIndex = null;
   }
+
+  steer.clampLength(0, 1);
+  // steer.setLength(1);
 
   return steer;
 }

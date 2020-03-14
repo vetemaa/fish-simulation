@@ -1,5 +1,5 @@
 function addFood() {
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < foodTotalCount; i++) {
     const mat = new THREE.SpriteMaterial({ color: 0x1dab70 });
     const food = new THREE.Sprite(mat);
     food.index = i;
@@ -19,7 +19,7 @@ function addFood() {
 }
 
 function animateFood(delta) {
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < vars.foodCount; i++) {
     const playDelta = (vars.playSpeed * delta) / 16;
     const food = foods[i];
 
