@@ -217,10 +217,11 @@ function bounds(boid) {
 }
 
 function random(boid) {
+  const time = boid.ownTime * vars.randomWavelenScalar;
   const steer = new THREE.Vector3(
-    simplex.noise2D(boid.ownTime, (boid.index + 1) * 10),
-    simplex.noise2D(boid.ownTime, (boid.index + 1) * 100),
-    simplex.noise2D(boid.ownTime, (boid.index + 1) * 1000)
+    simplex.noise2D(time, (boid.index + 1) * 10),
+    simplex.noise2D(time, (boid.index + 1) * 100),
+    simplex.noise2D(time, (boid.index + 1) * 1000)
   );
 
   return steer;

@@ -86,11 +86,12 @@ function addBoid(position, index) {
     arrow.visible = false;
   });
 
-  var tailLines = new THREE.Group();
-  tailLines.name = "tailLines";
-  boid.tailLines = tailLines;
-  // tailLines.previous = new THREE.Vector3(...position);
-  scene.add(tailLines);
+  var tailLine = new THREE.Group();
+  tailLine.name = "tailLine";
+  tailLine.color = 0xff00ff;
+  boid.tailLine = tailLine;
+  // tailLine.previous = new THREE.Vector3(...position);
+  scene.add(tailLine);
 
   boid.position.set(...position);
   scene.add(boid);
@@ -114,24 +115,6 @@ function drawCircle(boid, dist) {
 
   circle.scale.set(dist, dist, dist);
   boid.add(circle);
-}
-
-function addTailSegment(boid) {
-  const lineGeometry = new THREE.Geometry();
-  if (!boid.tailLines.previous) boid.tailLines.previous = boid.position.clone();
-  lineGeometry.vertices.push(boid.tailLines.previous.clone());
-  lineGeometry.vertices.push(boid.position);
-  const line = new THREE.Line(
-    lineGeometry,
-    new THREE.LineBasicMaterial({
-      color: 0xff00ff
-      // transparent: true,
-      // opacity: 1
-    })
-  );
-
-  boid.tailLines.add(line);
-  boid.tailLines.previous.copy(boid.position);
 }
 
 function moveBoids(delta) {
@@ -164,7 +147,7 @@ function moveBoid(delta, boid) {
     { vec: ali, enabled: 1, arr: 1, scalar: vars.alignmentScalar },
     { vec: coh, enabled: 1, arr: 3, scalar: vars.cohesionScalar },
     { vec: bnd, enabled: 1, arr: 0, scalar: vars.boundsScalar },
-    { vec: ran, enabled: 1, arr: 0, scalar: vars.randomScalar },
+    { vec: ran, enabled: 1, arr: 5, scalar: vars.randomScalar },
     { vec: avd, enabled: 1, arr: 0, scalar: vars.escapeScalar },
     { vec: fed, enabled: 1, arr: 4, scalar: vars.feedScalar }
   ];
@@ -173,7 +156,9 @@ function moveBoid(delta, boid) {
   boid.acceleration.multiplyScalar(vars.ruleScalar);
   applyAcceleration(delta, boid, vars.maxSpeed);
 
-  if (boid.subject && vars.drawTail) addTailSegment(boid);
+  // if (boid.subject && vars.drawTail) addTailSegment(boid);
+  if (boid.subject && vars.drawTail)
+    addLineSegment(boid.tailLine, boid.position.clone());
 }
 
 function movePredator(delta, boid) {
@@ -236,7 +221,7 @@ function applyAcceleration(delta, boid, maxSpeed) {
   // acceleration.clampLength(0, vars.maxAcceleration); // maxspeed other option
   // acceleration.multiplyScalar(0.1);
   velocity.add(acceleration);
-  // velocity.multiplyScalar(0.96); // drag
+  // velocity.multiplyScalar(0.96); // drag TODO: drag ka delta
   // velocity.setLength(maxSpeed); // constspeed
   velocity.clampLength(0, maxSpeed); // maxspeed
   velClone = velocity.clone();

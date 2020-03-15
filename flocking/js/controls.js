@@ -25,6 +25,7 @@ function datGui() {
     this.separationRadius = 2.4;
     this.separationScalar = 0.34;
     this.randomScalar = 0.08;
+    this.randomWavelenScalar = 0.5;
     this.boundsScalar = 0.01;
 
     this.predatorCount = predatorStartCount;
@@ -37,7 +38,7 @@ function datGui() {
     this.vectorLenMultiplier = 20;
     this.showBounds = true;
     this.showAxes = true;
-    this.drawTail = false;
+    this.drawTail = true;
     this.removeTail = () => removeTail();
     this.shuffleBoids = () => shuffleBoids();
   };
@@ -83,6 +84,7 @@ function datGui() {
   folWeights.add(vars, "cohesionScalar", 0, 0.1).step(0.001);
   folWeights.add(vars, "boundsScalar", 0, 1).step(0.01);
   folWeights.add(vars, "randomScalar", 0, 1).step(0.01);
+  folWeights.add(vars, "randomWavelenScalar", 0, 10).step(0.1);
   folWeights.add(vars, "escapeScalar", 0, 1).step(0.01);
   folWeights.add(vars, "feedScalar", 0, 1).step(0.01);
 
@@ -115,7 +117,7 @@ function datGui() {
     .add(vars, "showVectors")
     .onChange(value => changeVectorVisibility(value));
   folVisual
-    .add(vars, "vectorLenMultiplier", 0, 20)
+    .add(vars, "vectorLenMultiplier", 0, 100)
     .step(1)
     .onChange(changeArrowLens);
   folVisual
@@ -135,8 +137,8 @@ function datGui() {
 }
 
 function removeTail() {
-  const tailLines = boids[0].tailLines;
-  tailLines.children = [];
+  const tailLine = boids[0].tailLine;
+  tailLine.children = [];
 }
 
 function changeCamera(value) {
