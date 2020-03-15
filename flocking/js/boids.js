@@ -58,11 +58,7 @@ function addBoid(position, index) {
   boid.add(mesh);
 
   // boid.velocity = new THREE.Vector3();
-  boid.velocity = new THREE.Vector3(
-    ran.nextFloat(),
-    ran.nextFloat(),
-    ran.nextFloat()
-  );
+  boid.velocity = new THREE.Vector3(rand(), rand(), rand());
   boid.velocity.setLength(0.1);
   boid.acceleration = new THREE.Vector3();
 
@@ -85,6 +81,12 @@ function addBoid(position, index) {
     helpArrows.add(arrow);
     arrow.visible = false;
   });
+
+  boid.noise = {
+    x: { a: null, b: rand(), cumWavLen: 0 },
+    y: { a: null, b: rand(), cumWavLen: 0 },
+    z: { a: null, b: rand(), cumWavLen: 0 }
+  };
 
   var tailLine = new THREE.Group();
   tailLine.name = "tailLine";
@@ -213,7 +215,7 @@ function applyAcceleration(delta, boid, maxSpeed) {
   let velClone;
 
   if (playSpeed == 0 || maxSpeed == 0) return;
-  const playDelta = (playSpeed * delta) / 16;
+  const playDelta = (playSpeed * delta) / 8;
 
   acceleration.multiplyScalar(playDelta);
   // acceleration.clampLength(0, maxSpeed); // maxspeed other option

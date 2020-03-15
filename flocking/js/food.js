@@ -6,9 +6,9 @@ function addFood() {
     food.ownTime = 0;
 
     food.position.set(
-      vars.boundSize * ran.nextFloat(),
-      vars.boundSize * ran.nextFloat(),
-      vars.boundSize * ran.nextFloat()
+      vars.boundSize * rand(),
+      vars.boundSize * rand(),
+      vars.boundSize * rand()
     );
     food.orgPos = food.position.clone();
     food.scale.set(0.15, 0.15, 0.15);

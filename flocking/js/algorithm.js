@@ -148,7 +148,7 @@ function attack(boid, preys, preyCount) {
     }
   }
 
-  if (closestDist < feed) {
+  if (closestDist < vars.attackRadius) {
     steer.add(closestPrey.position);
     steer.sub(boid.position);
     boid.preyIndex = closestPrey.index;
@@ -218,11 +218,52 @@ function bounds(boid) {
 
 function random(boid) {
   const time = boid.ownTime * vars.randomWavelenScalar;
+  // const steer = new THREE.Vector3(
+  //   simplex.noise2D(time, (boid.index + 1) * 10),
+  //   simplex.noise2D(time, (boid.index + 1) * 100),
+  //   simplex.noise2D(time, (boid.index + 1) * 1000)
+  // );
   const steer = new THREE.Vector3(
-    simplex.noise2D(time, (boid.index + 1) * 10),
-    simplex.noise2D(time, (boid.index + 1) * 100),
-    simplex.noise2D(time, (boid.index + 1) * 1000)
+    noise(time, boid, "x"),
+    noise(time, boid, "y"),
+    noise(time, boid, "z")
   );
+  // const steer = new THREE.Vector3(
+  //   Math.random() * 2 - 1,
+  //   Math.random() * 2 - 1,
+  //   Math.random() * 2 - 1
+  // );
 
   return steer;
+}
+
+function noise(x, boid, axis) {
+  const wavelen = 0.3;
+  var noiseData = boid.noise[axis];
+
+  if (x >= noiseData.cumWavLen) {
+    noiseData.cumWavLen += wavelen;
+    noiseData.a = noiseData.b;
+    noiseData.b = rand();
+  }
+
+  const y = interpolate(noiseData.a, noiseData.b, (x % wavelen) / wavelen);
+  return y * 2 - 1;
+}
+
+// https://codepen.io/Tobsta/post/procedural-generation-part-1-1d-perlin-noise
+const M = 4294967296;
+const A = 1664525;
+const C = 1;
+var Z = Math.floor(0.1 * M); // var Z = Math.floor(Math.random() * M);
+function rand() {
+  Z = (A * Z + C) % M;
+  return Z / M;
+}
+
+// https://codepen.io/Tobsta/post/procedural-generation-part-1-1d-perlin-noise
+function interpolate(pa, pb, px) {
+  var ft = px * Math.PI,
+    f = (1 - Math.cos(ft)) * 0.5;
+  return pa * (1 - f) + pb * f;
 }

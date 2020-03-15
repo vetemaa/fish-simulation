@@ -4,7 +4,7 @@ var boundBox;
 function datGui() {
   var vars = function() {
     this.play = true;
-    this.playSpeed = 10;
+    this.playSpeed = 5;
     this.chaseCamera = false;
 
     this.boundSize = 60;
@@ -38,7 +38,8 @@ function datGui() {
     this.vectorLenMultiplier = 20;
     this.showBounds = true;
     this.showAxes = true;
-    this.drawTail = true;
+    this.drawTail = false;
+    this.drawRandomFunction = true;
     this.removeTail = () => removeTail();
     this.shuffleBoids = () => shuffleBoids();
   };
@@ -57,7 +58,7 @@ function datGui() {
   // folVisual.open();
 
   folMain.add(vars, "play").listen();
-  folMain.add(vars, "playSpeed", 0, 10).step(0.01);
+  folMain.add(vars, "playSpeed", 0, 10).step(0.1);
   folMain
     .add(vars, "chaseCamera")
     .listen()
@@ -65,7 +66,7 @@ function datGui() {
       changeCamera(value);
     });
   folMain
-    .add(vars, "boundSize", 0, 100)
+    .add(vars, "boundSize", 0, 150)
     .step(1)
     .onChange(value => updateBounds(value));
 
@@ -127,6 +128,7 @@ function datGui() {
     .add(vars, "showAxes")
     .onChange(value => (axesHelper.visible = value));
   folVisual.add(vars, "drawTail");
+  folVisual.add(vars, "drawRandomFunction");
   folVisual.add(vars, "removeTail");
 
   gui.add(vars, "shuffleBoids");
@@ -178,14 +180,6 @@ function initControls() {
   );
 }
 
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  fishCamera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  fishCamera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
 function hideBoids(boidArray, boidCount) {
   for (let i = 0; i < boidArray.length; i++) {
     const boid = boidArray[i];
@@ -197,49 +191,13 @@ function hideBoids(boidArray, boidCount) {
 function shuffleBoids() {
   boids.forEach(boid => {
     boid.position.set(
-      vars.boundSize * ran.nextFloat(),
-      vars.boundSize * ran.nextFloat(),
-      vars.boundSize * ran.nextFloat()
+      vars.boundSize * rand(),
+      vars.boundSize * rand(),
+      vars.boundSize * rand()
     );
-    boid.velocity.set(
-      ran.nextFloat() - 0.5,
-      ran.nextFloat() - 0.5,
-      ran.nextFloat() - 0.5
-    );
+    boid.velocity.set(rand() - 0.5, rand() - 0.5, rand() - 0.5);
     boid.velocity.setLength(0.1);
   });
-}
-
-function addBounds() {
-  boundBox = new THREE.Group();
-
-  const box = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshBasicMaterial()
-  );
-  box.visible = false;
-  boundBox.add(box);
-
-  var helper = new THREE.BoxHelper(boundBox, "#ffffff");
-  boundBox.add(helper);
-  helper.material.opacity = 0.25;
-  helper.material.transparent = true;
-
-  boundBox.boundBox3 = new THREE.Box3();
-
-  scene.add(boundBox);
-  boundBox.visible = vars.showBounds;
-  updateBounds(vars.boundSize);
-}
-
-function updateBounds(size) {
-  boundBox.scale.set(size, size, size);
-  const pos = size / 2 - 0.01;
-  boundBox.position.set(pos, pos, pos);
-
-  boundBox.boundBox3.setFromObject(boundBox);
-  const target = vars.boundSize / 2;
-  cameraControls.target.set(target, target / 1.26, target);
 }
 
 function changeVectorVisibility(value) {
