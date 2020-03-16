@@ -118,3 +118,35 @@ function addBounds() {
   boundBox.visible = vars.showBounds;
   updateBounds(vars.boundSize);
 }
+
+var info = {};
+
+function setInfo(rules, acc) {
+  info.sep = rules[0];
+  info.ali = rules[1];
+  info.coh = rules[2];
+  info.bnd = rules[3];
+  info.ran = rules[4];
+  info.avd = rules[5];
+  info.fed = rules[6];
+  info.acc = { vec: acc, arr: undefined, enabled: true };
+}
+
+function updateInfo() {
+  for (key in info) {
+    ruleInf = info[key];
+    infoDiv = document.getElementById(key);
+
+    let text = `${key}: ${ruleInf.vec.length().toFixed(4)}`;
+    if (!ruleInf.enabled) text = `${key}: disabled`;
+
+    let colorIndex = ruleInf.arr;
+    let color;
+    if (colorIndex == undefined) color = "#fff";
+    else if (colorIndex == 0) color = "#111";
+    else color = colors[colorIndex];
+
+    infoDiv.children[0].style.backgroundColor = color;
+    infoDiv.children[1].textContent = text;
+  }
+}

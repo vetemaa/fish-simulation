@@ -39,7 +39,7 @@ function datGui() {
     this.showBounds = true;
     this.showAxes = true;
     this.drawTail = false;
-    this.drawRandomFunction = true;
+    this.drawRandomFunction = false;
     this.removeTail = () => removeTail();
     this.shuffleBoids = () => shuffleBoids();
   };

@@ -97,6 +97,7 @@ function animate(now) {
     animateFood(delta);
     cameraChase(delta);
     animateNoise();
+    updateInfo();
   }
   then = now;
 

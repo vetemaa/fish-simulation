@@ -1,3 +1,14 @@
+const colors = [
+  "#fff",
+  "#66bb6a",
+  "#e57373",
+  "#5d7ada",
+  "#dce775",
+  "#ffb74d",
+  "#6f4b2e",
+  "#64c3ec"
+];
+
 function addBoids() {
   const { boundSize } = vars;
   for (let i = 0; i < boidTotalCount; i++) {
@@ -67,15 +78,7 @@ function addBoid(position, index) {
   boid.helpArrows = helpArrows;
   boid.add(helpArrows);
   // green, red, indigo, yellow, orange, grey
-  [
-    0xffffff,
-    0x66bb6a,
-    0xe57373,
-    0x5c6bc0,
-    0xdce775,
-    0xffb74d,
-    0xbdbdbd
-  ].forEach(color => {
+  colors.forEach(color => {
     const arrow = new THREE.ArrowHelper();
     arrow.setColor(color);
     helpArrows.add(arrow);
@@ -148,9 +151,9 @@ function moveBoid(delta, boid) {
     { vec: sep, enabled: 1, arr: 2, scalar: vars.separationScalar },
     { vec: ali, enabled: 1, arr: 1, scalar: vars.alignmentScalar },
     { vec: coh, enabled: 1, arr: 3, scalar: vars.cohesionScalar },
-    { vec: bnd, enabled: 1, arr: 0, scalar: vars.boundsScalar },
+    { vec: bnd, enabled: 1, arr: 6, scalar: vars.boundsScalar },
     { vec: ran, enabled: 1, arr: 5, scalar: vars.randomScalar },
-    { vec: avd, enabled: 1, arr: 0, scalar: vars.escapeScalar },
+    { vec: avd, enabled: 1, arr: 7, scalar: vars.escapeScalar },
     { vec: fed, enabled: 1, arr: 4, scalar: vars.feedScalar }
   ];
 
@@ -187,26 +190,19 @@ function calculateAcceleration(boid, rules) {
 
   for (let i = 0; i < rules.length; i++) {
     const rule = rules[i];
-
     if (rule.scalar === 0) continue;
 
     rule.scalar && rule.vec.multiplyScalar(rule.scalar);
-    if (rule.enabled) {
-      acceleration.add(rule.vec);
-      rule.arr &&
-        vars.showVectors &&
-        setArrow(boid.helpArrows.children[rule.arr], rule.vec);
-    }
+    if (rule.enabled) acceleration.add(rule.vec);
+
+    if (boid.subject && rule.enabled && rule.arr && vars.showVectors)
+      setArrow(boid.helpArrows.children[rule.arr], rule.vec);
   }
 
-  // setArrow(boid.helpArrows.children[0], boid.acceleration);
-  setArrow(
-    boid.helpArrows.children[0],
-    boid.acceleration.clone().multiplyScalar(1)
-  );
-
+  if (boid.subject) setArrow(boid.helpArrows.children[0], boid.acceleration);
+  if (boid.subject) setInfo(rules, boid.acceleration.clone());
   acceleration.multiplyScalar(0.005);
-  acceleration.y *= 0.8;
+  acceleration.y *= 0.7;
 }
 
 function applyAcceleration(delta, boid, maxSpeed) {

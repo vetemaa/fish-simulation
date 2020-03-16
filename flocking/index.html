@@ -33,16 +33,45 @@
         overflow: hidden;
         padding: 0;
         margin: 0;
-        color: #222;
         background-color: #bbb;
         font-family: arial;
         font-size: 100%;
       }
+
+      #info {
+        position: absolute;
+        bottom: 8px;
+        left: 11px;
+        z-index: 10001;
+
+        color: #aaa;
+        font-size: 13px;
+        font-family: monospace;
+      }
+
+      span.rect {
+        display: inline-block;
+        background-color: #444;
+        width: 8px;
+        height: 8px;
+        border-radius: 1px;
+        margin-right: 8px;
+      }
     </style>
   </head>
   <body>
-    <div id="container"></div>
-
+    <div id="container">
+      <div id="info">
+        <div id="sep"><span class="rect"></span><span></span></div>
+        <div id="ali"><span class="rect"></span><span></span></div>
+        <div id="coh"><span class="rect"></span><span></span></div>
+        <div id="bnd"><span class="rect"></span><span></span></div>
+        <div id="ran"><span class="rect"></span><span></span></div>
+        <div id="avd"><span class="rect"></span><span></span></div>
+        <div id="fed"><span class="rect"></span><span></span></div>
+        <div id="acc"><span class="rect"></span><span></span></div>
+      </div>
+    </div>
     <script type="text/javascript">
       var currentMask = false;
 
