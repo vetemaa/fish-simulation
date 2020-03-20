@@ -12,11 +12,11 @@ var boids = [];
 var predators = [];
 var foods = [];
 var boidTotalCount = 700;
-var boidStartCount = 300;
+var boidStartCount = 1;
 var predatorTotalCount = 5;
-var predatorStartCount = 1;
-var foodTotalCount = 0;
-var foodStartCount = 0;
+var predatorStartCount = 0;
+var foodTotalCount = 10;
+var foodStartCount = 10;
 
 function init() {
   renderer = new THREE.WebGLRenderer({
@@ -57,8 +57,8 @@ function init() {
   );
   // camera.position.set(42, 16, 25);
   // camera.position.set(140, 54, 82);
-  // camera.position.set(84, 33, 49);
-  camera.position.set(160, 60, 93);
+  camera.position.set(84, 33, 49);
+  // camera.position.set(160, 60, 93);
   // camera.position.set(30, 20, 140);
   // camera.position.set(10.001, 20, 10);
   // camera.position.set(15.001, 30, 15);
@@ -68,6 +68,7 @@ function init() {
   cameraControls.rotateSpeed = 0.2;
   cameraControls.maxDistance = 300;
   cameraControls.minDistance = 1;
+  cameraControls.enabled = !vars.chaseCamera;
 
   axesHelper = new THREE.AxesHelper(100);
   scene.add(axesHelper);
@@ -91,11 +92,12 @@ function init() {
 
 let then = Date.now();
 function animate(now) {
+  21;
   const delta = now - then;
+  if (delta) cameraChase(delta);
   if (delta && vars.play) {
     moveBoids(delta);
     animateFood(delta);
-    cameraChase(delta);
     animateNoise();
     updateInfo();
   }

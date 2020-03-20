@@ -148,5 +148,6 @@ function updateInfo() {
 
     infoDiv.children[0].style.backgroundColor = color;
     infoDiv.children[1].textContent = text;
+    infoDiv.children[2].style.width = ruleInf.vec.length() * 200 + "px";
   }
 }

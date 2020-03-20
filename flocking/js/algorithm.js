@@ -27,7 +27,7 @@ function reynolds(boid, flockmates, flockmateCount) {
           ali.add(vel);
         }
 
-        // cohesion - mine
+        // cohesion - mine TODO: vb pole smooth, hoopis teisiti peaks vist
         if (dist < vars.cohesionRadius) {
           const pos = flockmate.position.clone();
           coh.add(pos);
@@ -210,8 +210,8 @@ function bounds(boid) {
   else if (z > maxBound) steer.z = -1;
 
   steer.normalize();
-  steer.multiplyScalar(boundBox.boundBox3.distanceToPoint(boid.position)); // smooth
-  // TODO unsmooth on edge of two axes bounds
+  steer.multiplyScalar(boundBox.boundBox3.distanceToPoint(boid.position)); // smooth on axis
+  // TODO: unsmooth on edge of two axes bounds
 
   return steer;
 }

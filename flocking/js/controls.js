@@ -4,10 +4,10 @@ var boundBox;
 function datGui() {
   var vars = function() {
     this.play = true;
-    this.playSpeed = 5;
+    this.playSpeed = 1;
     this.chaseCamera = false;
 
-    this.boundSize = 60;
+    this.boundSize = 26;
 
     this.boidCount = boidStartCount;
     this.foodCount = foodStartCount;
@@ -17,11 +17,11 @@ function datGui() {
     this.escapeRadius = 24;
     this.escapeScalar = 0.3;
     this.feedRadius = 24;
-    this.feedScalar = 0;
-    this.alignmentRadius = 8;
-    this.alignmentScalar = 0.08;
-    this.cohesionRadius = 12;
-    this.cohesionScalar = 0.011;
+    this.feedScalar = 0.3;
+    this.alignmentRadius = 9;
+    this.alignmentScalar = 0.07;
+    this.cohesionRadius = 14;
+    this.cohesionScalar = 0.012;
     this.separationRadius = 2.4;
     this.separationScalar = 0.34;
     this.randomScalar = 0.08;
@@ -34,7 +34,7 @@ function datGui() {
     this.attackRadius = 24;
     this.attackScalar = 0.03;
 
-    this.showVectors = false;
+    this.showVectors = true;
     this.vectorLenMultiplier = 20;
     this.showBounds = true;
     this.showAxes = true;
@@ -52,10 +52,6 @@ function datGui() {
   folBoids = gui.addFolder("Boids");
   folPredators = gui.addFolder("Predators");
   folVisual = gui.addFolder("UI");
-
-  // folMain.open();
-  // folBoids.open();
-  // folVisual.open();
 
   folMain.add(vars, "play").listen();
   folMain.add(vars, "playSpeed", 0, 10).step(0.1);
@@ -79,7 +75,7 @@ function datGui() {
   folBoids.add(vars, "maxAcceleration", 0, 0.01).step(0.001);
 
   folWeights = folBoids.addFolder("Rule Weights");
-  folWeights.open();
+  // folWeights.open();
   folWeights.add(vars, "separationScalar", 0, 1).step(0.01);
   folWeights.add(vars, "alignmentScalar", 0, 1).step(0.01);
   folWeights.add(vars, "cohesionScalar", 0, 0.1).step(0.001);
@@ -90,14 +86,14 @@ function datGui() {
   folWeights.add(vars, "feedScalar", 0, 1).step(0.01);
 
   folDists = folBoids.addFolder("Rule Radiuses");
-  folDists.open();
+  // folDists.open();
   folDists.add(vars, "separationRadius", 0, 10).step(0.1);
   folDists.add(vars, "alignmentRadius", 0, 100).step(1);
   folDists.add(vars, "cohesionRadius", 0, 100).step(1);
   folDists.add(vars, "escapeRadius", 0, 100).step(1);
   folDists.add(vars, "feedRadius", 0, 100).step(1);
 
-  // PREDATORS -------------------------- TODO vars asemel mingi muu
+  // PREDATORS -------------------------- TODO vars. asemel mingi muu
   folPredators
     .add(vars, "predatorCount", 0, predatorTotalCount)
     .step(1)
@@ -106,11 +102,11 @@ function datGui() {
   folPredators.add(vars, "maxSpeed_p", 0, 0.1).step(0.01);
 
   folWeights = folPredators.addFolder("Rule Weights");
-  folWeights.open();
+  // folWeights.open();
   folWeights.add(vars, "attackScalar", 0, 0.1).step(0.001);
 
   folDists = folPredators.addFolder("Rule Radiuses");
-  folDists.open();
+  // folDists.open();
   folDists.add(vars, "attackRadius", 0, 100).step(1);
   // /PREDATORS --------------------------
 
@@ -145,6 +141,7 @@ function removeTail() {
 
 function changeCamera(value) {
   vars.chaseCamera = value;
+  cameraControls.enabled = !value;
 }
 
 function initControls() {
