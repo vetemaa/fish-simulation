@@ -1,3 +1,4 @@
+// green, red, indigo, yellow, orange, grey
 const colors = [
   "#fff",
   "#66bb6a",
@@ -145,7 +146,7 @@ function moveBoid(delta, boid) {
   const avd = escape(boid, predators, vars.predatorCount);
   const bnd = bounds(boid);
   const ran = random(boid);
-  const fed = feed(boid);
+  const fed = newfeed(boid);
   // if (boid.subject) console.log(ran);
   rules = [
     { vec: sep, enabled: 1, arr: 2, scalar: vars.separationScalar },
@@ -153,8 +154,8 @@ function moveBoid(delta, boid) {
     { vec: coh, enabled: 1, arr: 3, scalar: vars.cohesionScalar },
     { vec: bnd, enabled: 1, arr: 6, scalar: vars.boundsScalar },
     { vec: ran, enabled: 1, arr: 5, scalar: vars.randomScalar },
-    { vec: avd, enabled: 1, arr: 7, scalar: vars.escapeScalar },
-    { vec: fed, enabled: 1, arr: 4, scalar: vars.feedScalar }
+    { vec: avd, enabled: 1, arr: 7, scalar: vars.escapeScalar }
+    // { vec: newfeed, enabled: 1, arr: 4, scalar: vars.feedScalar }
   ];
 
   calculateAcceleration(boid, rules);
@@ -186,17 +187,27 @@ function movePredator(delta, boid) {
 
 function calculateAcceleration(boid, rules) {
   const { acceleration } = boid;
+
   acceleration.set(0, 0, 0);
 
   for (let i = 0; i < rules.length; i++) {
     const rule = rules[i];
-    if (rule.scalar === 0) continue;
+    const { enabled, arr, scalar, acc } = rule;
+    let { vec } = rule;
 
-    rule.scalar && rule.vec.multiplyScalar(rule.scalar);
-    if (rule.enabled) acceleration.add(rule.vec);
+    if (scalar === 0) continue;
 
-    if (boid.subject && rule.enabled && rule.arr && vars.showVectors)
-      setArrow(boid.helpArrows.children[rule.arr], rule.vec);
+    // console.log(vec);
+    if (vec instanceof Function) {
+      rule.vec = vec(boid);
+      vec = rule.vec;
+    }
+
+    scalar && vec.multiplyScalar(scalar);
+    if (enabled) acceleration.add(vec);
+
+    if (boid.subject && enabled && arr && vars.showVectors)
+      setArrow(boid.helpArrows.children[arr], vec);
   }
 
   if (boid.subject) setArrow(boid.helpArrows.children[0], boid.acceleration);
@@ -219,6 +230,7 @@ function applyAcceleration(delta, boid, maxSpeed) {
   // acceleration.clampLength(0, vars.maxAcceleration); // maxspeed other option
   // acceleration.multiplyScalar(0.1);
   velocity.add(acceleration);
+  if (!boid.predator) steerVelocity(boid, playDelta);
   // velocity.multiplyScalar(0.96); // drag TODO: drag ka delta
   // velocity.setLength(maxSpeed); // constspeed
   velocity.clampLength(0, maxSpeed); // maxspeed
@@ -228,6 +240,34 @@ function applyAcceleration(delta, boid, maxSpeed) {
 
   boidDirection(velClone, boid);
   boid.ownTime += playDelta / 5000;
+}
+
+function steerVelocity(boid, playDelta) {
+  rules = [{ vec: velfeed, enabled: 1, arr: 4, scalar: vars.feedScalar }];
+
+  const rule = rules[0];
+  const { enabled, arr, scalar, acc } = rule;
+  let { vec } = rule;
+
+  if (scalar === 0) return;
+
+  // console.log(vec);
+  if (vec instanceof Function) {
+    rule.vec = vec(boid);
+    rule.vec.multiplyScalar(playDelta);
+    vec = rule.vec;
+  }
+
+  scalar && vec.multiplyScalar(scalar);
+  if (enabled) boid.velocity.add(vec);
+
+  if (boid.subject && enabled && arr && vars.showVectors)
+    setArrow(boid.helpArrows.children[arr], vec);
+
+  if (boid.subject) setArrow(boid.helpArrows.children[0], boid.acceleration);
+  // if (boid.subject) setInfo(rules, boid.acceleration.clone());
+  // acceleration.multiplyScalar(0.005);
+  // acceleration.y *= 0.7;
 }
 
 function boidDirection(velClone, boid) {

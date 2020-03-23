@@ -160,6 +160,84 @@ function attack(boid, preys, preyCount) {
   return steer;
 }
 
+function velfeed(boid, acc) {
+  const steer = new THREE.Vector3();
+
+  let closestFood;
+  let closestDist = Infinity;
+
+  for (let i = 0; i < vars.foodCount; i++) {
+    const food = foods[i];
+    if (!food.visible) continue;
+    const dist = boid.position.distanceTo(food.position);
+
+    if (dist < 0.3) eatFood(i);
+
+    if (boid.preyIndex == null && dist < closestDist) {
+      closestDist = dist;
+      closestFood = food;
+    } else if (dist < closestDist) {
+      closestDist = dist;
+      closestFood = food;
+    }
+  }
+
+  if (closestDist < vars.feedRadius) {
+    steer.add(closestFood.position);
+    steer.sub(boid.position);
+    steer.sub(boid.velocity);
+    let len = 1 - closestDist / vars.feedRadius;
+    len = Math.pow(len, 8);
+    steer.setLength(len);
+    boid.preyIndex = closestFood.index;
+  } else {
+    boid.preyIndex = null;
+  }
+
+  steer.multiplyScalar(0.01);
+  // steer.clampLength(0, 0.01);
+  // steer.setLength(1);
+
+  return steer;
+}
+
+function newfeed(boid, acc) {
+  const steer = new THREE.Vector3();
+
+  let closestFood;
+  let closestDist = Infinity;
+
+  for (let i = 0; i < vars.foodCount; i++) {
+    const food = foods[i];
+    if (!food.visible) continue;
+    const dist = boid.position.distanceTo(food.position);
+
+    if (dist < 0.3) eatFood(i);
+
+    if (boid.preyIndex == null && dist < closestDist) {
+      closestDist = dist;
+      closestFood = food;
+    } else if (dist < closestDist) {
+      closestDist = dist;
+      closestFood = food;
+    }
+  }
+
+  if (closestDist < vars.feedRadius) {
+    steer.add(closestFood.position);
+    steer.sub(boid.position);
+    steer.sub(boid.acceleration);
+    boid.preyIndex = closestFood.index;
+  } else {
+    boid.preyIndex = null;
+  }
+
+  steer.clampLength(0, 1);
+  // steer.setLength(1);
+
+  return steer;
+}
+
 function feed(boid) {
   const steer = new THREE.Vector3();
 

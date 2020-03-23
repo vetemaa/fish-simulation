@@ -16,8 +16,8 @@ function datGui() {
     this.maxAcceleration = 0.01;
     this.escapeRadius = 24;
     this.escapeScalar = 0.3;
-    this.feedRadius = 24;
-    this.feedScalar = 0.3;
+    this.feedRadius = 18;
+    this.feedScalar = 1;
     this.alignmentRadius = 9;
     this.alignmentScalar = 0.07;
     this.cohesionRadius = 14;
@@ -35,10 +35,10 @@ function datGui() {
     this.attackScalar = 0.03;
 
     this.showVectors = true;
-    this.vectorLenMultiplier = 20;
+    this.vectorLenMultiplier = 1;
     this.showBounds = true;
     this.showAxes = true;
-    this.drawTail = false;
+    this.drawTail = true;
     this.drawRandomFunction = false;
     this.removeTail = () => removeTail();
     this.shuffleBoids = () => shuffleBoids();

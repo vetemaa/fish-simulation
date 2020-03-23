@@ -15,8 +15,8 @@ var boidTotalCount = 700;
 var boidStartCount = 1;
 var predatorTotalCount = 5;
 var predatorStartCount = 0;
-var foodTotalCount = 10;
-var foodStartCount = 10;
+var foodTotalCount = 100;
+var foodStartCount = 100;
 
 function init() {
   renderer = new THREE.WebGLRenderer({
@@ -55,9 +55,9 @@ function init() {
     0.1,
     1000
   );
-  // camera.position.set(42, 16, 25);
+  camera.position.set(42, 16, 25);
   // camera.position.set(140, 54, 82);
-  camera.position.set(84, 33, 49);
+  // camera.position.set(84, 33, 49);
   // camera.position.set(160, 60, 93);
   // camera.position.set(30, 20, 140);
   // camera.position.set(10.001, 20, 10);

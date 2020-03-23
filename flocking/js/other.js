@@ -137,17 +137,20 @@ function updateInfo() {
     ruleInf = info[key];
     infoDiv = document.getElementById(key);
 
-    let text = `${key}: ${ruleInf.vec.length().toFixed(4)}`;
-    if (!ruleInf.enabled) text = `${key}: disabled`;
+    let text;
+    if (ruleInf == undefined || !ruleInf.enabled) text = `${key}: disabled`;
+    else text = `${key}: ${ruleInf.vec.length().toFixed(4)}`;
 
-    let colorIndex = ruleInf.arr;
+    let colorIndex = ruleInf == undefined ? undefined : ruleInf.arr;
     let color;
     if (colorIndex == undefined) color = "#fff";
     else if (colorIndex == 0) color = "#111";
     else color = colors[colorIndex];
 
+    let length = ruleInf == undefined ? 0 : ruleInf.vec.length() * 200;
+
     infoDiv.children[0].style.backgroundColor = color;
     infoDiv.children[1].textContent = text;
-    infoDiv.children[2].style.width = ruleInf.vec.length() * 200 + "px";
+    infoDiv.children[2].style.width = length + "px";
   }
 }
