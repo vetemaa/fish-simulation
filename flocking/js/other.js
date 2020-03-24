@@ -1,19 +1,21 @@
+// green, red, indigo, yellow, orange, grey
+const colors = [
+  "#fff",
+  "#e57373",
+  "#66bb6a",
+  "#5d7ada",
+  "#dce775",
+  "#6f4b2e",
+  "#ffb74d",
+  "#64c3ec"
+];
+
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   fishCamera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   fishCamera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-function updateBounds(size) {
-  boundBox.scale.set(size, size, size);
-  const pos = size / 2 - 0.01;
-  boundBox.position.set(pos, pos, pos);
-
-  boundBox.boundBox3.setFromObject(boundBox);
-  const target = vars.boundSize / 2;
-  cameraControls.target.set(target, target / 1.26, target);
 }
 
 function addNoiseCurve() {
@@ -77,6 +79,8 @@ function cameraChase() {
 }
 
 function addLineSegment(line, vector) {
+  vector = vector.clone();
+
   if (!line.previous) {
     line.previous = vector;
     return;
@@ -152,5 +156,37 @@ function updateInfo() {
     infoDiv.children[0].style.backgroundColor = color;
     infoDiv.children[1].textContent = text;
     infoDiv.children[2].style.width = length + "px";
+  }
+}
+
+function setArrowLen(arrow) {
+  const len = arrow.len * vars.vectorLenMultiplier;
+  arrow.setLength(len, 0.1, 0.1);
+}
+
+function drawCircle(boid, dist) {
+  const circleGeom = new THREE.Geometry();
+  for (let i = 0; i < 2.1 * Math.PI; i += 0.1) {
+    circleGeom.vertices.push(new THREE.Vector3(Math.sin(i), 0, Math.cos(i)));
+  }
+  const circle = new THREE.Line(
+    circleGeom,
+    new THREE.LineBasicMaterial({
+      color: 0x66bb6a
+    })
+  );
+
+  circle.scale.set(dist, dist, dist);
+  boid.add(circle);
+}
+
+function setArrow(arrow, vec) {
+  if (vec.length() <= 0) {
+    arrow.visible = false;
+  } else {
+    arrow.len = vec.length();
+    setArrowLen(arrow);
+    arrow.setDirection(vec.clone().normalize());
+    arrow.visible = true;
   }
 }

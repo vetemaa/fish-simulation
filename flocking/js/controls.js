@@ -4,10 +4,10 @@ var boundBox;
 function datGui() {
   var vars = function() {
     this.play = true;
-    this.playSpeed = 1;
+    this.playSpeed = 3;
     this.chaseCamera = false;
 
-    this.boundSize = 26;
+    this.boundSize = 60;
 
     this.boidCount = boidStartCount;
     this.foodCount = foodStartCount;
@@ -209,4 +209,14 @@ function changeArrowLens() {
       setArrowLen(arrow);
     });
   });
+}
+
+function updateBounds(size) {
+  boundBox.scale.set(size, size, size);
+  const pos = size / 2 - 0.01;
+  boundBox.position.set(pos, pos, pos);
+
+  boundBox.boundBox3.setFromObject(boundBox);
+  const target = vars.boundSize / 2;
+  cameraControls.target.set(target, target / 1.16, target);
 }

@@ -18,7 +18,9 @@ function addFood() {
   }
 }
 
-function animateFood(delta) {
+function moveFood(delta) {
+  if (delta > 3000) delta = 0; // when tab not open
+
   for (let i = 0; i < vars.foodCount; i++) {
     const playDelta = (vars.playSpeed * delta) / 16;
     const food = foods[i];
