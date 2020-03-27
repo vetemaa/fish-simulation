@@ -19,9 +19,9 @@ function datGui() {
     this.feedRadius = 28;
     this.feedScalar = 1;
     this.alignmentRadius = 9;
-    this.alignmentScalar = 0.07;
+    this.alignmentScalar = 0.08;
     this.cohesionRadius = 14;
-    this.cohesionScalar = 0.012;
+    this.cohesionScalar = 0.08;
     this.separationRadius = 2.4;
     this.separationScalar = 0.34;
     this.randomScalar = 0.08;
@@ -35,7 +35,7 @@ function datGui() {
     this.attackScalar = 1;
 
     this.showVectors = true;
-    this.vectorLenMultiplier = 1;
+    this.vectorLenMultiplier = 10;
     this.showBounds = true;
     this.showAxes = true;
     this.drawTail = false;
@@ -80,7 +80,7 @@ function datGui() {
   // folWeights.open();
   folWeights.add(vars, "separationScalar", 0, 1).step(0.01);
   folWeights.add(vars, "alignmentScalar", 0, 1).step(0.01);
-  folWeights.add(vars, "cohesionScalar", 0, 0.1).step(0.001);
+  folWeights.add(vars, "cohesionScalar", 0, 1).step(0.01);
   folWeights.add(vars, "boundsScalar", 0, 1).step(0.01);
   folWeights.add(vars, "randomScalar", 0, 1).step(0.01);
   folWeights.add(vars, "randomWavelenScalar", 0, 10).step(0.1);
@@ -194,21 +194,19 @@ function changeBoidCount(boidArray, boidCount) {
   }
 }
 
-function changeFoodCount(foodArray, value) {
+function changeFoodCount(value) {
   let visibleCount = 0;
 
-  for (let i = 0; i < foodArray.length; i++) {
-    const food = foodArray[i];
+  for (let i = 0; i < foods.length; i++) {
+    const food = foods[i];
     if (food.visible) visibleCount++;
   }
-
-  console.log("need to make", value - visibleCount, "visible");
 
   const addFood = value > visibleCount;
 
   let i = 0;
   while (visibleCount != value) {
-    const food = foodArray[i];
+    const food = foods[i];
     if (food.visible == !addFood) {
       food.visible = addFood;
       visibleCount += addFood ? 1 : -1;

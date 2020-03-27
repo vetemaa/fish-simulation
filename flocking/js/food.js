@@ -16,6 +16,8 @@ function addFood() {
     foods.push(food);
     scene.add(food);
   }
+
+  changeFoodCount(foodStartCount);
 }
 
 function moveFood(delta) {

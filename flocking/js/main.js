@@ -12,9 +12,9 @@ var boids = [];
 var predators = [];
 var foods = [];
 var boidTotalCount = 700;
-var boidStartCount = 100;
+var boidStartCount = 700;
 var predatorTotalCount = 5;
-var predatorStartCount = 1;
+var predatorStartCount = 0;
 var foodTotalCount = 100;
 var foodStartCount = 0;
 
@@ -92,10 +92,10 @@ function init() {
 
 let then = Date.now();
 function animate(now) {
-  21;
-  const delta = now - then;
-  if (delta) cameraChase(delta);
+  let delta = now - then;
+  // console.log(delta);
   if (delta && vars.play) {
+    cameraChase();
     moveBoids(delta);
     moveFood(delta);
     animateNoise();

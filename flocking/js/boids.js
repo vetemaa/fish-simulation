@@ -182,7 +182,7 @@ function applyRules(boid, rules, vector) {
     vec.multiplyScalar(scalar);
     vector.add(vec);
 
-    if (!boid.subject && arr && vars.showVectors)
+    if (boid.subject && arr && vars.showVectors)
       setArrow(boid.helpArrows.children[arr], vec);
   }
 }

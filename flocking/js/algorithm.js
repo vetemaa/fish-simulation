@@ -29,9 +29,9 @@ function reynolds(boid, flockmates, flockmateCount) {
 
         // cohesion - mine TODO: vb pole smooth, hoopis teisiti peaks vist
         if (dist < vars.cohesionRadius) {
-          const pos = flockmate.position.clone();
-          coh.add(pos);
-          cohNeighbours++;
+          const diff = flockmate.position.clone().sub(boid.position);
+          diff.setLength(1 - dist / vars.cohesionRadius);
+          coh.add(diff);
         }
       } else {
         // separation - {4}
@@ -60,18 +60,12 @@ function reynolds(boid, flockmates, flockmateCount) {
   if (mine) {
     // separation - mine
     sep.clampLength(0, 1);
-    // if (sepNeighbours > 0) sep.divideScalar(sepNeighbours);
 
     // alignment - mine
     ali.clampLength(0, 1);
-    // if (aliNeighbours > 0) ali.divideScalar(aliNeighbours);
 
     // cohesion - mine
-    if (cohNeighbours > 0) {
-      coh.divideScalar(cohNeighbours);
-      coh.sub(boid.position);
-      // coh.multiplyScalar(0.1);
-    }
+    coh.clampLength(0, 1);
   } else {
     // separation - {4}
     if (sepNeighbours > 0) sep.divideScalar(sepNeighbours);
@@ -164,8 +158,6 @@ function velattack(boid, preys, preyCount) {
 
   steer.multiplyScalar(0.01);
   if (boid.rest) steer.multiplyScalar(0);
-
-  console.log(steer);
 
   return steer;
 }
