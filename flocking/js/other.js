@@ -190,3 +190,16 @@ function setArrow(arrow, vec) {
     arrow.visible = true;
   }
 }
+
+function setBoidColor(boid, preys) {
+  let color = 0x0000ff;
+  if (boid.predator) {
+    if (boid.rest) color = 0xff9955;
+    else color = 0xff5555;
+  } else {
+    if (preys.includes(boid.index)) color = 0x66ff66;
+    else if (boid.subject) color = 0xff00ff;
+    else color = 0xffffff;
+  }
+  boid.mesh.material.color.setHex(color);
+}

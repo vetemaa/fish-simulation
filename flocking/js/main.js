@@ -12,11 +12,11 @@ var boids = [];
 var predators = [];
 var foods = [];
 var boidTotalCount = 700;
-var boidStartCount = 700;
+var boidStartCount = 100;
 var predatorTotalCount = 5;
-var predatorStartCount = 0;
+var predatorStartCount = 1;
 var foodTotalCount = 100;
-var foodStartCount = 100;
+var foodStartCount = 0;
 
 function init() {
   renderer = new THREE.WebGLRenderer({

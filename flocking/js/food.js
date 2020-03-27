@@ -21,9 +21,10 @@ function addFood() {
 function moveFood(delta) {
   if (delta > 3000) delta = 0; // when tab not open
 
-  for (let i = 0; i < vars.foodCount; i++) {
-    const playDelta = (vars.playSpeed * delta) / 16;
+  for (let i = 0; i < foodTotalCount; i++) {
     const food = foods[i];
+    if (!food.visible) continue;
+    const playDelta = (vars.playSpeed * delta) / 16;
 
     const steer = new THREE.Vector3();
     const turbulence = new THREE.Vector3(
@@ -45,6 +46,7 @@ function moveFood(delta) {
 }
 
 function eatFood(index) {
+  vars.foodCount -= 1;
   const food = foods[index];
   food.visible = false;
   //   console.log(food);

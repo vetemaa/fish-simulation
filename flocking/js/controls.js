@@ -4,7 +4,7 @@ var boundBox;
 function datGui() {
   var vars = function() {
     this.play = true;
-    this.playSpeed = 3;
+    this.playSpeed = 1;
     this.chaseCamera = false;
 
     this.boundSize = 60;
@@ -14,9 +14,9 @@ function datGui() {
     this.ruleScalar = 0.5;
     this.maxSpeed = 0.03;
     this.maxAcceleration = 0.01;
-    this.escapeRadius = 24;
+    this.escapeRadius = 32;
     this.escapeScalar = 0.3;
-    this.feedRadius = 18;
+    this.feedRadius = 28;
     this.feedScalar = 1;
     this.alignmentRadius = 9;
     this.alignmentScalar = 0.07;
@@ -31,14 +31,14 @@ function datGui() {
     this.predatorCount = predatorStartCount;
     this.ruleScalar_p = 0.3;
     this.maxSpeed_p = 0.04;
-    this.attackRadius = 24;
-    this.attackScalar = 0.03;
+    this.attackRadius = 34;
+    this.attackScalar = 1;
 
     this.showVectors = true;
     this.vectorLenMultiplier = 1;
     this.showBounds = true;
     this.showAxes = true;
-    this.drawTail = true;
+    this.drawTail = false;
     this.drawRandomFunction = false;
     this.removeTail = () => removeTail();
     this.shuffleBoids = () => shuffleBoids();
@@ -52,6 +52,8 @@ function datGui() {
   folBoids = gui.addFolder("Boids");
   folPredators = gui.addFolder("Predators");
   folVisual = gui.addFolder("UI");
+
+  folBoids.open();
 
   folMain.add(vars, "play").listen();
   folMain.add(vars, "playSpeed", 0, 10).step(0.1);
@@ -69,7 +71,7 @@ function datGui() {
   folBoids
     .add(vars, "boidCount", 0, boidTotalCount)
     .step(1)
-    .onChange(value => hideBoids(boids, value));
+    .onChange(value => changeBoidCount(boids, value));
   folBoids.add(vars, "ruleScalar", 0, 3).step(0.01);
   folBoids.add(vars, "maxSpeed", 0, 0.1).step(0.001);
   folBoids.add(vars, "maxAcceleration", 0, 0.01).step(0.001);
@@ -91,13 +93,20 @@ function datGui() {
   folDists.add(vars, "alignmentRadius", 0, 100).step(1);
   folDists.add(vars, "cohesionRadius", 0, 100).step(1);
   folDists.add(vars, "escapeRadius", 0, 100).step(1);
-  folDists.add(vars, "feedRadius", 0, 100).step(1);
+
+  folFood = folBoids.addFolder("Food");
+  folFood.open();
+  folFood
+    .add(vars, "foodCount", 0, foodTotalCount)
+    .listen()
+    .step(1)
+    .onChange(value => changeFoodCount(foods, value));
 
   // PREDATORS -------------------------- TODO vars. asemel mingi muu
   folPredators
     .add(vars, "predatorCount", 0, predatorTotalCount)
     .step(1)
-    .onChange(value => hideBoids(predators, value));
+    .onChange(value => changeBoidCount(predators, value));
   folPredators.add(vars, "ruleScalar_p", 0, 3).step(0.01);
   folPredators.add(vars, "maxSpeed_p", 0, 0.1).step(0.01);
 
@@ -177,12 +186,37 @@ function initControls() {
   );
 }
 
-function hideBoids(boidArray, boidCount) {
+function changeBoidCount(boidArray, boidCount) {
   for (let i = 0; i < boidArray.length; i++) {
     const boid = boidArray[i];
     if (boidCount > i) boid.visible = true;
     else boid.visible = false;
   }
+}
+
+function changeFoodCount(foodArray, value) {
+  let visibleCount = 0;
+
+  for (let i = 0; i < foodArray.length; i++) {
+    const food = foodArray[i];
+    if (food.visible) visibleCount++;
+  }
+
+  console.log("need to make", value - visibleCount, "visible");
+
+  const addFood = value > visibleCount;
+
+  let i = 0;
+  while (visibleCount != value) {
+    const food = foodArray[i];
+    if (food.visible == !addFood) {
+      food.visible = addFood;
+      visibleCount += addFood ? 1 : -1;
+    }
+    i++;
+  }
+
+  vars.foodCount = visibleCount;
 }
 
 function shuffleBoids() {
