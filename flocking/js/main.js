@@ -4,7 +4,8 @@ var geom, mat, mesh, axesHelper, subject;
 let fishCameraDist = 1.5,
   fishCameraFOV = 90;
 var simplex = new SimplexNoise(1);
-const backColor = "#111";
+// const backColor = "#111";
+const backColor = "#fff";
 
 var ran;
 
@@ -71,6 +72,7 @@ function init() {
   cameraControls.enabled = !vars.chaseCamera;
 
   axesHelper = new THREE.AxesHelper(100);
+  axesHelper.visible = vars.showAxes;
   scene.add(axesHelper);
 
   addBoids();

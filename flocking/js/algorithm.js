@@ -93,9 +93,9 @@ function escape(boid, predators, predatorCount) {
     const predator = predators[i];
     const dist = boid.position.distanceTo(predator.position);
 
-    if (dist < vars.escapeRadius) {
+    if (dist < vars.avoidRadius) {
       const diff = boid.position.clone().sub(predator.position);
-      diff.setLength(1 - dist / vars.escapeRadius);
+      diff.setLength(1 - dist / vars.avoidRadius);
       steer.add(diff);
     }
   }

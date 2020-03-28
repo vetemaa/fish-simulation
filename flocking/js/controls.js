@@ -14,8 +14,8 @@ function datGui() {
     this.ruleScalar = 0.5;
     this.maxSpeed = 0.03;
     this.maxAcceleration = 0.01;
-    this.escapeRadius = 32;
-    this.escapeScalar = 0.3;
+    this.avoidRadius = 32;
+    this.avoidScalar = 0.3;
     this.feedRadius = 28;
     this.feedScalar = 1;
     this.alignmentRadius = 9;
@@ -34,11 +34,11 @@ function datGui() {
     this.attackRadius = 34;
     this.attackScalar = 1;
 
-    this.showVectors = true;
+    this.showVectors = false;
     this.vectorLenMultiplier = 10;
     this.showBounds = true;
-    this.showAxes = true;
-    this.drawTail = false;
+    this.showAxes = false;
+    this.drawTail = true;
     this.drawRandomFunction = false;
     this.removeTail = () => removeTail();
     this.shuffleBoids = () => shuffleBoids();
@@ -84,7 +84,7 @@ function datGui() {
   folWeights.add(vars, "boundsScalar", 0, 1).step(0.01);
   folWeights.add(vars, "randomScalar", 0, 1).step(0.01);
   folWeights.add(vars, "randomWavelenScalar", 0, 10).step(0.1);
-  folWeights.add(vars, "escapeScalar", 0, 1).step(0.01);
+  folWeights.add(vars, "avoidScalar", 0, 1).step(0.01);
   folWeights.add(vars, "feedScalar", 0, 1).step(0.01);
 
   folDists = folBoids.addFolder("Rule Radiuses");
@@ -92,7 +92,7 @@ function datGui() {
   folDists.add(vars, "separationRadius", 0, 10).step(0.1);
   folDists.add(vars, "alignmentRadius", 0, 100).step(1);
   folDists.add(vars, "cohesionRadius", 0, 100).step(1);
-  folDists.add(vars, "escapeRadius", 0, 100).step(1);
+  folDists.add(vars, "avoidRadius", 0, 100).step(1);
 
   folFood = folBoids.addFolder("Food");
   folFood.open();

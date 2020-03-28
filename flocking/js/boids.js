@@ -151,8 +151,8 @@ function boidRules(boid) {
     { vec: coh, enabled: 1, arr: 3, scalar: vars.cohesionScalar },
     { vec: bnd, enabled: 1, arr: 5, scalar: vars.boundsScalar },
     { vec: ran, enabled: 1, arr: 6, scalar: vars.randomScalar },
-    { vec: avd, enabled: 1, arr: 7, scalar: vars.escapeScalar }
-    // { vec: feed, enabled: 1, arr: 4, scalar: vars.feedScalar }
+    { vec: avd, enabled: 1, arr: 7, scalar: vars.avoidScalar }
+    // { vec: fed, enabled: 1, arr: 4, scalar: vars.feedScalar }
   ];
 
   return rules;
