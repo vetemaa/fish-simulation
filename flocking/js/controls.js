@@ -4,7 +4,7 @@ var boundBox;
 function datGui() {
   var vars = function() {
     this.play = true;
-    this.playSpeed = 5;
+    this.playSpeed = 10;
     this.chaseCamera = false;
 
     this.boundSize = 60;
@@ -38,7 +38,7 @@ function datGui() {
     this.vectorLenMultiplier = 10;
     this.showBounds = true;
     this.showAxes = true;
-    this.drawTail = false;
+    this.drawTail = true;
     this.drawRandomFunction = false;
     this.removeTail = () => removeTail();
     this.shuffleBoids = () => shuffleBoids();

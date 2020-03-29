@@ -26,7 +26,7 @@ function moveFood(delta) {
   for (let i = 0; i < foodTotalCount; i++) {
     const food = foods[i];
     if (!food.visible) continue;
-    const playDelta = (vars.playSpeed * delta) / 16;
+    const playDelta = vars.playSpeed * delta * 0.1;
 
     const steer = new THREE.Vector3();
     const turbulence = new THREE.Vector3(
@@ -43,7 +43,7 @@ function moveFood(delta) {
     steer.multiplyScalar(0.1);
     food.position.add(steer);
 
-    food.ownTime += playDelta / 5000;
+    food.ownTime += playDelta * 0.001;
   }
 }
 

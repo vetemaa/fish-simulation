@@ -91,56 +91,34 @@ function addBoid(position, index) {
 
 function moveBoids(delta) {
   if (delta > 3000) delta = 0; // when tab not open
-  preys = [];
 
   for (let i = 0; i < vars.predatorCount; i++) {
     const predator = predators[i];
-    const rules = predatorRules(predator);
-
-    moveBoid(delta, predator, rules, vars.ruleScalar_p, vars.maxSpeed_p);
-
-    setBoidColor(predator, preys);
-    // for prey color
-    if (predator.preyIndex) preys.push(predator.preyIndex);
+    moveBoid(delta, predator, vars.ruleScalar_p, vars.maxSpeed_p);
+    setBoidColor(predator);
   }
 
   for (let i = 0; i < vars.boidCount; i++) {
     const boid = boids[i];
-    const rules = boidRules(boid);
-
-    moveBoid(delta, boid, rules, vars.ruleScalar, vars.maxSpeed);
-
-    setBoidColor(boid, preys);
+    moveBoid(delta, boid, vars.ruleScalar, vars.maxSpeed);
+    setBoidColor(boid);
   }
 }
 
-function moveBoid(delta, boid, rules, ruleScalar, maxSpeed) {
+function moveBoid(delta, boid, ruleScalar, maxSpeed) {
   const { velocity, acceleration, position } = boid;
-  const { playSpeed, feedScalar, attackScalar, drawTail } = vars;
+  const { playSpeed, drawTail } = vars;
 
   if (playSpeed == 0 || maxSpeed == 0) return;
-  const playDelta = (playSpeed * delta) / 8;
-  boid.ownTime += playDelta / 5000;
+  let playDelta = playSpeed * delta * 0.1;
+  boid.ownTime += playDelta * 0.0002;
 
-  acceleration.set(0, 0, 0);
-  applyRules(boid, rules, acceleration);
-  if (boid.subject) setArrow(boid.helpArrows.children[0], acceleration);
-  if (boid.subject) setInfo(rules, acceleration.clone());
-  acceleration.multiplyScalar(0.005 * ruleScalar * playDelta);
+  accelerationRules(boid);
+  acceleration.multiplyScalar(playDelta * ruleScalar * 0.005);
   acceleration.y *= 0.7;
 
   velocity.add(acceleration);
-
-  if (boid.predator) {
-    const atk = velattack(boid, boids, vars.boidCount);
-    atk.multiplyScalar(playDelta);
-    rules = [{ vec: atk, enabled: 1, arr: 4, scalar: attackScalar }];
-  } else {
-    const fed = velfeed(boid);
-    fed.multiplyScalar(playDelta);
-    rules = [{ vec: fed, enabled: 1, arr: 4, scalar: feedScalar }];
-  }
-  applyRules(boid, rules, boid.velocity);
+  velocityRules(boid, playDelta);
 
   velocity.clampLength(0, maxSpeed);
   const velClone = velocity.clone();
@@ -151,39 +129,55 @@ function moveBoid(delta, boid, rules, ruleScalar, maxSpeed) {
   if (boid.subject && drawTail) addLineSegment(boid.tailLine, boid.position);
 }
 
-function boidRules(boid) {
-  const { sep, ali, coh } = reynolds(boid, boids, vars.boidCount);
-  const avd = escape(boid, predators, vars.predatorCount);
-  const bnd = bounds(boid);
-  const ran = random(boid);
-  // const fed = feed(boid);
-  const rules = [
-    { vec: sep, enabled: 1, arr: 1, scalar: vars.separationScalar },
-    { vec: ali, enabled: 1, arr: 2, scalar: vars.alignmentScalar },
-    { vec: coh, enabled: 1, arr: 3, scalar: vars.cohesionScalar },
-    { vec: bnd, enabled: 1, arr: 5, scalar: vars.boundsScalar },
-    { vec: ran, enabled: 1, arr: 6, scalar: vars.randomScalar },
-    { vec: avd, enabled: 1, arr: 7, scalar: vars.avoidScalar }
-    // { vec: fed, enabled: 1, arr: 4, scalar: vars.feedScalar }
-  ];
+function velocityRules(boid, playDelta) {
+  const { feedScalar, attackScalar } = vars;
 
-  return rules;
+  if (boid.predator) {
+    const atk = velattack(boid);
+    atk.multiplyScalar(playDelta);
+    rules = [{ vec: atk, enabled: 1, arr: 4, scalar: attackScalar }];
+  } else {
+    const fed = velfeed(boid);
+    fed.multiplyScalar(playDelta);
+    rules = [{ vec: fed, enabled: 1, arr: 4, scalar: feedScalar }];
+  }
+
+  applyRules(boid, rules, boid.velocity);
 }
 
-function predatorRules(boid) {
-  const { sep } = reynolds(boid, predators, vars.predatorCount);
-  // const atk = attack(boid, boids, vars.boidCount);
+function accelerationRules(boid) {
+  const { acceleration } = boid;
+  const { sep, ali, coh } = reynolds(boid, boids);
+  acceleration.set(0, 0, 0);
   const bnd = bounds(boid);
   const ran = random(boid);
 
-  const rules = [
-    // { vec: atk, enabled: 1, arr: 1, scalar: vars.attackScalar },
-    { vec: sep, enabled: 1, arr: 1, scalar: vars.separationScalar },
-    { vec: bnd, enabled: 1, arr: 5, scalar: vars.boundsScalar / 1.5 },
-    { vec: ran, enabled: 1, arr: 6, scalar: vars.randomScalar / 2 }
-  ];
+  let rules;
+  if (boid.predator) {
+    // const atk = attack(boid, boids, vars.boidCount);
+    rules = [
+      { vec: sep, enabled: 1, arr: 1, scalar: vars.separationScalar },
+      { vec: bnd, enabled: 1, arr: 5, scalar: vars.boundsScalar / 1.5 },
+      { vec: ran, enabled: 1, arr: 6, scalar: vars.randomScalar / 2 }
+      // { vec: atk, enabled: 1, arr: 1, scalar: vars.attackScalar },
+    ];
+  } else {
+    // const fed = feed(boid);
+    const avd = escape(boid, predators, vars.predatorCount);
+    rules = [
+      { vec: sep, enabled: 1, arr: 1, scalar: vars.separationScalar },
+      { vec: ali, enabled: 1, arr: 2, scalar: vars.alignmentScalar },
+      { vec: coh, enabled: 1, arr: 3, scalar: vars.cohesionScalar },
+      { vec: bnd, enabled: 1, arr: 5, scalar: vars.boundsScalar },
+      { vec: ran, enabled: 1, arr: 6, scalar: vars.randomScalar },
+      { vec: avd, enabled: 1, arr: 7, scalar: vars.avoidScalar }
+      // { vec: fed, enabled: 1, arr: 4, scalar: vars.feedScalar }
+    ];
+  }
 
-  return rules;
+  applyRules(boid, rules, acceleration);
+  if (boid.subject) setArrow(boid.helpArrows.children[0], acceleration);
+  if (boid.subject) setInfo(rules, acceleration.clone());
 }
 
 function applyRules(boid, rules, vector) {
@@ -197,8 +191,4 @@ function applyRules(boid, rules, vector) {
     if (boid.subject && arr && vars.showVectors)
       setArrow(boid.helpArrows.children[arr], vec);
   }
-}
-
-function boidDirection(velClone, boid) {
-  boid.mesh.lookAt(velClone.add(boid.position));
 }

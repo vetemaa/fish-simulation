@@ -192,6 +192,12 @@ function setArrow(arrow, vec) {
 }
 
 function setBoidColor(boid, preys) {
+  preys = [];
+  for (let i = 0; i < vars.predatorCount; i++) {
+    const predator = predators[i];
+    if (predator.preyIndex) preys.push(predator.preyIndex);
+  }
+
   let color = 0x0000ff;
   if (boid.predator) {
     if (boid.rest) color = 0xff9955;
@@ -203,4 +209,8 @@ function setBoidColor(boid, preys) {
     // else color = 0x000;
   }
   boid.mesh.material.color.setHex(color);
+}
+
+function boidDirection(velClone, boid) {
+  boid.mesh.lookAt(velClone.add(boid.position));
 }

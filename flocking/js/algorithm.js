@@ -1,4 +1,4 @@
-function reynolds(boid, flockmates, flockmateCount) {
+function reynolds(boid, flockmates) {
   const mine = true;
   const sep = new THREE.Vector3();
   const ali = new THREE.Vector3();
@@ -6,6 +6,10 @@ function reynolds(boid, flockmates, flockmateCount) {
   let sepNeighbours = 0;
   let aliNeighbours = 0;
   let cohNeighbours = 0;
+
+  let flockmateCount;
+  if (boid.predator) flockmateCount = vars.predatorCount;
+  else flockmateCount = vars.boidCount;
 
   for (let i = 0; i < flockmateCount; i++) {
     const flockmate = flockmates[i];
@@ -105,7 +109,7 @@ function escape(boid, predators, predatorCount) {
   return steer;
 }
 
-function velattack(boid, preys, preyCount) {
+function velattack(boid) {
   const steer = new THREE.Vector3();
 
   let closestPrey;
@@ -123,8 +127,8 @@ function velattack(boid, preys, preyCount) {
     }
   }
 
-  for (let i = 0; i < preyCount; i++) {
-    const prey = preys[i];
+  for (let i = 0; i < vars.boidCount; i++) {
+    const prey = boids[i];
     const dist = boid.position.distanceTo(prey.position);
 
     if (dist < 1) {
@@ -157,7 +161,7 @@ function velattack(boid, preys, preyCount) {
   }
 
   steer.multiplyScalar(0.01);
-  if (boid.rest) steer.multiplyScalar(0);
+  if (boid.rest) steer.multiplyScalar(0.001);
 
   return steer;
 }

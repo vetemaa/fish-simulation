@@ -6,6 +6,7 @@ boids.forEach(boid => {
   bounds = getBounds(boid);
   // additional rules
 
+  acceleration = new THREE.Vector3();
   acceleration.add(separation.multiplyScalar(separationScalar));
   acceleration.add(alignment.multiplyScalar(alignmentScalar));
   acceleration.add(cohesion.multiplyScalar(cohesionScalar));
