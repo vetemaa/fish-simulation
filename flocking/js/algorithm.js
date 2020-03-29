@@ -295,16 +295,12 @@ function bounds(boid) {
   const steer = new THREE.Vector3();
   const { x, y, z } = boid.position;
 
-  if (x < minBound) steer.x = 1;
-  else if (x > maxBound) steer.x = -1;
-  if (y < minBound) steer.y = 1;
-  else if (y > maxBound) steer.y = -1;
-  if (z < minBound) steer.z = 1;
-  else if (z > maxBound) steer.z = -1;
-
-  steer.normalize();
-  steer.multiplyScalar(boundBox.boundBox3.distanceToPoint(boid.position)); // smooth on axis
-  // TODO: unsmooth on edge of two axes bounds
+  if (x < minBound) steer.x = minBound - x;
+  else if (x > maxBound) steer.x = maxBound - x;
+  if (y < minBound) steer.y = minBound - y;
+  else if (y > maxBound) steer.y = maxBound - y;
+  if (z < minBound) steer.z = minBound - z;
+  else if (z > maxBound) steer.z = maxBound - z;
 
   return steer;
 }

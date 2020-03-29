@@ -10,6 +10,18 @@ function addBoids() {
   subject = boids[0];
 
   changeBoidCount(boids, vars.boidCount);
+
+  // time = Date.now();
+  // for (let i = 0; i < 10000000; i++) {
+  //   simplex.noise2D(i);
+  // }
+  // console.log("simplex took: ", Date.now() - time);
+  // time = Date.now();
+  // for (let i = 0; i < 10000000; i++) {
+  //   // noise(i, boids[0], "x");
+  //   interpolate(0, 1, i / 10000000);
+  // }
+  // console.log("noise took: ", Date.now() - time);
 }
 
 function addPredators() {

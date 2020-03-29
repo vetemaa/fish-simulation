@@ -111,14 +111,12 @@ function addBounds() {
   box.visible = false;
   boundBox.add(box);
 
-  // var helper = new THREE.BoxHelper(boundBox, "#ffffff");
-  var helper = new THREE.BoxHelper(boundBox, "#000");
+  var helper = new THREE.BoxHelper(boundBox, "#ffffff");
+  // var helper = new THREE.BoxHelper(boundBox, "#000");
   boundBox.add(helper);
-  // helper.material.opacity = 0.25;
-  helper.material.opacity = 1;
+  helper.material.opacity = 0.25;
+  // helper.material.opacity = 1;
   helper.material.transparent = true;
-
-  boundBox.boundBox3 = new THREE.Box3();
 
   scene.add(boundBox);
   boundBox.visible = vars.showBounds;
@@ -201,8 +199,8 @@ function setBoidColor(boid, preys) {
   } else {
     if (preys.includes(boid.index)) color = 0x66ff66;
     else if (boid.subject) color = 0xff00ff;
-    // else color = 0xffffff;
-    else color = 0x000;
+    else color = 0xffffff;
+    // else color = 0x000;
   }
   boid.mesh.material.color.setHex(color);
 }

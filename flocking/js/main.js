@@ -4,8 +4,8 @@ var geom, mat, mesh, axesHelper, subject;
 let fishCameraDist = 1.5,
   fishCameraFOV = 90;
 var simplex = new SimplexNoise(1);
-// const backColor = "#111";
-const backColor = "#fff";
+const backColor = "#111";
+// const backColor = "#fff";
 
 var ran;
 
@@ -59,7 +59,8 @@ function init() {
   // camera.position.set(42, 16, 25);
   // camera.position.set(140, 54, 82);
   // camera.position.set(84, 33, 49);
-  camera.position.set(160, 50, 93);
+  // camera.position.set(160, 50, 93);
+  camera.position.set(186, 34, 113);
   // camera.position.set(30, 20, 140);
   // camera.position.set(10.001, 20, 10);
   // camera.position.set(15.001, 30, 15);

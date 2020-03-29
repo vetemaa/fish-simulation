@@ -4,7 +4,7 @@ var boundBox;
 function datGui() {
   var vars = function() {
     this.play = true;
-    this.playSpeed = 1;
+    this.playSpeed = 5;
     this.chaseCamera = false;
 
     this.boundSize = 60;
@@ -37,8 +37,8 @@ function datGui() {
     this.showVectors = false;
     this.vectorLenMultiplier = 10;
     this.showBounds = true;
-    this.showAxes = false;
-    this.drawTail = true;
+    this.showAxes = true;
+    this.drawTail = false;
     this.drawRandomFunction = false;
     this.removeTail = () => removeTail();
     this.shuffleBoids = () => shuffleBoids();
@@ -53,7 +53,7 @@ function datGui() {
   folPredators = gui.addFolder("Predators");
   folVisual = gui.addFolder("UI");
 
-  folBoids.open();
+  // folBoids.open();
 
   folMain.add(vars, "play").listen();
   folMain.add(vars, "playSpeed", 0, 10).step(0.1);
@@ -95,7 +95,7 @@ function datGui() {
   folDists.add(vars, "avoidRadius", 0, 100).step(1);
 
   folFood = folBoids.addFolder("Food");
-  folFood.open();
+  // folFood.open();
   folFood
     .add(vars, "foodCount", 0, foodTotalCount)
     .listen()
@@ -248,7 +248,6 @@ function updateBounds(size) {
   const pos = size / 2 - 0.01;
   boundBox.position.set(pos, pos, pos);
 
-  boundBox.boundBox3.setFromObject(boundBox);
   const target = vars.boundSize / 2;
   cameraControls.target.set(target, target / 1.16, target);
 }
