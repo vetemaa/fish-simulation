@@ -4,7 +4,7 @@ var boundBox;
 function datGui() {
   var vars = function() {
     this.play = true;
-    this.playSpeed = 10;
+    this.playSpeed = 5;
     this.chaseCamera = false;
 
     this.boundSize = 60;
@@ -38,7 +38,7 @@ function datGui() {
     this.vectorLenMultiplier = 10;
     this.showBounds = true;
     this.showAxes = true;
-    this.drawTail = true;
+    this.drawTail = false;
     this.drawRandomFunction = false;
     this.removeTail = () => removeTail();
     this.shuffleBoids = () => shuffleBoids();
@@ -100,7 +100,7 @@ function datGui() {
     .add(vars, "foodCount", 0, foodTotalCount)
     .listen()
     .step(1)
-    .onChange(value => changeFoodCount(foods, value));
+    .onChange(value => changeFoodCount(value));
 
   // PREDATORS -------------------------- TODO vars. asemel mingi muu
   folPredators

@@ -1,3 +1,8 @@
+sepArray = [];
+aliArray = [];
+cohArray = [];
+counter = 0;
+
 function reynolds(boid, flockmates) {
   const mine = true;
   const sep = new THREE.Vector3();
@@ -86,6 +91,30 @@ function reynolds(boid, flockmates) {
       // coh.multiplyScalar(0.1);
     }
   }
+
+  // const counterAmount = 200;
+  // const valueAmount = 100;
+  // // TODO: MAKE COHESION RADIUS SMALL SO MORE FLICKERING
+  // if (boid.subject) {
+  //   if (sepArray.length < valueAmount + counterAmount) {
+  //     if (counter < counterAmount) {
+  //       counter += 1;
+  //     } else {
+  //       sepArray.push(sep.x);
+  //       aliArray.push(ali.x);
+  //       cohArray.push(coh.x);
+  //       // console.log(sepArray.length);
+  //       // counter = 0;
+  //     }
+  //   } else if (sepArray.length === valueAmount + counterAmount) {
+  //     let data = "separation,alignment,cohesion\n";
+  //     for (let i = 0; i < sepArray.length; i++) {
+  //       data += sepArray[i] + "," + aliArray[i] + "," + cohArray[i] + "\n";
+  //     }
+  //     console.log(data);
+  //     sepArray.push(0);
+  //   }
+  // }
 
   return { ali, sep, coh };
 }

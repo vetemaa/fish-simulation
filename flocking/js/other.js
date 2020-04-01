@@ -1,6 +1,6 @@
-// green, red, indigo, yellow, orange, grey
+// white, red, green, indigo, yellow, orange, grey
 const colors = [
-  "#fff",
+  "#ffffff",
   "#e57373",
   "#66bb6a",
   "#5d7ada",

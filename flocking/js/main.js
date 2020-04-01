@@ -17,7 +17,7 @@ var boidStartCount = 700;
 var predatorTotalCount = 5;
 var predatorStartCount = 0;
 var foodTotalCount = 100;
-var foodStartCount = 0;
+var foodStartCount = 100;
 
 function init() {
   renderer = new THREE.WebGLRenderer({
@@ -89,6 +89,10 @@ function init() {
   moveBoids(1);
   cameraChase(1);
 
+  // for (let i = 0; i < 1000; i++) {
+  //   moveBoids(10);
+  // }
+
   addNoiseCurve();
   animate();
 }
@@ -96,6 +100,7 @@ function init() {
 let then = Date.now();
 function animate(now) {
   let delta = now - then;
+
   // console.log(delta);
   if (delta && vars.play) {
     cameraChase();
