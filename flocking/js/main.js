@@ -12,7 +12,7 @@ const boids = [];
 const predators = [];
 const foods = [];
 const boidTotalCount = 700;
-const boidStartCount = 200;
+const boidStartCount = 100;
 const predatorTotalCount = 5;
 const predatorStartCount = 0;
 const foodTotalCount = 100;
@@ -63,18 +63,20 @@ function init() {
   addBounds();
   addNoiseCurve();
 
-  // animate frame(s) for paused analysis
-  moveBoids(1);
-  cameraChase(1);
+  addObstacle(animate);
 
-  animate();
+  // animate frame(s) for paused analysis (problem with loading rocks)
+  // moveBoids(1);
+  // cameraChase(1);
+
+  // animate();
 }
 
 function animate() {
   let delta = clock.getDelta();
 
   if (delta && vars.play) {
-    if (delta > 3000) delta = 0; // when tab not open
+    if (delta > 1) delta = 0; // when tab not open
     cameraChase();
     moveBoids(delta);
     moveFood(delta);

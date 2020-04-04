@@ -17,12 +17,13 @@ function datGui() {
     this.feedScalar = 1;
     this.alignmentRadius = 9;
     this.alignmentScalar = 0.08;
-    this.cohesionRadius = 14;
+    this.cohesionRadius = 24; // 14 is normal
     this.cohesionScalar = 0.08;
     this.separationRadius = 2.4;
     this.separationScalar = 0.34; // 0.44 in graph simulation
     this.randomScalar = 0.08;
     this.randomWavelenScalar = 0.5;
+    this.fieldScalar = 1;
     this.boundsScalar = 0.01;
 
     this.predatorCount = predatorStartCount;
@@ -84,6 +85,7 @@ function datGui() {
   folWeights.add(vars, "randomWavelenScalar", 0, 10).step(0.1);
   folWeights.add(vars, "avoidScalar", 0, 1).step(0.01);
   folWeights.add(vars, "feedScalar", 0, 1).step(0.01);
+  folWeights.add(vars, "fieldScalar", 0, 1).step(0.01);
 
   folDists = folBoids.addFolder("Rule Radiuses");
   // folDists.open();

@@ -157,6 +157,7 @@ function accelerationRules(boid) {
   acceleration.set(0, 0, 0);
   const bnd = bounds(boid);
   const ran = random(boid);
+  const fld = vectorfield(boid);
 
   // if (boid.subject) {
   //   const counterAmount = 10;
@@ -215,7 +216,8 @@ function accelerationRules(boid) {
       { vec: bnd, enabled: 1, arr: 5, scalar: vars.boundsScalar },
       { vec: ran, enabled: 1, arr: 6, scalar: vars.randomScalar },
       { vec: avd, enabled: 1, arr: 7, scalar: vars.avoidScalar },
-      // { vec: fed, enabled: 1, arr: 4, scalar: vars.feedScalar }
+      { vec: fld, enabled: 1, arr: 0, scalar: vars.fieldScalar },
+      // { vec: fed, enabled: 1, arr: 4, scalar: vars.feedScalar },
     ];
   }
 
