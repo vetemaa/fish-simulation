@@ -13,56 +13,38 @@ var boids = [];
 var predators = [];
 var foods = [];
 var boidTotalCount = 700;
-var boidStartCount = 700;
+var boidStartCount = 200;
 var predatorTotalCount = 5;
 var predatorStartCount = 0;
 var foodTotalCount = 100;
 var foodStartCount = 100;
 
 function init() {
+  let w = window.innerWidth;
+  let h = window.innerHeight;
+
   renderer = new THREE.WebGLRenderer({
     antialias: true
   });
   renderer.setClearColor(backColor);
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(w, h);
   document.getElementById("container").appendChild(renderer.domElement);
-
   stats = new Stats();
-  stats.domElement.style.position = "absolute";
-  stats.domElement.style.bottom = "0px";
   document.body.appendChild(stats.domElement);
   window.addEventListener("resize", onWindowResize, false);
   window.addEventListener("fullscreenchange", onWindowResize, false);
+
   initControls();
 
   scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(
-    35,
-    window.innerWidth / window.innerHeight,
-    1,
-    1000
-  );
-  // camera = new THREE.OrthographicCamera(
-  //   window.innerWidth / -120,
-  //   window.innerWidth / 120,
-  //   window.innerHeight / 120,
-  //   window.innerHeight / -120,
-  //   1,
-  //   1000
-  // );
-  fishCamera = new THREE.PerspectiveCamera(
-    90,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
-  // camera.position.set(42, 16, 25);
-  // camera.position.set(140, 54, 82);
-  // camera.position.set(84, 33, 49);
-  // camera.position.set(160, 50, 93);
-  camera.position.set(186, 34, 113);
-  // camera.position.set(30, 20, 140);
-  // camera.position.set(10.001, 20, 10);
+  camera = new THREE.PerspectiveCamera(35, w / h, 1, 1000);
+  fishCamera = new THREE.PerspectiveCamera(90, w / h, 0.1, 1000);
+  w /= 120;
+  h /= 120;
+  // camera = new THREE.OrthographicCamera(w / -1, w / 1, h / 1, h / -1, 1, 1000);
+
+  const b = vars.boundSize;
+  camera.position.set(b * 3, b * 0.6, b * 2);
   // camera.position.set(15.001, 30, 15);
 
   scene.add(camera);
@@ -86,11 +68,10 @@ function init() {
 
   // animate frame(s) for paused analysis
   moveBoids(1);
-  moveBoids(1);
   cameraChase(1);
 
-  // for (let i = 0; i < 1000; i++) {
-  //   moveBoids(10);
+  // for (let i = 0; i < 1100; i++) {
+  //   // moveBoids(0.3);
   // }
 
   addNoiseCurve();
@@ -100,6 +81,9 @@ function init() {
 let then = Date.now();
 function animate(now) {
   let delta = now - then;
+  // delta = 2; // 0.3
+
+  // TODO: clock.getDelta()
 
   // console.log(delta);
   if (delta && vars.play) {

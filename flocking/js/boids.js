@@ -145,12 +145,58 @@ function velocityRules(boid, playDelta) {
   applyRules(boid, rules, boid.velocity);
 }
 
+sepArray1 = [];
+aliArray1 = [];
+cohArray1 = [];
+sepArray2 = [];
+aliArray2 = [];
+cohArray2 = [];
+counter = 0;
+
 function accelerationRules(boid) {
   const { acceleration } = boid;
-  const { sep, ali, coh } = reynolds(boid, boids);
+  let { sep, ali, coh } = reynolds(boid, boids);
   acceleration.set(0, 0, 0);
   const bnd = bounds(boid);
   const ran = random(boid);
+
+  // if (boid.subject) {
+  //   const counterAmount = 10;
+  //   const valueAmount = 3000;
+  //   // TODO: MAKE COHESION RADIUS SMALL SO MORE FLICKERING
+  //   if (boid.subject) {
+  //     if (sepArray1.length < valueAmount) {
+  //       if (counter < counterAmount) {
+  //         counter += 1;
+  //         if (counter == counterAmount) console.log("counter over");
+  //       } else {
+  //         if (sepArray1.length % 100 === 0) console.log(sepArray1.length);
+  //         values1 = reynolds(boid, boids, -1);
+  //         sepArray1.push(values1.sep.x);
+  //         aliArray1.push(values1.ali.x);
+  //         cohArray1.push(values1.coh.x);
+  //         values2 = reynolds(boid, boids, 1);
+  //         sepArray2.push(values2.sep.x);
+  //         aliArray2.push(values2.ali.x);
+  //         cohArray2.push(values2.coh.x);
+  //         // console.log(sepArray1.length);
+  //         // counter = 0;
+  //       }
+  //     } else if (sepArray1.length === valueAmount) {
+  //       let data1 = "separation,alignment,cohesion\n";
+  //       let data2 = "separation,alignment,cohesion\n";
+  //       for (let i = 0; i < valueAmount; i++) {
+  //         data1 += -sepArray1[i] + "\n";
+  //         // sepArray1[i] + "," + aliArray1[i] + "," + cohArray1[i] + "\n";
+  //         data2 += -sepArray2[i] + "\n";
+  //         // sepArray2[i] + "," + aliArray2[i] + "," + cohArray2[i] + "\n";
+  //       }
+  //       console.log(data1);
+  //       console.log(data2);
+  //       sepArray1.push(0);
+  //     }
+  //   }
+  // }
 
   let rules;
   if (boid.predator) {

@@ -23,7 +23,7 @@ function datGui() {
     this.cohesionRadius = 14;
     this.cohesionScalar = 0.08;
     this.separationRadius = 2.4;
-    this.separationScalar = 0.34;
+    this.separationScalar = 0.34; // 0.44 in graph simulation
     this.randomScalar = 0.08;
     this.randomWavelenScalar = 0.5;
     this.boundsScalar = 0.01;

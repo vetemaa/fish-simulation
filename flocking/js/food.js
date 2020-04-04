@@ -11,7 +11,7 @@ function addFood() {
       vars.boundSize * rand()
     );
     food.orgPos = food.position.clone();
-    food.scale.set(0.15, 0.15, 0.15);
+    food.scale.set(0.25, 0.25, 0.25);
 
     foods.push(food);
     scene.add(food);

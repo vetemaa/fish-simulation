@@ -151,7 +151,8 @@ function updateInfo() {
     else if (colorIndex == 0) color = "#111";
     else color = colors[colorIndex];
 
-    let length = ruleInf == undefined ? 0 : ruleInf.vec.length() * 200;
+    let length =
+      ruleInf == undefined || !ruleInf.enabled ? 0 : ruleInf.vec.length() * 200;
 
     infoDiv.children[0].style.backgroundColor = color;
     infoDiv.children[1].textContent = text;

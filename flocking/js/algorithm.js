@@ -1,10 +1,5 @@
-sepArray = [];
-aliArray = [];
-cohArray = [];
-counter = 0;
-
-function reynolds(boid, flockmates) {
-  const mine = true;
+function reynolds(boid, flockmates, mine = 1) {
+  // const mine = -1;
   const sep = new THREE.Vector3();
   const ali = new THREE.Vector3();
   const coh = new THREE.Vector3();
@@ -21,7 +16,7 @@ function reynolds(boid, flockmates) {
     const dist = boid.position.distanceTo(flockmate.position);
 
     if (boid.index !== flockmate.index) {
-      if (mine) {
+      if (mine === 1) {
         // separation - mine
         if (dist < vars.separationRadius) {
           const diff = boid.position.clone().sub(flockmate.position);
@@ -42,7 +37,7 @@ function reynolds(boid, flockmates) {
           diff.setLength(1 - dist / vars.cohesionRadius);
           coh.add(diff);
         }
-      } else {
+      } else if (mine === 0) {
         // separation - {4}
         if (dist < vars.separationRadius) {
           const diff = boid.position.clone().sub(flockmate.position);
@@ -62,11 +57,29 @@ function reynolds(boid, flockmates) {
           coh.add(pos);
           cohNeighbours++;
         }
+      } else {
+        // separation - {books}
+        if (dist < vars.separationRadius) {
+          sep.add(flockmate.position);
+          sepNeighbours++;
+        }
+
+        // alignment - {books}
+        if (dist < vars.alignmentRadius) {
+          ali.add(flockmate.velocity);
+          aliNeighbours++;
+        }
+
+        // cohesion - {books}
+        if (dist < vars.cohesionRadius) {
+          coh.add(flockmate.position);
+          cohNeighbours++;
+        }
       }
     }
   }
 
-  if (mine) {
+  if (mine === 1) {
     // separation - mine
     sep.clampLength(0, 1);
 
@@ -75,46 +88,42 @@ function reynolds(boid, flockmates) {
 
     // cohesion - mine
     coh.clampLength(0, 1);
-  } else {
+  } else if (mine === 0) {
     // separation - {4}
     if (sepNeighbours > 0) sep.divideScalar(sepNeighbours);
     sep.divideScalar(2);
 
-    // alignment - {4}
-    if (aliNeighbours > 0) ali.divideScalar(aliNeighbours);
-    ali.divideScalar(6);
+    ali.divideScalar(aliNeighbours);
+    ali.divideScalar(4);
 
     // cohesion - {4}
     if (cohNeighbours > 0) {
       coh.divideScalar(cohNeighbours);
       coh.sub(boid.position);
-      // coh.multiplyScalar(0.1);
+      coh.divideScalar(5);
+    }
+  } else {
+    // separation - {books}
+    if (sepNeighbours > 0) {
+      sep.divideScalar(sepNeighbours);
+      positionClone = boid.position.clone();
+      sep.copy(positionClone.sub(sep.clone()));
+      sep.multiplyScalar(0.5);
+    }
+
+    // alignment - {books}
+    if (aliNeighbours > 0) {
+      ali.divideScalar(aliNeighbours);
+      ali.multiplyScalar(100);
+    }
+
+    // cohesion - {books}
+    if (cohNeighbours > 0) {
+      coh.divideScalar(cohNeighbours);
+      coh.sub(boid.position);
+      coh.multiplyScalar(0.2);
     }
   }
-
-  // const counterAmount = 200;
-  // const valueAmount = 100;
-  // // TODO: MAKE COHESION RADIUS SMALL SO MORE FLICKERING
-  // if (boid.subject) {
-  //   if (sepArray.length < valueAmount + counterAmount) {
-  //     if (counter < counterAmount) {
-  //       counter += 1;
-  //     } else {
-  //       sepArray.push(sep.x);
-  //       aliArray.push(ali.x);
-  //       cohArray.push(coh.x);
-  //       // console.log(sepArray.length);
-  //       // counter = 0;
-  //     }
-  //   } else if (sepArray.length === valueAmount + counterAmount) {
-  //     let data = "separation,alignment,cohesion\n";
-  //     for (let i = 0; i < sepArray.length; i++) {
-  //       data += sepArray[i] + "," + aliArray[i] + "," + cohArray[i] + "\n";
-  //     }
-  //     console.log(data);
-  //     sepArray.push(0);
-  //   }
-  // }
 
   return { ali, sep, coh };
 }

@@ -1,2 +1,5 @@
-flocking/graph-improved.csv
-flocking/graph.csv
+flocking/graphs/
+flocking/js/experiments/
+flocking/experiments.html
+flocking/rocks.glb
+flocking/js/collision_functions.js

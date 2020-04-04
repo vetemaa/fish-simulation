@@ -1,20 +1,25 @@
-// ARCHITECTURE
+// font size: 13.5 (19)
+
+// STRUCTURE
 boids.forEach(boid => {
   separation = getSeparation(boid);
   alignment = getAlignment(boid);
   cohesion = getCohesion(boid);
-  bounds = getBounds(boid);
+  // bounds = getBounds(boid);
   // additional rules
 
   acceleration = new THREE.Vector3();
   acceleration.add(separation.multiplyScalar(separationScalar));
   acceleration.add(alignment.multiplyScalar(alignmentScalar));
   acceleration.add(cohesion.multiplyScalar(cohesionScalar));
-  acceleration.add(bounds.multiplyScalar(boundsScalar));
+  // acceleration.add(bounds.multiplyScalar(boundsScalar));
   // additional rules added to acceleration
+  acceleration.multiplyScalar(deltaTime);
 
   boid.velocity.add(acceleration);
   boid.velocity.capLength(0, maxSpeed);
+  velocity = boid.velocity.clone();
+  velocity.multiplyScalar(deltaTime);
   boid.position.add(velocity);
 });
 
@@ -52,21 +57,21 @@ function alignment(boid) {
 
 // COHESION - typical
 function cohesion(boid) {
-  coh = new THREE.Vector3();
-  cohNeighbours = 0;
+  cohesion = new THREE.Vector3();
+  cohesionNeighbours = 0;
   distance = boid.position.distanceTo(flockmate.position);
   flockmates.forEach(flockmate => {
     if (distance < cohesionRadius) {
       position = flockmate.position.clone();
-      coh.add(position);
-      cohNeighbours++;
+      cohesion.add(position);
+      cohesionNeighbours++;
     }
   });
-  if (cohNeighbours > 0) {
-    coh.divideScalar(cohNeighbours);
-    coh.sub(boid.position);
+  if (cohesionNeighbours > 0) {
+    cohesion.divideScalar(cohesionNeighbours);
+    cohesion.sub(boid.position);
   }
-  return coh;
+  return cohesion;
 }
 
 // separationARATION - improved
