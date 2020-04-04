@@ -7,7 +7,7 @@ const colors = [
   "#dce775",
   "#6f4b2e",
   "#ffb74d",
-  "#64c3ec"
+  "#64c3ec",
 ];
 
 function onWindowResize() {
@@ -22,7 +22,7 @@ function addNoiseCurve() {
   const boid = boids[0];
   var lines = new THREE.Group();
 
-  [0xff9999, 0x99ff99, 0x9999ff].forEach(color => {
+  [0xff9999, 0x99ff99, 0x9999ff].forEach((color) => {
     var line = new THREE.Group();
     line.color = color;
     lines.add(line);
@@ -47,9 +47,6 @@ function animateNoise() {
   z = noise(time, boid, "z") * 10;
   xAxis = time * 100;
 
-  // rapos += (Math.random() * 2 - 1) / 40;
-  // addLineSegment(lines[0], new THREE.Vector3(xAxis, rapos * 10, 0));
-
   addLineSegment(lines[0], new THREE.Vector3(xAxis, x, 0));
   addLineSegment(lines[1], new THREE.Vector3(xAxis, y, 0));
   addLineSegment(lines[2], new THREE.Vector3(xAxis, z, 0));
@@ -58,13 +55,13 @@ function animateNoise() {
 }
 
 function cameraChase() {
-  var relativeCameraOffset = new THREE.Vector3(
+  const relativeCameraOffset = new THREE.Vector3(
     0,
     0.8 * fishCameraDist,
     -2 * fishCameraDist
   );
 
-  var cameraOffset = relativeCameraOffset.applyMatrix4(
+  const cameraOffset = relativeCameraOffset.applyMatrix4(
     boids[0].mesh.matrixWorld
   );
 
@@ -92,9 +89,7 @@ function addLineSegment(line, vector) {
 
   const segment = new THREE.Line(
     lineGeom,
-    new THREE.LineBasicMaterial({
-      color: line.color
-    })
+    new THREE.LineBasicMaterial({ color: line.color })
   );
 
   line.add(segment);
@@ -104,19 +99,13 @@ function addLineSegment(line, vector) {
 function addBounds() {
   boundBox = new THREE.Group();
 
-  const box = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshBasicMaterial()
+  helper = new THREE.BoxHelper(
+    new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1)),
+    "#fff"
   );
-  box.visible = false;
-  boundBox.add(box);
-
-  var helper = new THREE.BoxHelper(boundBox, "#ffffff");
-  // var helper = new THREE.BoxHelper(boundBox, "#000");
-  boundBox.add(helper);
   helper.material.opacity = 0.25;
-  // helper.material.opacity = 1;
   helper.material.transparent = true;
+  boundBox.add(helper);
 
   scene.add(boundBox);
   boundBox.visible = vars.showBounds;
@@ -173,7 +162,7 @@ function drawCircle(boid, dist) {
   const circle = new THREE.Line(
     circleGeom,
     new THREE.LineBasicMaterial({
-      color: 0x66bb6a
+      color: 0x66bb6a,
     })
   );
 
@@ -182,9 +171,8 @@ function drawCircle(boid, dist) {
 }
 
 function setArrow(arrow, vec) {
-  if (vec.length() <= 0) {
-    arrow.visible = false;
-  } else {
+  if (vec.length() <= 0) arrow.visible = false;
+  else {
     arrow.len = vec.length();
     setArrowLen(arrow);
     arrow.setDirection(vec.clone().normalize());
@@ -207,7 +195,6 @@ function setBoidColor(boid, preys) {
     if (preys.includes(boid.index)) color = 0x66ff66;
     else if (boid.subject) color = 0xff00ff;
     else color = 0xffffff;
-    // else color = 0x000;
   }
   boid.mesh.material.color.setHex(color);
 }

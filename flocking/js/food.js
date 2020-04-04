@@ -21,29 +21,25 @@ function addFood() {
 }
 
 function moveFood(delta) {
-  if (delta > 3000) delta = 0; // when tab not open
-
   for (let i = 0; i < foodTotalCount; i++) {
     const food = foods[i];
     if (!food.visible) continue;
-    const playDelta = vars.playSpeed * delta * 0.1;
+    const playDelta = vars.playSpeed * delta;
 
     const steer = new THREE.Vector3();
     const turbulence = new THREE.Vector3(
-      simplex.noise2D(food.ownTime * 1, (food.index + 1) * 10),
-      simplex.noise2D(food.ownTime * 1, (food.index + 1) * 100),
-      simplex.noise2D(food.ownTime * 1, (food.index + 1) * 1000)
+      simplex.noise2D(food.ownTime, (food.index + 1) * 10),
+      simplex.noise2D(food.ownTime, (food.index + 1) * 100),
+      simplex.noise2D(food.ownTime, (food.index + 1) * 1000)
     );
     const keepOrg = food.orgPos.clone().sub(food.position);
 
-    turbulence.multiplyScalar(2);
-    keepOrg.multiplyScalar(1);
-    steer.add(turbulence);
-    steer.add(keepOrg);
+    steer.add(turbulence.multiplyScalar(2));
+    steer.add(keepOrg.multiplyScalar(1));
     steer.multiplyScalar(0.1);
     food.position.add(steer);
 
-    food.ownTime += playDelta * 0.001;
+    food.ownTime += playDelta * 0.1;
   }
 }
 
@@ -51,5 +47,4 @@ function eatFood(index) {
   vars.foodCount -= 1;
   const food = foods[index];
   food.visible = false;
-  //   console.log(food);
 }

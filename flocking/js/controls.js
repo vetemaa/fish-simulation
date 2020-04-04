@@ -1,19 +1,16 @@
-var folders = [];
-var boundBox;
-
 function datGui() {
-  var vars = function() {
+  var vars = function () {
     this.play = true;
     this.playSpeed = 5;
     this.chaseCamera = false;
-
-    this.boundSize = 60;
+    this.boundSize = 40;
 
     this.boidCount = boidStartCount;
     this.foodCount = foodStartCount;
     this.ruleScalar = 0.5;
     this.maxSpeed = 0.03;
     this.maxAcceleration = 0.01;
+
     this.avoidRadius = 32;
     this.avoidScalar = 0.3;
     this.feedRadius = 28;
@@ -47,6 +44,7 @@ function datGui() {
   vars = new vars();
   gui = new dat.GUI();
   gui.width = 333;
+  prevBoundSize = vars.boundSize;
 
   folMain = gui.addFolder("Main");
   folBoids = gui.addFolder("Boids");
@@ -60,18 +58,18 @@ function datGui() {
   folMain
     .add(vars, "chaseCamera")
     .listen()
-    .onChange(value => {
+    .onChange((value) => {
       changeCamera(value);
     });
   folMain
     .add(vars, "boundSize", 0, 150)
     .step(1)
-    .onChange(value => updateBounds(value));
+    .onChange((value) => updateBounds(value));
 
   folBoids
     .add(vars, "boidCount", 0, boidTotalCount)
     .step(1)
-    .onChange(value => changeBoidCount(boids, value));
+    .onChange((value) => changeBoidCount(boids, value));
   folBoids.add(vars, "ruleScalar", 0, 3).step(0.01);
   folBoids.add(vars, "maxSpeed", 0, 0.1).step(0.001);
   folBoids.add(vars, "maxAcceleration", 0, 0.01).step(0.001);
@@ -100,13 +98,13 @@ function datGui() {
     .add(vars, "foodCount", 0, foodTotalCount)
     .listen()
     .step(1)
-    .onChange(value => changeFoodCount(value));
+    .onChange((value) => changeFoodCount(value));
 
-  // PREDATORS -------------------------- TODO vars. asemel mingi muu
+  // PREDATORS -------------------------- TODO: vars. asemel mingi muu
   folPredators
     .add(vars, "predatorCount", 0, predatorTotalCount)
     .step(1)
-    .onChange(value => changeBoidCount(predators, value));
+    .onChange((value) => changeBoidCount(predators, value));
   folPredators.add(vars, "ruleScalar_p", 0, 3).step(0.01);
   folPredators.add(vars, "maxSpeed_p", 0, 0.1).step(0.01);
 
@@ -121,17 +119,17 @@ function datGui() {
 
   folVisual
     .add(vars, "showVectors")
-    .onChange(value => changeVectorVisibility(value));
+    .onChange((value) => changeVectorVisibility(value));
   folVisual
     .add(vars, "vectorLenMultiplier", 0, 100)
     .step(1)
     .onChange(changeArrowLens);
   folVisual
     .add(vars, "showBounds")
-    .onChange(value => (boundBox.visible = value));
+    .onChange((value) => (boundBox.visible = value));
   folVisual
     .add(vars, "showAxes")
-    .onChange(value => (axesHelper.visible = value));
+    .onChange((value) => (axesHelper.visible = value));
   folVisual.add(vars, "drawTail");
   folVisual.add(vars, "drawRandomFunction");
   folVisual.add(vars, "removeTail");
@@ -154,19 +152,15 @@ function changeCamera(value) {
 }
 
 function initControls() {
-  renderer.domElement.onkeyup = e => {
+  renderer.domElement.onkeyup = (e) => {
     if (e.keyCode == 32) vars.play = !vars.play;
-    if (e.keyCode == 49) {
-      changeCamera(true);
-    }
-    if (e.keyCode == 50) {
-      changeCamera(false);
-    }
+    if (e.keyCode == 49) changeCamera(true);
+    if (e.keyCode == 50) changeCamera(false);
   };
 
   window.addEventListener(
     "mousewheel",
-    e => {
+    (e) => {
       if (vars.chaseCamera) {
         if (e.deltaY > 0) fishCameraDist += 0.1;
         else if (e.deltaY < 0 && fishCameraDist > 0.1) fishCameraDist -= 0.1;
@@ -218,32 +212,32 @@ function changeFoodCount(value) {
 }
 
 function shuffleBoids() {
-  boids.forEach(boid => {
+  boids.forEach((boid) => {
     boid.position.set(
       vars.boundSize * rand(),
       vars.boundSize * rand(),
       vars.boundSize * rand()
     );
     boid.velocity.set(rand() - 0.5, rand() - 0.5, rand() - 0.5);
-    boid.velocity.setLength(0.1);
+    boid.velocity.setLength(vars.maxSpeed);
   });
 }
 
 function changeVectorVisibility(value) {
-  boids.forEach(boid => {
-    boid.helpArrows.visible = value;
-  });
+  boids.forEach((boid) => (boid.helpArrows.visible = value));
 }
 
 function changeArrowLens() {
-  boids.forEach(boid => {
-    boid.helpArrows.children.forEach(arrow => {
-      setArrowLen(arrow);
-    });
+  boids.forEach((boid) => {
+    boid.helpArrows.children.forEach((arrow) => setArrowLen(arrow));
   });
 }
 
 function updateBounds(size) {
+  const ratio = camera.position.length() / prevBoundSize;
+  camera.position.setLength(ratio * size);
+  prevBoundSize = size;
+
   boundBox.scale.set(size, size, size);
   const pos = size / 2 - 0.01;
   boundBox.position.set(pos, pos, pos);

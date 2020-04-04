@@ -64,14 +64,14 @@ function addBoid(position, index) {
   boid.noise = {
     x: { a: null, b: rand(), cumWavLen: 0 },
     y: { a: null, b: rand(), cumWavLen: 0 },
-    z: { a: null, b: rand(), cumWavLen: 0 }
+    z: { a: null, b: rand(), cumWavLen: 0 },
   };
 
   // helper arrows
   var helpArrows = new THREE.Group();
   helpArrows.visible = vars.showVectors;
   boid.helpArrows = helpArrows;
-  colors.forEach(color => {
+  colors.forEach((color) => {
     const arrow = new THREE.ArrowHelper();
     arrow.setColor(color);
     helpArrows.add(arrow);
@@ -90,8 +90,6 @@ function addBoid(position, index) {
 }
 
 function moveBoids(delta) {
-  if (delta > 3000) delta = 0; // when tab not open
-
   for (let i = 0; i < vars.predatorCount; i++) {
     const predator = predators[i];
     moveBoid(delta, predator, vars.ruleScalar_p, vars.maxSpeed_p);
@@ -110,7 +108,7 @@ function moveBoid(delta, boid, ruleScalar, maxSpeed) {
   const { playSpeed, drawTail } = vars;
 
   if (playSpeed == 0 || maxSpeed == 0) return;
-  let playDelta = playSpeed * delta * 0.1;
+  let playDelta = playSpeed * delta * 100;
   boid.ownTime += playDelta * 0.0002;
 
   accelerationRules(boid);
@@ -204,7 +202,7 @@ function accelerationRules(boid) {
     rules = [
       { vec: sep, enabled: 1, arr: 1, scalar: vars.separationScalar },
       { vec: bnd, enabled: 1, arr: 5, scalar: vars.boundsScalar / 1.5 },
-      { vec: ran, enabled: 1, arr: 6, scalar: vars.randomScalar / 2 }
+      { vec: ran, enabled: 1, arr: 6, scalar: vars.randomScalar / 2 },
       // { vec: atk, enabled: 1, arr: 1, scalar: vars.attackScalar },
     ];
   } else {
@@ -216,7 +214,7 @@ function accelerationRules(boid) {
       { vec: coh, enabled: 1, arr: 3, scalar: vars.cohesionScalar },
       { vec: bnd, enabled: 1, arr: 5, scalar: vars.boundsScalar },
       { vec: ran, enabled: 1, arr: 6, scalar: vars.randomScalar },
-      { vec: avd, enabled: 1, arr: 7, scalar: vars.avoidScalar }
+      { vec: avd, enabled: 1, arr: 7, scalar: vars.avoidScalar },
       // { vec: fed, enabled: 1, arr: 4, scalar: vars.feedScalar }
     ];
   }
