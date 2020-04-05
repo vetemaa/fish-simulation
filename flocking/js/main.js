@@ -12,7 +12,7 @@ const boids = [];
 const predators = [];
 const foods = [];
 const boidTotalCount = 700;
-const boidStartCount = 100;
+const boidStartCount = 200;
 const predatorTotalCount = 5;
 const predatorStartCount = 0;
 const foodTotalCount = 100;
@@ -48,7 +48,7 @@ function init() {
   // camera.position.set(15.001, 30, 15);
 
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-  cameraControls.rotateSpeed = 0.2;
+  cameraControls.rotateSpeed = 0.3;
   cameraControls.maxDistance = 400;
   cameraControls.minDistance = 1;
   cameraControls.enabled = !vars.chaseCamera;

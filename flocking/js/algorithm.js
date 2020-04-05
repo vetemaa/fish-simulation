@@ -365,9 +365,9 @@ function random(boid) {
   //   Math.random() * 2 - 1
   // );
 
-  const center = new THREE.Vector3(20, 20, 20).sub(boid.position);
-  center.multiplyScalar(0.08);
-  steer.add(center);
+  // const center = new THREE.Vector3(20, 20, 20).sub(boid.position);
+  // center.multiplyScalar(0.08);
+  // steer.add(center);
 
   return steer;
 }

@@ -14,16 +14,16 @@ function datGui() {
     this.avoidRadius = 32;
     this.avoidScalar = 0.3;
     this.feedRadius = 28;
-    this.feedScalar = 1;
+    this.feedScalar = 0.5;
     this.alignmentRadius = 9;
     this.alignmentScalar = 0.08;
-    this.cohesionRadius = 24; // 14 is normal
+    this.cohesionRadius = 14; // 14 is normal
     this.cohesionScalar = 0.08;
     this.separationRadius = 2.4;
     this.separationScalar = 0.34; // 0.44 in graph simulation
     this.randomScalar = 0.08;
     this.randomWavelenScalar = 0.5;
-    this.fieldScalar = 1;
+    this.fieldScalar = 0.5;
     this.boundsScalar = 0.01;
 
     this.predatorCount = predatorStartCount;
@@ -226,7 +226,8 @@ function shuffleBoids() {
 }
 
 function changeVectorVisibility(value) {
-  boids.forEach((boid) => (boid.helpArrows.visible = value));
+  // boids.forEach((boid) => (boid.helpArrows.visible = value));
+  subject.helpArrows.visible = value;
 }
 
 function changeArrowLens() {

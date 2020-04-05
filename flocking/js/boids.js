@@ -68,16 +68,7 @@ function addBoid(position, index) {
   };
 
   // helper arrows
-  var helpArrows = new THREE.Group();
-  helpArrows.visible = vars.showVectors;
-  boid.helpArrows = helpArrows;
-  colors.forEach((color) => {
-    const arrow = new THREE.ArrowHelper();
-    arrow.setColor(color);
-    helpArrows.add(arrow);
-    arrow.visible = false;
-  });
-  boid.add(helpArrows);
+  addArrows(boid);
 
   // travelled path line
   var tailLine = new THREE.Group();
@@ -133,11 +124,11 @@ function velocityRules(boid, playDelta) {
   if (boid.predator) {
     const atk = velattack(boid);
     atk.multiplyScalar(playDelta);
-    rules = [{ vec: atk, enabled: 1, arr: 4, scalar: attackScalar }];
+    rules = [{ vec: atk, arr: 4, scalar: attackScalar }];
   } else {
     const fed = velfeed(boid);
     fed.multiplyScalar(playDelta);
-    rules = [{ vec: fed, enabled: 1, arr: 4, scalar: feedScalar }];
+    rules = [{ vec: fed, arr: 4, scalar: feedScalar }];
   }
 
   applyRules(boid, rules, boid.velocity);
@@ -199,42 +190,41 @@ function accelerationRules(boid) {
 
   let rules;
   if (boid.predator) {
-    // const atk = attack(boid, boids, vars.boidCount);
+    const atk = attack(boid, boids, vars.boidCount);
     rules = [
-      { vec: sep, enabled: 1, arr: 1, scalar: vars.separationScalar },
-      { vec: bnd, enabled: 1, arr: 5, scalar: vars.boundsScalar / 1.5 },
-      { vec: ran, enabled: 1, arr: 6, scalar: vars.randomScalar / 2 },
-      // { vec: atk, enabled: 1, arr: 1, scalar: vars.attackScalar },
+      { vec: sep, scalar: vars.separationScalar },
+      { vec: bnd, scalar: vars.boundsScalar / 1.5 },
+      { vec: ran, scalar: vars.randomScalar / 2 },
+      { vec: atk, scalar: vars.attackScalar },
     ];
   } else {
-    // const fed = feed(boid);
+    // const fed = feed(boid); // VEL RULE!
     const avd = escape(boid, predators, vars.predatorCount);
     rules = [
-      { vec: sep, enabled: 1, arr: 1, scalar: vars.separationScalar },
-      { vec: ali, enabled: 1, arr: 2, scalar: vars.alignmentScalar },
-      { vec: coh, enabled: 1, arr: 3, scalar: vars.cohesionScalar },
-      { vec: bnd, enabled: 1, arr: 5, scalar: vars.boundsScalar },
-      { vec: ran, enabled: 1, arr: 6, scalar: vars.randomScalar },
-      { vec: avd, enabled: 1, arr: 7, scalar: vars.avoidScalar },
-      { vec: fld, enabled: 1, arr: 0, scalar: vars.fieldScalar },
-      // { vec: fed, enabled: 1, arr: 4, scalar: vars.feedScalar },
+      { name: "sep", vec: sep, scalar: vars.separationScalar },
+      { name: "ali", vec: ali, scalar: vars.alignmentScalar },
+      { name: "coh", vec: coh, scalar: vars.cohesionScalar },
+      { name: "bnd", vec: bnd, scalar: vars.boundsScalar },
+      { name: "ran", vec: ran, scalar: vars.randomScalar },
+      { name: "avd", vec: avd, scalar: vars.avoidScalar },
+      { name: "obs", vec: fld, scalar: vars.fieldScalar },
+      // { name: "fed", vec: fed, scalar: vars.feedScalar },
     ];
   }
 
-  applyRules(boid, rules, acceleration);
-  if (boid.subject) setArrow(boid.helpArrows.children[0], acceleration);
-  if (boid.subject) setInfo(rules, acceleration.clone());
+  applyRules(rules, acceleration);
+  if (boid.subject) {
+    if (boid.subject) setInfo(rules);
+    if (boid.subject) setInfoItem({ name: "acc", vec: acceleration.clone() });
+  }
 }
 
-function applyRules(boid, rules, vector) {
+function applyRules(rules, vector) {
   for (let i = 0; i < rules.length; i++) {
-    const { enabled, arr, scalar, vec } = rules[i];
-    if (!enabled || scalar === 0) continue;
+    const { scalar, vec } = rules[i];
+    if (scalar === 0) continue;
 
     vec.multiplyScalar(scalar);
     vector.add(vec);
-
-    if (boid.subject && arr && vars.showVectors)
-      setArrow(boid.helpArrows.children[arr], vec);
   }
 }

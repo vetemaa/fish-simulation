@@ -1,14 +1,129 @@
-// white, red, green, indigo, yellow, orange, grey
-const colors = [
-  "#ffffff",
-  "#e57373",
-  "#66bb6a",
-  "#5d7ada",
-  "#dce775",
-  "#6f4b2e",
-  "#ffb74d",
-  "#64c3ec",
+var info = [
+  {
+    name: "sep",
+    color: "#e57373",
+    showArr: true,
+  },
+  {
+    name: "ali",
+    color: "#66bb6a",
+    showArr: true,
+  },
+  {
+    name: "coh",
+    color: "#5d7ada",
+    showArr: true,
+  },
+  {
+    name: "bnd",
+    color: "#866144",
+    showArr: true,
+  },
+  {
+    name: "ran",
+    color: "#ffb74d",
+    showArr: true,
+  },
+  {
+    name: "avd",
+    color: "#8e64bd",
+    showArr: true,
+  },
+  {
+    name: "fed",
+    color: "#dce775",
+    showArr: true,
+  },
+  {
+    name: "obs",
+    color: "#64c3ec",
+    showArr: true,
+  },
+  {
+    name: "tes",
+    color: "#bbd668",
+    showArr: true,
+  },
+  {
+    name: "acc",
+    color: "#ffffff",
+    showArr: true,
+  },
 ];
+
+function addArrows(boid) {
+  if (boid.index != 0) return;
+
+  var helpArrows = new THREE.Group();
+  helpArrows.visible = vars.showVectors;
+  boid.helpArrows = helpArrows;
+
+  for (let i = 0; i < info.length; i++) {
+    const infoItem = info[i];
+    const arrow = new THREE.ArrowHelper();
+    arrow.setColor(infoItem.color);
+    arrow.name = infoItem.name;
+    arrow.visible = false;
+    helpArrows.add(arrow);
+  }
+
+  boid.add(helpArrows);
+}
+
+function setArrows() {
+  boid = boids[0];
+
+  boid.helpArrows.children.forEach((arrow) => {
+    const infoItem = findInfoByName(arrow.name);
+    const enabled = infoItem.showArr && infoItem.vec !== undefined;
+    if (enabled) setArrow(arrow, infoItem.vec);
+  });
+}
+
+function setArrow(arrow, vec) {
+  if (vec.length() <= 0) arrow.visible = false;
+  else {
+    arrow.setLength(vec.length() * vars.vectorLenMultiplier, 0.1, 0.1);
+    arrow.setDirection(vec.clone().normalize());
+    arrow.visible = true;
+  }
+}
+
+function setInfo(rules) {
+  rules.forEach((rule) => setInfoItem(rule));
+}
+
+function setInfoItem(item) {
+  findInfoByName(item.name).vec = item.vec;
+}
+
+function findInfoByName(name) {
+  for (let i = 0; i < info.length; i++)
+    if (info[i].name == name) return info[i];
+}
+
+function updateInfo() {
+  setArrows();
+
+  for (let i = 0; i < info.length; i++) {
+    const infoItem = info[i];
+    const infoDiv = document.getElementById(infoItem.name);
+    const enabled = infoItem.vec !== undefined;
+
+    let text, length;
+    if (enabled) {
+      text = `${infoItem.name}: ${infoItem.vec.length().toFixed(4)}`;
+      length = infoItem.vec.length() * 200;
+    } else {
+      text = `${infoItem.name}: -`;
+      length = 0;
+    }
+
+    infoDiv.children[0].style.backgroundColor = infoItem.color;
+    infoDiv.children[1].textContent = text;
+    infoDiv.children[2].style.width = length + "px";
+  }
+}
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -112,48 +227,6 @@ function addBounds() {
   updateBounds(vars.boundSize);
 }
 
-var info = {};
-
-function setInfo(rules, acc) {
-  info.sep = rules[0];
-  info.ali = rules[1];
-  info.coh = rules[2];
-  info.bnd = rules[3];
-  info.ran = rules[4];
-  info.avd = rules[5];
-  info.fed = rules[6];
-  info.acc = { vec: acc, arr: undefined, enabled: true };
-}
-
-function updateInfo() {
-  for (key in info) {
-    ruleInf = info[key];
-    infoDiv = document.getElementById(key);
-
-    let text;
-    if (ruleInf == undefined || !ruleInf.enabled) text = `${key}: disabled`;
-    else text = `${key}: ${ruleInf.vec.length().toFixed(4)}`;
-
-    let colorIndex = ruleInf == undefined ? undefined : ruleInf.arr;
-    let color;
-    if (colorIndex == undefined) color = "#fff";
-    else if (colorIndex == 0) color = "#111";
-    else color = colors[colorIndex];
-
-    let length =
-      ruleInf == undefined || !ruleInf.enabled ? 0 : ruleInf.vec.length() * 200;
-
-    infoDiv.children[0].style.backgroundColor = color;
-    infoDiv.children[1].textContent = text;
-    infoDiv.children[2].style.width = length + "px";
-  }
-}
-
-function setArrowLen(arrow) {
-  const len = arrow.len * vars.vectorLenMultiplier;
-  arrow.setLength(len, 0.1, 0.1);
-}
-
 function drawCircle(boid, dist) {
   const circleGeom = new THREE.Geometry();
   for (let i = 0; i < 2.1 * Math.PI; i += 0.1) {
@@ -168,16 +241,6 @@ function drawCircle(boid, dist) {
 
   circle.scale.set(dist, dist, dist);
   boid.add(circle);
-}
-
-function setArrow(arrow, vec) {
-  if (vec.length() <= 0) arrow.visible = false;
-  else {
-    arrow.len = vec.length();
-    setArrowLen(arrow);
-    arrow.setDirection(vec.clone().normalize());
-    arrow.visible = true;
-  }
 }
 
 function setBoidColor(boid, preys) {

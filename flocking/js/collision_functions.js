@@ -54,18 +54,18 @@ function addVectorField(object) {
         } else {
           length = 1 - length / avoidRadius;
           length = Math.pow(length, 3);
-          console.log(length);
+          // console.log(length);
 
-          // target.normalize();
-          // arrow = new THREE.ArrowHelper(
-          //   target,
-          //   origin,
-          //   length,
-          //   0xffaaaa,
-          //   0.07,
-          //   0.07
-          // );
-          // scene.add(arrow);
+          target.normalize();
+          arrow = new THREE.ArrowHelper(
+            target,
+            origin,
+            length * 1,
+            0xffaaaa,
+            0.2,
+            0.2
+          );
+          scene.add(arrow);
         }
 
         target.setLength(length);
@@ -75,7 +75,7 @@ function addVectorField(object) {
     }
     vectorField.push(line1);
   }
-  console.log(vectorField);
+  // console.log(vectorField);
 }
 
 // ALL BELOW FROM THIS LINK:
