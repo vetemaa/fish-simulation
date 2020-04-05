@@ -1,10 +1,10 @@
 var plane;
 var vectorField;
 var distanceField;
-var fieldDimension = 10;
+var fieldDimension = 4;
 var fieldSize = 40;
 var voxelSize = fieldSize / fieldDimension;
-var textureSize = 20;
+var textureSize = 30;
 
 function addObstacle(animateFunction) {
   const loader = new THREE.GLTFLoader();
@@ -47,13 +47,13 @@ function addVectorField(object) {
   distanceField = [];
   vectorField = [];
 
-  for (let index1 = 0.5; index1 < fieldDimension; index1++) {
+  for (let index1 = 0.0; index1 < fieldDimension; index1++) {
     line1vec = [];
     line1dist = [];
-    for (let index2 = 0.5; index2 < fieldDimension; index2++) {
+    for (let index2 = 0.0; index2 < fieldDimension; index2++) {
       line2vec = [];
       line2dist = [];
-      for (let index3 = 0.5; index3 < fieldDimension; index3++) {
+      for (let index3 = 0.0; index3 < fieldDimension; index3++) {
         const origin = new THREE.Vector3(index1, index2, index3);
         origin.multiplyScalar(voxelSize);
         // const target = new THREE.Vector3(
@@ -110,19 +110,20 @@ function addPlane() {
   plane.position.set(planeSize / 2, planeSize / 2, 0);
 
   updatePlaneTexture();
+  // lerpTest();
 }
 
 function texturePosToWorldPos(pos) {
   for (let i = 0; i < 2; i++) {
     const axisPos = pos[i];
-    const worldAxisPos = ((axisPos + 0.5) / textureSize) * fieldSize;
+    const worldAxisPos = ((axisPos + 0.0) / textureSize) * fieldSize;
     pos[i] = worldAxisPos;
   }
 
   return pos;
 }
 
-function worldPosToFieldValue(pos) {
+function worldPosToFieldValueOld(pos) {
   for (let i = 0; i < 3; i++) {
     const worldAxisPos = pos[i];
     const fieldAxisPos = Math.floor(worldAxisPos / voxelSize);
@@ -134,9 +135,81 @@ function worldPosToFieldValue(pos) {
   return fieldValue;
 }
 
+asd = 0;
+
+function worldPosToFieldValue(pos) {
+  orgPos = [...pos];
+
+  for (let i = 0; i < 3; i++) {
+    const worldAxisPos = pos[i];
+    const fieldAxisPos = Math.floor(worldAxisPos / voxelSize);
+    pos[i] = fieldAxisPos;
+  }
+
+  try {
+    // fieldValues = [];
+    // // if (asd == 0) {
+    // for (let x = 0; x < 2; x++) {
+    //   for (let y = 0; y < 2; y++) {
+    //     for (let z = 0; z < 2; z++) {
+    //       fieldValues.push(distanceField[pos[0] + x][pos[1] + y][pos[2] + z]);
+    //     }
+    //   }
+    // }
+    // }
+    // asd += 1;
+    q000 = distanceField[pos[0] + 0][pos[1] + 0][pos[2] + 0];
+    q001 = distanceField[pos[0] + 0][pos[1] + 0][pos[2] + 1];
+    q011 = distanceField[pos[0] + 0][pos[1] + 1][pos[2] + 1];
+    q010 = distanceField[pos[0] + 0][pos[1] + 1][pos[2] + 0];
+    q100 = distanceField[pos[0] + 1][pos[1] + 0][pos[2] + 0];
+    q101 = distanceField[pos[0] + 1][pos[1] + 0][pos[2] + 1];
+    q110 = distanceField[pos[0] + 1][pos[1] + 1][pos[2] + 0];
+    q111 = distanceField[pos[0] + 1][pos[1] + 1][pos[2] + 1];
+
+    fieldValue = triLerp(
+      orgPos[0] / voxelSize - pos[0],
+      orgPos[1] / voxelSize - pos[1],
+      orgPos[2] / voxelSize - pos[2],
+      // ...fieldValues
+      q000,
+      q001,
+      q010,
+      q011,
+      q100,
+      q101,
+      q110,
+      q111
+    );
+
+    // fieldValue = distanceField[pos[0]][pos[1]][pos[2]];
+  } catch (error) {
+    fieldValue = distanceField[pos[0]][pos[1]][pos[2]];
+  }
+
+  return fieldValue;
+}
+
+function lerp(x, q0, q1) {
+  return (1 - x) * q0 + x * q1;
+}
+
+function triLerp(x, y, z, q000, q001, q010, q011, q100, q101, q110, q111) {
+  q00 = lerp(x, q000, q100);
+  q01 = lerp(x, q001, q101);
+  q10 = lerp(x, q010, q110);
+  q11 = lerp(x, q011, q111);
+
+  q0 = lerp(y, q00, q10);
+  q1 = lerp(y, q01, q11);
+
+  q = lerp(z, q0, q1);
+  return q;
+}
+
 function updatePlaneTexture() {
   plane.position.z =
-    vars.boundSize / 4 + (Math.sin(Date.now() / 1000) * vars.boundSize) / 4;
+    vars.boundSize / 4 + (Math.sin(Date.now() / 500) * vars.boundSize) / 4;
 
   const pixelData = [];
 
@@ -168,7 +241,7 @@ function updatePlaneTexture() {
   plane.material.map = dataTexture;
 }
 
-function getFieldValue(field, pos) {
+function getFieldValueOld(field, pos) {
   let x = pos[0];
   let y = pos[1];
   let z = pos[2];
@@ -185,6 +258,40 @@ function getFieldValue(field, pos) {
     z < fieldDimension
   ) {
     return field[x][y][z];
+  }
+}
+
+function getFieldValue(field, pos) {
+  inField = true;
+  orgPos = [...pos];
+
+  for (let i = 0; i < 3; i++) {
+    const axis = pos[i];
+    pos[i] = Math.floor(axis / voxelSize);
+    if (axis < 0 || axis > fieldDimension) inField = false;
+  }
+
+  xDiff = orgPos[0] - pos[0];
+  yDiff = orgPos[1] - pos[1];
+  zDiff = orgPos[2] - pos[2];
+
+  console.log(xDiff, yDiff, zDiff);
+
+  if (inField) {
+    try {
+      posx0y0z0 = field[(pos[0] + 0, pos[1] + 0, pos[2] + 0)];
+      posx1y0z0 = field[(pos[0] + 1, pos[1] + 0, pos[2] + 0)];
+      posx1y1z0 = field[(pos[0] + 1, pos[1] + 1, pos[2] + 0)];
+      posx0y1z0 = field[(pos[0] + 0, pos[1] + 1, pos[2] + 0)];
+      posx0y0z1 = field[(pos[0] + 0, pos[1] + 0, pos[2] + 1)];
+      posx1y0z1 = field[(pos[0] + 1, pos[1] + 0, pos[2] + 1)];
+      posx1y1z1 = field[(pos[0] + 1, pos[1] + 1, pos[2] + 1)];
+      posx0y1z1 = field[(pos[0] + 0, pos[1] + 1, pos[2] + 1)];
+
+      return field[(pos[0], pos[1], pos[2])];
+    } catch (error) {
+      return field[(pos[0], pos[1], pos[2])];
+    }
   }
 }
 
