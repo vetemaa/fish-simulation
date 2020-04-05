@@ -33,7 +33,7 @@ function datGui() {
     this.attackScalar = 1;
 
     this.showVectors = true;
-    this.vectorLenMultiplier = 10;
+    this.vectorLenMultiplier = 100;
     this.showBounds = true;
     this.showAxes = true;
     this.drawTail = false;

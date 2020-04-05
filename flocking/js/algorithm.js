@@ -366,9 +366,9 @@ function random(boid) {
   //   Math.random() * 2 - 1
   // );
 
-  // const center = new THREE.Vector3(20, 20, 20).sub(boid.position);
-  // center.multiplyScalar(0.08);
-  // steer.add(center);
+  const center = new THREE.Vector3(20, 20, 20).sub(boid.position);
+  center.multiplyScalar(0.08);
+  steer.add(center);
 
   return steer;
 }
@@ -406,15 +406,9 @@ function interpolate(pa, pb, px) {
 
 function vectorfield(boid) {
   const steer = new THREE.Vector3();
-  // if (!boid.subject) return steer;
 
-  let { x, y, z } = boid.position;
-  x = Math.floor(x / 4);
-  y = Math.floor(y / 4);
-  z = Math.floor(z / 4);
+  const fieldValue = getFieldValue(vectorField, boid.position.toArray());
+  if (fieldValue) steer.copy(fieldValue);
 
-  if (0 < x && x < 10 && 0 < y && y < 10 && 0 < z && z < 10) {
-    steer.copy(vectorField[x][y][z]);
-  }
   return steer;
 }

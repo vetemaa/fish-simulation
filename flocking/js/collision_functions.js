@@ -1,3 +1,11 @@
+var plane;
+var vectorField;
+var distanceField;
+var fieldDimension = 10;
+var fieldSize = 40;
+var voxelSize = fieldSize / fieldDimension;
+var textureSize = 20;
+
 function addObstacle(animateFunction) {
   const loader = new THREE.GLTFLoader();
   loader.load("rocks.glb", (gltf) => {
@@ -14,7 +22,7 @@ function addObstacle(animateFunction) {
       new THREE.MeshNormalMaterial({ wireframe: false })
     );
     obstacle.scale.set(6, 6, 6);
-    obstacle.position.set(vars.boundSize / 2, 1, vars.boundSize / 2);
+    obstacle.position.set(vars.boundSize / 2, 4, vars.boundSize / 2);
     // obstacle.rotation.y = 4.74;
     obstacle.updateMatrixWorld();
     scene.add(obstacle);
@@ -26,18 +34,28 @@ function addObstacle(animateFunction) {
   });
 }
 
-var vectorField;
+function colorFromScalar(scalar) {
+  // if (scalar < 0) scalar = Math.abs(scalar);
+  if (scalar < 0 || scalar > 1) scalar = 0;
+  const r = Math.round(scalar * 255);
+  const g = Math.round(0);
+  const b = Math.round((1 - scalar) * 255);
+  return new THREE.Color(`rgb(${r}, ${g}, ${b})`);
+}
 
 function addVectorField(object) {
-  fieldSize = 10;
+  distanceField = [];
   vectorField = [];
-  for (let index1 = 0.5; index1 < fieldSize; index1++) {
-    line1 = [];
-    for (let index2 = 0.5; index2 < fieldSize; index2++) {
-      line2 = [];
-      for (let index3 = 0.5; index3 < fieldSize; index3++) {
+
+  for (let index1 = 0.5; index1 < fieldDimension; index1++) {
+    line1vec = [];
+    line1dist = [];
+    for (let index2 = 0.5; index2 < fieldDimension; index2++) {
+      line2vec = [];
+      line2dist = [];
+      for (let index3 = 0.5; index3 < fieldDimension; index3++) {
         const origin = new THREE.Vector3(index1, index2, index3);
-        origin.multiplyScalar(4);
+        origin.multiplyScalar(voxelSize);
         // const target = new THREE.Vector3(
         //   vars.boundSize / 2,
         //   vars.boundSize / 2,
@@ -53,29 +71,121 @@ function addVectorField(object) {
           length = 0;
         } else {
           length = 1 - length / avoidRadius;
-          length = Math.pow(length, 3);
-          // console.log(length);
+          length = Math.pow(length, 1);
 
           target.normalize();
           arrow = new THREE.ArrowHelper(
             target,
             origin,
             length * 1,
-            0xffaaaa,
+            colorFromScalar(length),
             0.2,
             0.2
           );
           scene.add(arrow);
         }
-
         target.setLength(length);
-        line2.push(target);
+
+        line2vec.push(target);
+        line2dist.push(length);
       }
-      line1.push(line2);
+      line1vec.push(line2vec);
+      line1dist.push(line2dist);
     }
-    vectorField.push(line1);
+    vectorField.push(line1vec);
+    distanceField.push(line1dist);
   }
-  // console.log(vectorField);
+
+  addPlane();
+}
+
+function addPlane() {
+  const planeSize = vars.boundSize;
+
+  const geom = new THREE.PlaneBufferGeometry(planeSize, planeSize);
+  const mat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
+  plane = new THREE.Mesh(geom, mat);
+  plane.planeSize = planeSize;
+  scene.add(plane);
+  plane.position.set(planeSize / 2, planeSize / 2, 0);
+
+  updatePlaneTexture();
+}
+
+function texturePosToWorldPos(pos) {
+  for (let i = 0; i < 2; i++) {
+    const axisPos = pos[i];
+    const worldAxisPos = ((axisPos + 0.5) / textureSize) * fieldSize;
+    pos[i] = worldAxisPos;
+  }
+
+  return pos;
+}
+
+function worldPosToFieldValue(pos) {
+  for (let i = 0; i < 3; i++) {
+    const worldAxisPos = pos[i];
+    const fieldAxisPos = Math.floor(worldAxisPos / voxelSize);
+    pos[i] = fieldAxisPos;
+  }
+
+  fieldValue = distanceField[pos[0]][pos[1]][pos[2]];
+
+  return fieldValue;
+}
+
+function updatePlaneTexture() {
+  plane.position.z =
+    vars.boundSize / 4 + (Math.sin(Date.now() / 1000) * vars.boundSize) / 4;
+
+  const pixelData = [];
+
+  for (let y = 0; y < textureSize; ++y) {
+    for (let x = 0; x < textureSize; ++x) {
+      // r = distanceField[x][y][7] * 255;
+
+      worldPos = texturePosToWorldPos([x, y]);
+      // worldPos[2] = vars.boundSize / 2;
+      worldPos[2] = plane.position.z;
+      value = worldPosToFieldValue(worldPos);
+      // color = colorFromScalar(value);
+      // pixelData.push(color.r * 255, color.g * 255, color.b * 255, 255);
+      // pixelData.push(255, 255 - value * 255, 255 - value * 255, 255);
+      pixelData.push(value * 255, 0, 0, 255);
+    }
+  }
+
+  const dataTexture = new THREE.DataTexture(
+    Uint8Array.from(pixelData),
+    textureSize,
+    textureSize,
+    THREE.RGBAFormat,
+    THREE.UnsignedByteType,
+    THREE.UVMapping
+  );
+  dataTexture.needsUpdate = true;
+
+  plane.material.map = dataTexture;
+}
+
+function getFieldValue(field, pos) {
+  let x = pos[0];
+  let y = pos[1];
+  let z = pos[2];
+  x = Math.floor(x / voxelSize);
+  y = Math.floor(y / voxelSize);
+  z = Math.floor(z / voxelSize);
+
+  if (
+    0 < x &&
+    x < fieldDimension &&
+    0 < y &&
+    y < fieldDimension &&
+    0 < z &&
+    z < fieldDimension
+  ) {
+    return field[x][y][z];
+  }
 }
 
 // ALL BELOW FROM THIS LINK:
