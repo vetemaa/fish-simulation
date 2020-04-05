@@ -64,6 +64,7 @@ function init() {
   addNoiseCurve();
 
   addObstacle(animate);
+  // animate();
 
   // animate frame(s) for paused analysis (problem with loading rocks)
   // moveBoids(1);

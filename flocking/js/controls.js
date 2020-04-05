@@ -14,7 +14,7 @@ function datGui() {
     this.avoidRadius = 32;
     this.avoidScalar = 0.3;
     this.feedRadius = 28;
-    this.feedScalar = 0.5;
+    this.feedScalar = 1;
     this.alignmentRadius = 9;
     this.alignmentScalar = 0.08;
     this.cohesionRadius = 14; // 14 is normal
@@ -23,7 +23,7 @@ function datGui() {
     this.separationScalar = 0.34; // 0.44 in graph simulation
     this.randomScalar = 0.08;
     this.randomWavelenScalar = 0.5;
-    this.fieldScalar = 0.5;
+    this.fieldScalar = 1;
     this.boundsScalar = 0.01;
 
     this.predatorCount = predatorStartCount;
@@ -32,7 +32,7 @@ function datGui() {
     this.attackRadius = 34;
     this.attackScalar = 1;
 
-    this.showVectors = false;
+    this.showVectors = true;
     this.vectorLenMultiplier = 10;
     this.showBounds = true;
     this.showAxes = true;
@@ -93,6 +93,7 @@ function datGui() {
   folDists.add(vars, "alignmentRadius", 0, 100).step(1);
   folDists.add(vars, "cohesionRadius", 0, 100).step(1);
   folDists.add(vars, "avoidRadius", 0, 100).step(1);
+  folDists.add(vars, "feedRadius", 0, 100).step(1);
 
   folFood = folBoids.addFolder("Food");
   // folFood.open();

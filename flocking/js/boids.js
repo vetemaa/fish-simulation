@@ -119,19 +119,18 @@ function moveBoid(delta, boid, ruleScalar, maxSpeed) {
 }
 
 function velocityRules(boid, playDelta) {
-  const { feedScalar, attackScalar } = vars;
-
   if (boid.predator) {
     const atk = velattack(boid);
     atk.multiplyScalar(playDelta);
-    rules = [{ vec: atk, arr: 4, scalar: attackScalar }];
+    rules = [{ vec: atk, scalar: vars.attackScalar }];
   } else {
     const fed = velfeed(boid);
     fed.multiplyScalar(playDelta);
-    rules = [{ vec: fed, arr: 4, scalar: feedScalar }];
+    rules = [{ name: "fed", vec: fed, scalar: vars.feedScalar }];
+    if (boid.subject) setInfo(rules);
   }
 
-  applyRules(boid, rules, boid.velocity);
+  applyRules(rules, boid.velocity);
 }
 
 sepArray1 = [];
@@ -214,16 +213,14 @@ function accelerationRules(boid) {
 
   applyRules(rules, acceleration);
   if (boid.subject) {
-    if (boid.subject) setInfo(rules);
-    if (boid.subject) setInfoItem({ name: "acc", vec: acceleration.clone() });
+    setInfo(rules);
+    setInfoItem({ name: "acc", vec: acceleration.clone() });
   }
 }
 
 function applyRules(rules, vector) {
   for (let i = 0; i < rules.length; i++) {
     const { scalar, vec } = rules[i];
-    if (scalar === 0) continue;
-
     vec.multiplyScalar(scalar);
     vector.add(vec);
   }

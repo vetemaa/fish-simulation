@@ -296,6 +296,7 @@ function velfeed(boid) {
 }
 
 function feed(boid) {
+  if (boid.subject) console.log("b");
   const steer = new THREE.Vector3();
 
   let closestFood;
