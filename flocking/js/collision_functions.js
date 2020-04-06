@@ -1,10 +1,10 @@
 var plane;
 var vectorField;
 var distanceField;
-var fieldDimension = 4;
+var fieldDimension = 14;
 var fieldSize = 40;
-var voxelSize = fieldSize / fieldDimension;
-var textureSize = 30;
+var voxelSize = fieldSize / (fieldDimension - 1);
+var textureSize = 150;
 
 function addObstacle(animateFunction) {
   const loader = new THREE.GLTFLoader();
@@ -71,7 +71,7 @@ function addVectorField(object) {
           length = 0;
         } else {
           length = 1 - length / avoidRadius;
-          length = Math.pow(length, 1);
+          length = Math.pow(length, 3);
 
           target.normalize();
           arrow = new THREE.ArrowHelper(
@@ -82,7 +82,7 @@ function addVectorField(object) {
             0.2,
             0.2
           );
-          scene.add(arrow);
+          // scene.add(arrow);
         }
         target.setLength(length);
 
@@ -103,7 +103,10 @@ function addPlane() {
   const planeSize = vars.boundSize;
 
   const geom = new THREE.PlaneBufferGeometry(planeSize, planeSize);
-  const mat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
+  const mat = new THREE.MeshBasicMaterial({
+    side: THREE.DoubleSide,
+    transparent: true,
+  });
   plane = new THREE.Mesh(geom, mat);
   plane.planeSize = planeSize;
   scene.add(plane);
@@ -138,54 +141,42 @@ function worldPosToFieldValueOld(pos) {
 asd = 0;
 
 function worldPosToFieldValue(pos) {
-  orgPos = [...pos];
+  voxels = [];
+  deltas = [];
 
   for (let i = 0; i < 3; i++) {
     const worldAxisPos = pos[i];
-    const fieldAxisPos = Math.floor(worldAxisPos / voxelSize);
+    voxel = worldAxisPos / voxelSize;
+    voxels.push(voxel);
+    deltas.push(voxel - Math.floor(voxel));
+    const fieldAxisPos = Math.floor(voxel);
     pos[i] = fieldAxisPos;
   }
 
-  try {
-    // fieldValues = [];
-    // // if (asd == 0) {
-    // for (let x = 0; x < 2; x++) {
-    //   for (let y = 0; y < 2; y++) {
-    //     for (let z = 0; z < 2; z++) {
-    //       fieldValues.push(distanceField[pos[0] + x][pos[1] + y][pos[2] + z]);
-    //     }
-    //   }
-    // }
-    // }
-    // asd += 1;
-    q000 = distanceField[pos[0] + 0][pos[1] + 0][pos[2] + 0];
-    q001 = distanceField[pos[0] + 0][pos[1] + 0][pos[2] + 1];
-    q011 = distanceField[pos[0] + 0][pos[1] + 1][pos[2] + 1];
-    q010 = distanceField[pos[0] + 0][pos[1] + 1][pos[2] + 0];
-    q100 = distanceField[pos[0] + 1][pos[1] + 0][pos[2] + 0];
-    q101 = distanceField[pos[0] + 1][pos[1] + 0][pos[2] + 1];
-    q110 = distanceField[pos[0] + 1][pos[1] + 1][pos[2] + 0];
-    q111 = distanceField[pos[0] + 1][pos[1] + 1][pos[2] + 1];
-
-    fieldValue = triLerp(
-      orgPos[0] / voxelSize - pos[0],
-      orgPos[1] / voxelSize - pos[1],
-      orgPos[2] / voxelSize - pos[2],
-      // ...fieldValues
-      q000,
-      q001,
-      q010,
-      q011,
-      q100,
-      q101,
-      q110,
-      q111
-    );
-
-    // fieldValue = distanceField[pos[0]][pos[1]][pos[2]];
-  } catch (error) {
-    fieldValue = distanceField[pos[0]][pos[1]][pos[2]];
+  // try {
+  fieldValues = [];
+  for (let x = 0; x < 2; x++) {
+    for (let y = 0; y < 2; y++) {
+      for (let z = 0; z < 2; z++) {
+        let xVal = pos[0] + x;
+        let yVal = pos[1] + y;
+        let zVal = pos[2] + z;
+        // if (xVal >= fieldDimension) --xVal;
+        // if (yVal >= fieldDimension) --yVal;
+        // if (zVal >= fieldDimension) --zVal;
+        fieldValues.push(distanceField[xVal][yVal][zVal]);
+      }
+    }
   }
+
+  fieldValue = triLerp(deltas[0], deltas[1], deltas[2], ...fieldValues);
+
+  // fieldValue = distanceField[pos[0]][pos[1]][pos[2]];
+
+  // } catch (error) {
+  //   // console.log(pos, distanceField.length);
+  //   fieldValue = distanceField[pos[0]][pos[1]][pos[2]];
+  // }
 
   return fieldValue;
 }
@@ -209,7 +200,7 @@ function triLerp(x, y, z, q000, q001, q010, q011, q100, q101, q110, q111) {
 
 function updatePlaneTexture() {
   plane.position.z =
-    vars.boundSize / 4 + (Math.sin(Date.now() / 500) * vars.boundSize) / 4;
+    vars.boundSize / 2.8 + (Math.sin(Date.now() / 500) * vars.boundSize) / 6;
 
   const pixelData = [];
 
@@ -225,6 +216,7 @@ function updatePlaneTexture() {
       // pixelData.push(color.r * 255, color.g * 255, color.b * 255, 255);
       // pixelData.push(255, 255 - value * 255, 255 - value * 255, 255);
       pixelData.push(value * 255, 0, 0, 255);
+      // pixelData.push(255, 0, 0, value * 255 + 10);
     }
   }
 
