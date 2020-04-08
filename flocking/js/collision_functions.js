@@ -1,10 +1,10 @@
 var plane;
 var vectorField;
 var distanceField;
-var fieldDimension = 14;
+var fieldDimension = 10;
 var fieldSize = 40;
 var voxelSize = fieldSize / (fieldDimension - 1);
-var textureSize = 150;
+var textureSize = 100;
 
 function addObstacle(animateFunction) {
   const loader = new THREE.GLTFLoader();
@@ -19,7 +19,7 @@ function addObstacle(animateFunction) {
 
     obstacle = new THREE.Mesh(
       rockModel.geometry,
-      new THREE.MeshNormalMaterial({ wireframe: false })
+      new THREE.MeshNormalMaterial({ wireframe: true })
     );
     obstacle.scale.set(6, 6, 6);
     obstacle.position.set(vars.boundSize / 2, 4, vars.boundSize / 2);
@@ -61,30 +61,38 @@ function addVectorField(object) {
         //   vars.boundSize / 2,
         //   vars.boundSize / 2
         // );
-        const avoidRadius = 8;
-        let target = findClosestPosition(origin, object);
+        const avoidRadius = 9;
+        const result = findClosestPosition(origin, object);
+        const inside = result[1];
+
+        let target = result[0];
         // target.sub(origin);
         target = origin.clone().sub(target);
-
         let length = target.length();
+
         if (length > avoidRadius) {
           length = 0;
         } else {
           length = 1 - length / avoidRadius;
-          length = Math.pow(length, 3);
-
-          target.normalize();
-          arrow = new THREE.ArrowHelper(
-            target,
-            origin,
-            length * 1,
-            colorFromScalar(length),
-            0.2,
-            0.2
-          );
-          // scene.add(arrow);
+          length = Math.pow(length, 1);
         }
+        if (inside) length = 0;
+
+        target.normalize();
+        arrow = new THREE.ArrowHelper(
+          target,
+          origin,
+          length * 1,
+          // colorFromScalar(length),
+          inside ? 0xff0000 : 0x00ff00,
+          0.2,
+          0.2
+        );
+        scene.add(arrow);
+
         target.setLength(length);
+
+        // if (inside) target = false;
 
         line2vec.push(target);
         line2dist.push(length);
@@ -96,7 +104,88 @@ function addVectorField(object) {
     distanceField.push(line1dist);
   }
 
+  addGradientField();
   addPlane();
+}
+
+function addGradientField() {
+  gradientField = [];
+
+  for (let index1 = 0; index1 < fieldDimension; index1++) {
+    line1vec = [];
+    for (let index2 = 0; index2 < fieldDimension; index2++) {
+      line2vec = [];
+      for (let index3 = 0; index3 < fieldDimension; index3++) {
+        surroundingValues = [];
+
+        for (
+          let x = index1 == 0 ? 0 : -1;
+          x < (index1 + 1 == fieldDimension ? 1 : 2);
+          x++
+        ) {
+          for (
+            let y = index2 == 0 ? 0 : -1;
+            y < (index2 + 1 == fieldDimension ? 1 : 2);
+            y++
+          ) {
+            for (
+              let z = index3 == 0 ? 0 : -1;
+              z < (index3 + 1 == fieldDimension ? 1 : 2);
+              z++
+            ) {
+              surroundingPos = [index1 + x, index2 + y, index3 + z];
+              // console.log(x, y, z);
+              value =
+                distanceField[surroundingPos[0]][surroundingPos[1]][
+                  surroundingPos[2]
+                ];
+              surroundingValues.push([x * value, y * value, z * value]);
+            }
+          }
+        }
+
+        vector = new THREE.Vector3(...findMeanPos(surroundingValues));
+        // vector.normalize();
+
+        const origin = new THREE.Vector3(index1, index2, index3);
+        origin.multiplyScalar(voxelSize);
+        arrow = new THREE.ArrowHelper(
+          vector.clone().normalize(),
+          origin,
+          distanceField[index1][index2][index3] * 10,
+          0xffff00,
+          0.2,
+          0.2
+        );
+        // scene.add(arrow);
+
+        line2vec.push(vector);
+      }
+      line1vec.push(line2vec);
+    }
+    gradientField.push(line1vec);
+  }
+
+  console.log(gradientField);
+}
+
+function findMeanPos(positions) {
+  mean = [0, 0, 0];
+  for (let i = 0; i < positions.length; i++) {
+    const pos = positions[i];
+    for (let i = 0; i < 3; i++) {
+      mean[0] += pos[0];
+      mean[1] += pos[1];
+      mean[2] += pos[2];
+    }
+  }
+
+  for (let i = 0; i < 3; i++) {
+    mean[0] /= positions.length;
+    mean[1] /= positions.length;
+    mean[2] /= positions.length;
+  }
+  return mean;
 }
 
 function addPlane() {
@@ -126,95 +215,221 @@ function texturePosToWorldPos(pos) {
   return pos;
 }
 
-function worldPosToFieldValueOld(pos) {
-  for (let i = 0; i < 3; i++) {
-    const worldAxisPos = pos[i];
-    const fieldAxisPos = Math.floor(worldAxisPos / voxelSize);
-    pos[i] = fieldAxisPos;
-  }
-
-  fieldValue = distanceField[pos[0]][pos[1]][pos[2]];
-
-  return fieldValue;
-}
-
-asd = 0;
-
-function worldPosToFieldValue(pos) {
+function worldPosToFieldValues(pos, field, deltas = []) {
   voxels = [];
-  deltas = [];
+  // deltas = [];
 
   for (let i = 0; i < 3; i++) {
     const worldAxisPos = pos[i];
-    voxel = worldAxisPos / voxelSize;
-    voxels.push(voxel);
-    deltas.push(voxel - Math.floor(voxel));
-    const fieldAxisPos = Math.floor(voxel);
-    pos[i] = fieldAxisPos;
+    const voxel = worldAxisPos / voxelSize;
+    const floorVoxel = Math.floor(voxel);
+    deltas.push(voxel - floorVoxel);
+    voxels.push(floorVoxel);
   }
 
-  // try {
-  fieldValues = [];
+  const fieldValues = [];
+
   for (let x = 0; x < 2; x++) {
     for (let y = 0; y < 2; y++) {
       for (let z = 0; z < 2; z++) {
-        let xVal = pos[0] + x;
-        let yVal = pos[1] + y;
-        let zVal = pos[2] + z;
-        // if (xVal >= fieldDimension) --xVal;
-        // if (yVal >= fieldDimension) --yVal;
-        // if (zVal >= fieldDimension) --zVal;
-        fieldValues.push(distanceField[xVal][yVal][zVal]);
+        let xVal = voxels[0] + x;
+        let yVal = voxels[1] + y;
+        let zVal = voxels[2] + z;
+        fieldValues.push(field[xVal][yVal][zVal]);
       }
     }
   }
 
-  fieldValue = triLerp(deltas[0], deltas[1], deltas[2], ...fieldValues);
+  return fieldValues;
+}
 
-  // fieldValue = distanceField[pos[0]][pos[1]][pos[2]];
-
-  // } catch (error) {
-  //   // console.log(pos, distanceField.length);
-  //   fieldValue = distanceField[pos[0]][pos[1]][pos[2]];
-  // }
-
-  return fieldValue;
+function dotProduct(vector1, vector2) {
+  let result = 0;
+  for (let i = 0; i < 3; i++) {
+    result += vector1[i] * vector2[i];
+  }
+  return result;
 }
 
 function lerp(x, q0, q1) {
   return (1 - x) * q0 + x * q1;
 }
 
-function triLerp(x, y, z, q000, q001, q010, q011, q100, q101, q110, q111) {
-  q00 = lerp(x, q000, q100);
-  q01 = lerp(x, q001, q101);
-  q10 = lerp(x, q010, q110);
-  q11 = lerp(x, q011, q111);
+function lerpVecs(x, q0, q1) {
+  if (!q0) return q1;
+  if (!q1) return q0;
+  return new THREE.Vector3().lerpVectors(q0, q1, x);
+}
 
-  q0 = lerp(y, q00, q10);
-  q1 = lerp(y, q01, q11);
+function triLerp(
+  lerpFunc,
+  x,
+  y,
+  z,
+  q000,
+  q001,
+  q010,
+  q011,
+  q100,
+  q101,
+  q110,
+  q111
+) {
+  q00 = lerpFunc(x, q000, q100);
+  q01 = lerpFunc(x, q001, q101);
+  q10 = lerpFunc(x, q010, q110);
+  q11 = lerpFunc(x, q011, q111);
 
-  q = lerp(z, q0, q1);
+  q0 = lerpFunc(y, q00, q10);
+  q1 = lerpFunc(y, q01, q11);
+
+  q = lerpFunc(z, q0, q1);
   return q;
 }
+
+// function gradientOfValues(fieldVectors, deltas) {
+//   for (let axis = 0; axis < 3; axis++) {
+//     const element = array[axis];
+//   }
+// }
+
+// var qwe = 0;
+
+// function interPolateVectors(fieldValues, deltas) {
+//   dotProducts = [];
+//   if (qwe == 0) {
+//     deltaPos = new THREE.Vector3(...deltas);
+//     console.log(fieldValues);
+//   }
+//   qwe += 1;
+// }
+
+// function worldPosToGradientVector(pos, field, deltas = []) {
+//   voxels = [];
+//   // deltas = [];
+//   fieldPos = [];
+
+//   for (let i = 0; i < 3; i++) {
+//     const worldAxisPos = pos[i];
+//     const voxel = worldAxisPos / voxelSize;
+//     fieldPos.push(voxel);
+//     const floorVoxel = Math.floor(voxel);
+//     deltas.push(voxel - floorVoxel);
+//     voxels.push(floorVoxel);
+//   }
+
+//   const positions = [];
+//   const fieldValues = [];
+//   const vectors = [];
+
+//   for (let x = 0; x < 2; x++) {
+//     for (let y = 0; y < 2; y++) {
+//       for (let z = 0; z < 2; z++) {
+//         let xVal = voxels[0] + x;
+//         let yVal = voxels[1] + y;
+//         let zVal = voxels[2] + z;
+//         positions.push([x, y, z]);
+//         fieldValues.push(field[xVal][yVal][zVal]);
+//       }
+//     }
+//   }
+
+//   const steer = new THREE.Vector3();
+
+//   for (let i = 0; i < positions.length; i++) {
+//     const valuePos = positions[i];
+//     const value = fieldValues[i];
+//     // console.log(valuePos);
+
+//     let vector = new THREE.Vector3(
+//       valuePos[0] - deltas[0],
+//       valuePos[1] - deltas[1],
+//       valuePos[2] - deltas[2]
+//     );
+//     // vector = new THREE.Vector3(
+//     //   deltas[0] - valuePos[0],
+//     //   deltas[1] - valuePos[1],
+//     //   deltas[2] - valuePos[2]
+//     // );
+//     console.log(vector);
+
+//     let len = vector.length();
+//     len = 1 - len / Math.sqrt(3);
+//     // len *= value;
+
+//     // vector.sub(new THREE.Vector3());
+//     // vector = new THREE.Vector3().sub(vector);
+
+//     arrow = new THREE.ArrowHelper(
+//       vector.normalize(),
+//       new THREE.Vector3(...pos),
+//       len * 1 * voxelSize,
+//       0xffffff,
+//       0.4,
+//       0.4
+//     );
+//     scene.add(arrow);
+
+//     // console.log(len);
+//     // console.log(len);
+//     // vector.multiplyScalar(value);
+//     vector.setLength(len);
+
+//     steer.add(vector);
+//   }
+
+//   let len = steer.length();
+
+//   arrow = new THREE.ArrowHelper(
+//     steer.normalize(),
+//     new THREE.Vector3(...pos),
+//     len * 1 * voxelSize,
+//     0x00ff00,
+//     0.4,
+//     0.4
+//   );
+//   scene.add(arrow);
+
+//   const length = steer.length();
+
+//   return steer;
+// }
+
+// function gradientVector(fieldVectors, deltas) {
+
+// }
 
 function updatePlaneTexture() {
   plane.position.z =
     vars.boundSize / 2.8 + (Math.sin(Date.now() / 500) * vars.boundSize) / 6;
+  plane.position.z = vars.boundSize / 2;
 
   const pixelData = [];
+  // plane.visible = false;
+
+  // worldPosToGradientVector([6, 6, 6], distanceField, []);
 
   for (let y = 0; y < textureSize; ++y) {
     for (let x = 0; x < textureSize; ++x) {
-      // r = distanceField[x][y][7] * 255;
-
       worldPos = texturePosToWorldPos([x, y]);
-      // worldPos[2] = vars.boundSize / 2;
       worldPos[2] = plane.position.z;
-      value = worldPosToFieldValue(worldPos);
-      // color = colorFromScalar(value);
-      // pixelData.push(color.r * 255, color.g * 255, color.b * 255, 255);
-      // pixelData.push(255, 255 - value * 255, 255 - value * 255, 255);
+
+      let deltas = [];
+      // fieldValues = worldPosToFieldValues(worldPos, distanceField, deltas);
+      // value = triLerp(lerp, ...deltas, ...fieldValues);
+
+      fieldVectors = worldPosToFieldValues(worldPos, vectorField, deltas);
+      // fieldVectors = worldPosToFieldValues(worldPos, gradientField, deltas);
+      value = triLerp(lerpVecs, ...deltas, ...fieldVectors);
+      // console.log(value);
+      if (!value) value = 1;
+      else value = value.length();
+      // value *= 100;
+
+      // gradientVector(fieldVectors, deltas);
+      // value = worldPosToGradientVector(worldPos, distanceField, deltas);
+      // value = value.length() / 3;
+
       pixelData.push(value * 255, 0, 0, 255);
       // pixelData.push(255, 0, 0, value * 255 + 10);
     }
@@ -231,60 +446,6 @@ function updatePlaneTexture() {
   dataTexture.needsUpdate = true;
 
   plane.material.map = dataTexture;
-}
-
-function getFieldValueOld(field, pos) {
-  let x = pos[0];
-  let y = pos[1];
-  let z = pos[2];
-  x = Math.floor(x / voxelSize);
-  y = Math.floor(y / voxelSize);
-  z = Math.floor(z / voxelSize);
-
-  if (
-    0 < x &&
-    x < fieldDimension &&
-    0 < y &&
-    y < fieldDimension &&
-    0 < z &&
-    z < fieldDimension
-  ) {
-    return field[x][y][z];
-  }
-}
-
-function getFieldValue(field, pos) {
-  inField = true;
-  orgPos = [...pos];
-
-  for (let i = 0; i < 3; i++) {
-    const axis = pos[i];
-    pos[i] = Math.floor(axis / voxelSize);
-    if (axis < 0 || axis > fieldDimension) inField = false;
-  }
-
-  xDiff = orgPos[0] - pos[0];
-  yDiff = orgPos[1] - pos[1];
-  zDiff = orgPos[2] - pos[2];
-
-  console.log(xDiff, yDiff, zDiff);
-
-  if (inField) {
-    try {
-      posx0y0z0 = field[(pos[0] + 0, pos[1] + 0, pos[2] + 0)];
-      posx1y0z0 = field[(pos[0] + 1, pos[1] + 0, pos[2] + 0)];
-      posx1y1z0 = field[(pos[0] + 1, pos[1] + 1, pos[2] + 0)];
-      posx0y1z0 = field[(pos[0] + 0, pos[1] + 1, pos[2] + 0)];
-      posx0y0z1 = field[(pos[0] + 0, pos[1] + 0, pos[2] + 1)];
-      posx1y0z1 = field[(pos[0] + 1, pos[1] + 0, pos[2] + 1)];
-      posx1y1z1 = field[(pos[0] + 1, pos[1] + 1, pos[2] + 1)];
-      posx0y1z1 = field[(pos[0] + 0, pos[1] + 1, pos[2] + 1)];
-
-      return field[(pos[0], pos[1], pos[2])];
-    } catch (error) {
-      return field[(pos[0], pos[1], pos[2])];
-    }
-  }
 }
 
 // ALL BELOW FROM THIS LINK:
@@ -340,9 +501,10 @@ function closestPointToTriangle(p, a, b, c) {
 function findClosestPosition(point, object) {
   var closestDistance = 1e9; // inf
   var closestPointVec = new THREE.Vector3(); // inf
+  var closestFaces = [];
 
   var geometry = object.geometry;
-  geometry.faces.forEach(function (face) {
+  geometry.faces.forEach((face) => {
     var normal = face.normal;
 
     var va = geometry.vertices[face.a].clone();
@@ -361,11 +523,96 @@ function findClosestPosition(point, object) {
     // closest point of proj and the triangle
 
     var cp = closestPointToTriangle(proj, va, vb, vc);
-    if (cp.distanceTo(point) < closestDistance) {
+
+    if (
+      point.x == 40 &&
+      point.y == 4.444444444444445 &&
+      point.z == 22.22222222222222
+    ) {
+      if (cp.distanceTo(point) < 6.7) {
+        console.log(cp.distanceTo(point));
+        console.log(face);
+        mesh = new THREE.Mesh(
+          new THREE.SphereGeometry(0.1, 32, 32),
+          new THREE.MeshBasicMaterial({ color: 0xffff00 })
+        );
+        mesh.position.copy(cp);
+        console.log(mesh);
+        scene.add(mesh);
+      }
+    }
+
+    // console.log(cp.distanceTo(point).toFixed(4) <= closestDistance.toFixed(4));
+
+    if (
+      parseFloat(cp.distanceTo(point).toFixed(8)) <=
+      parseFloat(closestDistance.toFixed(8))
+    ) {
+      // console.log("aa");
+      if (cp.distanceTo(point) == closestDistance) {
+        closestFaces.push(face);
+        // console.log("a");
+      } else closestFaces = [face];
       closestDistance = cp.distanceTo(point);
       closestPointVec.copy(cp);
+      // closestFaces = face;
     }
   });
 
-  return closestPointVec;
+  // if (point.y = 10)
+
+  // console.log(point.y == 5.714285714285714);
+  isin = false;
+
+  for (let i = 0; i < closestFaces.length; i++) {
+    const angle = point
+      .clone()
+      .sub(closestPointVec)
+      .angleTo(closestFaces[i].normal);
+    if (angle <= Math.PI / 2) isin = true;
+  }
+
+  // console.log(isin);
+
+  // if (closestFaces[0] == undefined) console.log(point);
+  const angle = point
+    .clone()
+    .sub(closestPointVec)
+    .angleTo(closestFaces[0].normal);
+  // .angleTo(closestFaces[closestFaces.length - 1].normal);
+
+  if (!isin && point.x === 40) {
+    // console.log(point);
+    closestFaces.forEach((face) => {
+      if (angle >= Math.PI / 2) {
+        console.log("a");
+        arrow = new THREE.ArrowHelper(
+          point.clone().sub(closestPointVec).normalize(),
+          closestPointVec,
+          10,
+          // colorFromScalar(length),
+          0xffffff,
+          0.2,
+          0.2
+        );
+        scene.add(arrow);
+
+        arrow = new THREE.ArrowHelper(
+          face.normal.normalize(),
+          closestPointVec,
+          10,
+          // colorFromScalar(length),
+          0x00ffff,
+          0.2,
+          0.2
+        );
+        scene.add(arrow);
+      }
+    });
+    console.log(closestFaces);
+  }
+
+  // if (angle >= Math.PI / 2) return [closestPointVec, true];
+  // else return [closestPointVec, false];
+  return [closestPointVec, !isin];
 }

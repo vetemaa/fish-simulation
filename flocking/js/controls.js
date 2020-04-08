@@ -1,6 +1,6 @@
 function datGui() {
   var vars = function () {
-    this.play = true;
+    this.play = false;
     this.playSpeed = 5;
     this.chaseCamera = false;
     this.boundSize = 40;

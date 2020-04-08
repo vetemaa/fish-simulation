@@ -45,7 +45,7 @@ function init() {
 
   const b = vars.boundSize;
   // camera.position.set(b * 3, b * 0.6, b * 2);
-  camera.position.set(b * 1.3, b * 0.4, b * 3);
+  camera.position.set(b * 0.9, b * 0.3, b * 2);
   // camera.position.set(15.001, 30, 15);
 
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
