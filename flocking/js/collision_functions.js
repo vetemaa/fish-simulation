@@ -19,7 +19,7 @@ function addObstacle(animateFunction) {
 
     obstacle = new THREE.Mesh(
       rockModel.geometry,
-      new THREE.MeshNormalMaterial({ wireframe: true })
+      new THREE.MeshNormalMaterial({ wireframe: false })
     );
     obstacle.scale.set(6, 6, 6);
     obstacle.position.set(vars.boundSize / 2, 4, vars.boundSize / 2);
@@ -46,7 +46,7 @@ function addVectorField(object) {
       for (let i3 = 0.0; i3 < fieldDimension; i3++) {
         const origin = new THREE.Vector3(i1, i2, i3);
         origin.multiplyScalar(voxelSize);
-        const avoidRadius = 9;
+        const avoidRadius = 16;
 
         const result = findClosestPosition(origin, object);
         const inside = result[1];
@@ -60,12 +60,14 @@ function addVectorField(object) {
           length = 0;
         } else {
           length = 1 - length / avoidRadius;
-          length = Math.pow(length, 1);
+          length = Math.pow(length, 4);
         }
-        if (inside) length = 0;
+        if (inside) length = 1;
 
         target.normalize();
-        addArrow(target, origin, length, inside ? 0xff0000 : 0x00ff00);
+        // addArrow(target, origin, length, inside ? 0xff0000 : 0x00ff00);
+
+        // if (length != 0) addArrow(target, origin, length, 0x00ff00);
 
         target.setLength(length);
         // if (inside) target = false;
@@ -82,6 +84,15 @@ function addVectorField(object) {
 
   addGradientField();
   addPlane();
+}
+
+function colorFromScalar(scalar) {
+  // if (scalar < 0) scalar = Math.abs(scalar);
+  if (scalar < 0 || scalar > 1) scalar = 0;
+  const r = Math.round(scalar * 255);
+  const g = Math.round(0);
+  const b = Math.round((1 - scalar) * 255);
+  return new THREE.Color(`rgb(${r}, ${g}, ${b})`);
 }
 
 function addGradientField() {
@@ -109,15 +120,24 @@ function addGradientField() {
         }
 
         vector = new THREE.Vector3(...findMeanPos(surroundingValues));
+        vector.multiplyScalar(-1);
         const origin = new THREE.Vector3(i1, i2, i3);
         origin.multiplyScalar(voxelSize);
 
-        // addArrow(
-        //   vector.clone().normalize(),
-        //   origin,
-        //   distanceField[i1][i2][i3] * 1,
-        //   0xffff00
-        // );
+        // console.log(vector.length());
+
+        dist = distanceField[i1][i2][i3];
+
+        if (dist != 0)
+          // addArrow(vector.clone().normalize(), origin, dist, 0xff0000);
+          // addArrow(
+          //   vector.clone().normalize(),
+          //   origin,
+          //   dist,
+          //   colorFromScalar(dist)
+          // );
+
+          vector.setLength(dist);
 
         line2vec.push(vector);
       }
@@ -160,7 +180,7 @@ function addPlane() {
   plane.position.set(planeSize / 2, planeSize / 2, 0);
 
   updatePlaneTexture();
-  // lerpTest();
+  plane.visible = false;
 }
 
 function texturePosToWorldPos(pos) {
@@ -175,10 +195,10 @@ function texturePosToWorldPos(pos) {
 
 function worldPosToFieldValues(pos, field, deltas = []) {
   voxels = [];
-  // deltas = [];
 
   for (let i = 0; i < 3; i++) {
     const worldAxisPos = pos[i];
+    if (worldAxisPos < 0 || worldAxisPos > fieldSize) return false;
     const voxel = worldAxisPos / voxelSize;
     const floorVoxel = Math.floor(voxel);
     deltas.push(voxel - floorVoxel);
@@ -230,9 +250,6 @@ function updatePlaneTexture() {
   plane.position.z = vars.boundSize / 2;
 
   const pixelData = [];
-  // plane.visible = false;
-
-  // worldPosToGradientVector([6, 6, 6], distanceField, []);
 
   for (let y = 0; y < textureSize; ++y) {
     for (let x = 0; x < textureSize; ++x) {
@@ -243,17 +260,13 @@ function updatePlaneTexture() {
       // fieldValues = worldPosToFieldValues(worldPos, distanceField, deltas);
       // value = triLerp(lerp, ...deltas, ...fieldValues);
 
-      fieldVectors = worldPosToFieldValues(worldPos, vectorField, deltas);
-      // fieldVectors = worldPosToFieldValues(worldPos, gradientField, deltas);
+      // fieldVectors = worldPosToFieldValues(worldPos, vectorField, deltas);
+      fieldVectors = worldPosToFieldValues(worldPos, gradientField, deltas);
       value = triLerp(lerpVecs, ...deltas, ...fieldVectors);
       // console.log(value);
       if (!value) value = 1;
       else value = value.length();
       // value *= 100;
-
-      // gradientVector(fieldVectors, deltas);
-      // value = worldPosToGradientVector(worldPos, distanceField, deltas);
-      // value = value.length() / 3;
 
       pixelData.push(value * 255, 0, 0, 255);
       // pixelData.push(255, 0, 0, value * 255 + 10);
@@ -369,5 +382,5 @@ function findClosestPosition(point, object) {
 }
 
 function addArrow(target, origin, length = 1, color = 0xffffff) {
-  scene.add(new THREE.ArrowHelper(target, origin, length, color, 0.2, 0.2));
+  scene.add(new THREE.ArrowHelper(target, origin, length, color, 0.34, 0.26));
 }

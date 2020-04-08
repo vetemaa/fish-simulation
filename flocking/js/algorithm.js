@@ -366,9 +366,9 @@ function random(boid) {
   //   Math.random() * 2 - 1
   // );
 
-  const center = new THREE.Vector3(20, 20, 20).sub(boid.position);
-  center.multiplyScalar(0.08);
-  steer.add(center);
+  // const center = new THREE.Vector3(20, 20, 20).sub(boid.position);
+  // center.multiplyScalar(0.08);
+  // steer.add(center);
 
   return steer;
 }
@@ -407,8 +407,28 @@ function interpolate(pa, pb, px) {
 function vectorfield(boid) {
   const steer = new THREE.Vector3();
 
-  const fieldValue = getFieldValue(vectorField, boid.position.toArray());
-  if (fieldValue) steer.copy(fieldValue);
+  // const fieldValue = getFieldValue(vectorField, boid.position.toArray());
+  // if (fieldValue) steer.copy(fieldValue);
+
+  // if (
+  //   boid.position.x > 0 &&
+  //   boid.position.x < vars.boundSize &&
+  //   boid.position.y > 0 &&
+  //   boid.position.y < vars.boundSize &&
+  //   boid.position.z > 0 &&
+  //   boid.position.z < vars.boundSize
+  // ) {
+  deltas = [];
+  fieldVectors = worldPosToFieldValues(
+    boid.position.toArray(),
+    gradientField,
+    deltas
+  );
+  if (!fieldVectors) return steer;
+  value = triLerp(lerpVecs, ...deltas, ...fieldVectors);
+
+  steer.copy(value);
+  // }
 
   return steer;
 }
