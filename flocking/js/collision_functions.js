@@ -1,7 +1,7 @@
 var plane;
 var vectorField;
 var distanceField;
-var fieldDimension = 10;
+var fieldDimension = 12;
 var fieldSize = 40;
 var voxelSize = fieldSize / (fieldDimension - 1);
 var textureSize = 100;
@@ -21,8 +21,8 @@ function addObstacle(animateFunction) {
       rockModel.geometry,
       new THREE.MeshNormalMaterial({ wireframe: false })
     );
-    obstacle.scale.set(6, 6, 6);
-    obstacle.position.set(vars.boundSize / 2, 4, vars.boundSize / 2);
+    obstacle.scale.set(5, 5, 5);
+    obstacle.position.set(20, 8, 20);
     // obstacle.rotation.y = 4.74;
     obstacle.updateMatrixWorld();
     scene.add(obstacle);
@@ -46,7 +46,7 @@ function addVectorField(object) {
       for (let i3 = 0.0; i3 < fieldDimension; i3++) {
         const origin = new THREE.Vector3(i1, i2, i3);
         origin.multiplyScalar(voxelSize);
-        const avoidRadius = 16;
+        const avoidRadius = 12;
 
         const result = findClosestPosition(origin, object);
         const inside = result[1];
@@ -128,16 +128,17 @@ function addGradientField() {
 
         dist = distanceField[i1][i2][i3];
 
-        if (dist != 0)
+        if (dist != 0) {
           // addArrow(vector.clone().normalize(), origin, dist, 0xff0000);
-          // addArrow(
-          //   vector.clone().normalize(),
-          //   origin,
-          //   dist,
-          //   colorFromScalar(dist)
-          // );
+          addArrow(
+            vector.clone().normalize(),
+            origin,
+            1,
+            colorFromScalar(dist)
+          );
+        }
 
-          vector.setLength(dist);
+        vector.setLength(dist);
 
         line2vec.push(vector);
       }
@@ -193,6 +194,34 @@ function texturePosToWorldPos(pos) {
   return pos;
 }
 
+function worldPosToGradientVector(pos, field, deltas = []) {
+  voxels = [];
+
+  for (let i = 0; i < 3; i++) {
+    const worldAxisPos = pos[i];
+    if (worldAxisPos < 0 || worldAxisPos > fieldSize) return false;
+    const voxel = worldAxisPos / voxelSize;
+    const floorVoxel = Math.floor(voxel);
+    deltas.push(voxel - floorVoxel);
+    voxels.push(floorVoxel);
+  }
+
+  const fieldValues = [];
+
+  for (let x = 0; x < 2; x++) {
+    for (let y = 0; y < 2; y++) {
+      for (let z = 0; z < 2; z++) {
+        let xVal = voxels[0] + x;
+        let yVal = voxels[1] + y;
+        let zVal = voxels[2] + z;
+        fieldValues.push(field[xVal][yVal][zVal]);
+      }
+    }
+  }
+
+  return fieldValues;
+}
+
 function worldPosToFieldValues(pos, field, deltas = []) {
   voxels = [];
 
@@ -225,6 +254,19 @@ function lerp(x, q0, q1) {
   return (1 - x) * q0 + x * q1;
 }
 
+function smootherstep(x, q0, q1) {
+  // Scale, and clamp x to 0..1 range
+  x = clamp((x - q0) / (q1 - q0), 0, 1);
+  // Evaluate polynomial
+  return x * x * x * (x * (x * 6 - 15) + 10);
+}
+
+function clamp(x, lowerlimit, upperlimit) {
+  if (x < lowerlimit) x = lowerlimit;
+  if (x > upperlimit) x = upperlimit;
+  return x;
+}
+
 function lerpVecs(x, q0, q1) {
   if (!q0) return q1;
   if (!q1) return q0;
@@ -248,6 +290,7 @@ function updatePlaneTexture() {
   plane.position.z =
     vars.boundSize / 2.8 + (Math.sin(Date.now() / 500) * vars.boundSize) / 6;
   plane.position.z = vars.boundSize / 2;
+  // plane.position.z = voxelSize * 4;
 
   const pixelData = [];
 
@@ -257,16 +300,18 @@ function updatePlaneTexture() {
       worldPos[2] = plane.position.z;
 
       let deltas = [];
-      // fieldValues = worldPosToFieldValues(worldPos, distanceField, deltas);
-      // value = triLerp(lerp, ...deltas, ...fieldValues);
+      fieldValues = worldPosToFieldValues(worldPos, distanceField, deltas);
+      value = triLerp(lerp, ...deltas, ...fieldValues);
+      value = fieldValues[0];
+      // value = triLerp(smootherstep, ...deltas, ...fieldValues);
 
-      // fieldVectors = worldPosToFieldValues(worldPos, vectorField, deltas);
-      fieldVectors = worldPosToFieldValues(worldPos, gradientField, deltas);
-      value = triLerp(lerpVecs, ...deltas, ...fieldVectors);
-      // console.log(value);
-      if (!value) value = 1;
-      else value = value.length();
-      // value *= 100;
+      // // fieldVectors = worldPosToFieldValues(worldPos, vectorField, deltas);
+      // fieldVectors = worldPosToFieldValues(worldPos, gradientField, deltas);
+      // value = triLerp(lerpVecs, ...deltas, ...fieldVectors);
+      // // console.log(value);
+      // if (!value) value = 1;
+      // else value = value.length();
+      // // value *= 100;
 
       pixelData.push(value * 255, 0, 0, 255);
       // pixelData.push(255, 0, 0, value * 255 + 10);
@@ -382,5 +427,19 @@ function findClosestPosition(point, object) {
 }
 
 function addArrow(target, origin, length = 1, color = 0xffffff) {
-  scene.add(new THREE.ArrowHelper(target, origin, length, color, 0.34, 0.26));
+  const arrow = new THREE.ArrowHelper(
+    target,
+    origin,
+    length,
+    color,
+    0.44,
+    0.36
+  );
+  // console.log(arrow);
+
+  arrow.children.forEach((child) => {
+    child.material.transparent = true;
+    child.material.opacity = 0.5;
+  });
+  scene.add(arrow);
 }

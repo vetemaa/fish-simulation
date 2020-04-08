@@ -1,7 +1,7 @@
 function datGui() {
   var vars = function () {
     this.play = false;
-    this.playSpeed = 10;
+    this.playSpeed = 5;
     this.chaseCamera = false;
     this.boundSize = 40;
 
@@ -23,7 +23,7 @@ function datGui() {
     this.separationScalar = 0.34; // 0.44 in graph simulation
     this.randomScalar = 0.08;
     this.randomWavelenScalar = 0.5;
-    this.fieldScalar = 0.4;
+    this.fieldScalar = 0.8;
     this.boundsScalar = 0.01;
 
     this.predatorCount = predatorStartCount;
@@ -33,7 +33,7 @@ function datGui() {
     this.attackScalar = 1;
 
     this.showVectors = true;
-    this.vectorLenMultiplier = 100;
+    this.vectorLenMultiplier = 10;
     this.showBounds = true;
     this.showAxes = true;
     this.drawTail = false;

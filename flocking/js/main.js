@@ -12,7 +12,7 @@ const boids = [];
 const predators = [];
 const foods = [];
 const boidTotalCount = 700;
-const boidStartCount = 200;
+const boidStartCount = 500;
 const predatorTotalCount = 5;
 const predatorStartCount = 0;
 const foodTotalCount = 100;
@@ -44,8 +44,8 @@ function init() {
   scene.add(fishCamera);
 
   const b = vars.boundSize;
-  // camera.position.set(b * 3, b * 0.6, b * 2);
-  camera.position.set(b * 0.9, b * 0.3, b * 2);
+  camera.position.set(b * 3, b * 0.6, b * 2);
+  // camera.position.set(b * 0.9, b * 0.3, b * 2);
   // camera.position.set(15.001, 30, 15);
 
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -84,7 +84,7 @@ function animate() {
     moveFood(delta);
     animateNoise();
     updateInfo();
-    // updatePlaneTexture(delta);
+    updatePlaneTexture(delta);
   }
 
   requestAnimationFrame(animate);
