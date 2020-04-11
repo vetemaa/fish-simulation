@@ -4,7 +4,7 @@ var distanceField;
 var fieldDimension = 12;
 var fieldSize = 40;
 var voxelSize = fieldSize / (fieldDimension - 1);
-var textureSize = 100;
+var textureSize = 120;
 
 function addObstacle(animateFunction) {
   const loader = new THREE.GLTFLoader();
@@ -19,12 +19,13 @@ function addObstacle(animateFunction) {
 
     obstacle = new THREE.Mesh(
       rockModel.geometry,
-      new THREE.MeshNormalMaterial({ wireframe: false })
+      new THREE.MeshBasicMaterial({ wireframe: true })
     );
     obstacle.scale.set(5, 5, 5);
     obstacle.position.set(20, 8, 20);
     // obstacle.rotation.y = 4.74;
     obstacle.updateMatrixWorld();
+    // obstacle.visible = false;
     scene.add(obstacle);
 
     addVectorField(obstacle);
@@ -46,7 +47,7 @@ function addVectorField(object) {
       for (let i3 = 0.0; i3 < fieldDimension; i3++) {
         const origin = new THREE.Vector3(i1, i2, i3);
         origin.multiplyScalar(voxelSize);
-        const avoidRadius = 12;
+        const avoidRadius = 6; // 12
 
         const result = findClosestPosition(origin, object);
         const inside = result[1];
@@ -60,12 +61,15 @@ function addVectorField(object) {
           length = 0;
         } else {
           length = 1 - length / avoidRadius;
-          length = Math.pow(length, 4);
+          // length = Math.pow(length, 4);
         }
         if (inside) length = 1;
 
         target.normalize();
         // addArrow(target, origin, length, inside ? 0xff0000 : 0x00ff00);
+
+        // if (i3 == 6)
+        // addArrow(target, origin, length * 2, inside ? 0xff0000 : 0x00ff00);
 
         // if (length != 0) addArrow(target, origin, length, 0x00ff00);
 
@@ -130,12 +134,12 @@ function addGradientField() {
 
         if (dist != 0) {
           // addArrow(vector.clone().normalize(), origin, dist, 0xff0000);
-          addArrow(
-            vector.clone().normalize(),
-            origin,
-            1,
-            colorFromScalar(dist)
-          );
+          // addArrow(
+          //   vector.clone().normalize(),
+          //   origin,
+          //   1,
+          //   colorFromScalar(dist)
+          // );
         }
 
         vector.setLength(dist);
@@ -181,7 +185,7 @@ function addPlane() {
   plane.position.set(planeSize / 2, planeSize / 2, 0);
 
   updatePlaneTexture();
-  plane.visible = false;
+  // plane.visible = false;
 }
 
 function texturePosToWorldPos(pos) {
@@ -250,6 +254,21 @@ function worldPosToFieldValues(pos, field, deltas = []) {
   return fieldValues;
 }
 
+function worldPosToFieldValue(pos, field, deltas = []) {
+  voxels = [];
+
+  for (let i = 0; i < 3; i++) {
+    const worldAxisPos = pos[i];
+    if (worldAxisPos < 0 || worldAxisPos > fieldSize) return false;
+    const voxel = worldAxisPos / voxelSize;
+    const floorVoxel = Math.floor(voxel);
+    deltas.push(voxel - floorVoxel);
+    voxels.push(floorVoxel);
+  }
+
+  return field[voxels[0]][voxels[1]][voxels[2]];
+}
+
 function lerp(x, q0, q1) {
   return (1 - x) * q0 + x * q1;
 }
@@ -298,20 +317,29 @@ function updatePlaneTexture() {
     for (let x = 0; x < textureSize; ++x) {
       worldPos = texturePosToWorldPos([x, y]);
       worldPos[2] = plane.position.z;
-
       let deltas = [];
-      fieldValues = worldPosToFieldValues(worldPos, distanceField, deltas);
-      value = triLerp(lerp, ...deltas, ...fieldValues);
-      value = fieldValues[0];
+
+      // fieldValues = worldPosToFieldValues(worldPos, vectorField, deltas);
+      // value = triLerp(lerp, ...deltas, ...fieldValues);
+      // value = fieldValues[0];
       // value = triLerp(smootherstep, ...deltas, ...fieldValues);
 
-      // // fieldVectors = worldPosToFieldValues(worldPos, vectorField, deltas);
+      // let deltas = [];
+      // fieldValues = worldPosToFieldValues(worldPos, distanceField, deltas);
+      // value = triLerp(lerp, ...deltas, ...fieldValues);
+      // value = fieldValues[0];
+      // // value = triLerp(smootherstep, ...deltas, ...fieldValues);
+
+      fieldVectors = worldPosToFieldValues(worldPos, vectorField, deltas);
       // fieldVectors = worldPosToFieldValues(worldPos, gradientField, deltas);
-      // value = triLerp(lerpVecs, ...deltas, ...fieldVectors);
-      // // console.log(value);
+      value = triLerp(lerpVecs, ...deltas, ...fieldVectors);
       // if (!value) value = 1;
       // else value = value.length();
-      // // value *= 100;
+      value = value.length();
+      // value *= 100;
+
+      value = worldPosToFieldValue(worldPos, vectorField);
+      value = value.length();
 
       pixelData.push(value * 255, 0, 0, 255);
       // pixelData.push(255, 0, 0, value * 255 + 10);
@@ -329,101 +357,6 @@ function updatePlaneTexture() {
   dataTexture.needsUpdate = true;
 
   plane.material.map = dataTexture;
-}
-
-// ALL BELOW FROM THIS LINK:
-// https://stackoverflow.com/questions/38337871/three-js-trying-to-get-nearest-point-vector-3-of-object-from-click-generated
-
-function sameSide(p1, p2, a, b) {
-  var ab = b.clone().sub(a);
-  var ap1 = p1.clone().sub(a);
-  var ap2 = p2.clone().sub(a);
-  var cp1 = new THREE.Vector3().crossVectors(ab, ap1);
-  var cp2 = new THREE.Vector3().crossVectors(ab, ap2);
-  return cp1.dot(cp2) >= 0;
-}
-
-function pointInTriangle(p, a, b, c) {
-  return sameSide(p, a, b, c) && sameSide(p, b, a, c) && sameSide(p, c, a, b);
-}
-
-function closestToSegment(p, a, b) {
-  var ab = b.clone().sub(a);
-  var nab = ab.clone().normalize();
-  var n = nab.dot(p.clone().sub(a));
-  if (n < 0) return a;
-  if (n > ab.length()) return b;
-  return a.clone().add(nab.multiplyScalar(n));
-}
-
-function closestToSides(p, sides) {
-  var minDist = 1e9;
-  var ret;
-  sides.forEach(function (side) {
-    var ct = closestToSegment(p, side[0], side[1]);
-    var dist = ct.distanceTo(p);
-    if (dist < minDist) {
-      minDist = dist;
-      ret = ct;
-    }
-  });
-  return ret;
-}
-
-function closestPointToTriangle(p, a, b, c) {
-  // if the point is inside the triangle then it's the closest point
-  if (pointInTriangle(p, a, b, c)) return p;
-  // otherwise it's the closest point to one of the sides
-  return closestToSides(p, [
-    [a, b],
-    [b, c],
-    [a, c],
-  ]);
-}
-
-function findClosestPosition(point, object) {
-  var closestDistance = 1e9; // inf
-  var closestPointVec = new THREE.Vector3(); // inf
-  var closestFaces = [];
-
-  var geometry = object.geometry;
-  geometry.faces.forEach((face) => {
-    var normal = face.normal;
-
-    var va = geometry.vertices[face.a].clone();
-    var vb = geometry.vertices[face.b].clone();
-    var vc = geometry.vertices[face.c].clone();
-    va.applyMatrix4(object.matrixWorld);
-    vb.applyMatrix4(object.matrixWorld);
-    vc.applyMatrix4(object.matrixWorld);
-
-    var pd = normal.dot(point.clone().sub(va));
-    var proj = point.clone().sub(normal.clone().multiplyScalar(pd));
-    var cp = closestPointToTriangle(proj, va, vb, vc);
-
-    if (
-      parseFloat(cp.distanceTo(point).toFixed(8)) <=
-      parseFloat(closestDistance.toFixed(8))
-    ) {
-      if (cp.distanceTo(point) == closestDistance) {
-        closestFaces.push(face);
-      } else closestFaces = [face];
-      closestDistance = cp.distanceTo(point);
-      closestPointVec.copy(cp);
-    }
-  });
-
-  isin = true;
-
-  for (let i = 0; i < closestFaces.length; i++) {
-    const angle = point
-      .clone()
-      .sub(closestPointVec)
-      .angleTo(closestFaces[i].normal);
-    if (angle <= Math.PI / 2) isin = false;
-  }
-
-  return [closestPointVec, isin];
 }
 
 function addArrow(target, origin, length = 1, color = 0xffffff) {
