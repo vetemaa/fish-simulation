@@ -4,6 +4,7 @@ function addBoids() {
   const { boundSize } = vars;
   for (let i = 0; i < boidTotalCount; i++) {
     const boid = addBoid([boundSize / 2, boundSize / 2, boundSize / 2], i);
+    setBoidColor(boid);
     boids.push(boid);
   }
   shuffleBoids();

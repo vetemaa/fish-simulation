@@ -39,7 +39,7 @@ function init() {
   fishCamera = new THREE.PerspectiveCamera(90, w / h, 0.1, 1000);
   w /= 60;
   h /= 60;
-  camera = new THREE.OrthographicCamera(-w, w, h, -h, 1, 1000);
+  // camera = new THREE.OrthographicCamera(-w, w, h, -h, 1, 1000);
   scene.add(camera);
   scene.add(fishCamera);
 

@@ -243,7 +243,7 @@ function drawCircle(boid, dist) {
   boid.add(circle);
 }
 
-function setBoidColor(boid, preys) {
+function setBoidColor(boid) {
   preys = [];
   for (let i = 0; i < vars.predatorCount; i++) {
     const predator = predators[i];
@@ -257,7 +257,7 @@ function setBoidColor(boid, preys) {
   } else {
     if (preys.includes(boid.index)) color = 0x66ff66;
     else if (boid.subject) color = 0xff00ff;
-    else color = 0xffffff;
+    else color = 0x000000;
   }
   boid.mesh.material.color.setHex(color);
 }
