@@ -23,7 +23,7 @@ function init() {
   let h = window.innerHeight;
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setClearColor("#111");
+  renderer.setClearColor("#fff");
   renderer.setSize(w, h);
 
   const container = document.getElementById("container");

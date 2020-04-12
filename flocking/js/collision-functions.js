@@ -1,10 +1,11 @@
 var plane;
 var vectorField;
 var distanceField;
-var fieldDimension = 12;
-var fieldSize = 40;
-var voxelSize = fieldSize / (fieldDimension - 1);
-var textureSize = 120;
+const fieldDimension = 33;
+const fieldSize = 40;
+const voxelSize = fieldSize / (fieldDimension - 1);
+const textureSize = 120;
+const avoidRadius = 9; // 12
 
 function addObstacle(animateFunction) {
   const loader = new THREE.GLTFLoader();
@@ -19,7 +20,12 @@ function addObstacle(animateFunction) {
 
     obstacle = new THREE.Mesh(
       rockModel.geometry,
-      new THREE.MeshBasicMaterial({ wireframe: true })
+      new THREE.MeshBasicMaterial({
+        wireframe: true,
+        color: 0x000000,
+        opacity: 1,
+        transparent: true,
+      })
     );
     obstacle.scale.set(5, 5, 5);
     obstacle.position.set(20, 8, 20);
@@ -47,36 +53,32 @@ function addVectorField(object) {
       for (let i3 = 0.0; i3 < fieldDimension; i3++) {
         const origin = new THREE.Vector3(i1, i2, i3);
         origin.multiplyScalar(voxelSize);
-        const avoidRadius = 6; // 12
 
         const result = findClosestPosition(origin, object);
+        const closestPos = result[0];
         const inside = result[1];
-        let target = result[0];
-        // target.sub(origin);
 
-        target = origin.clone().sub(target);
-        let length = target.length();
+        const steer = origin.clone().sub(closestPos);
+        let length = steer.length();
 
-        if (length > avoidRadius) {
+        if (inside) {
+          length = 1;
+        } else if (length > avoidRadius) {
           length = 0;
         } else {
           length = 1 - length / avoidRadius;
-          // length = Math.pow(length, 4);
+          length = Math.pow(length, 4); // TODO: add back
         }
-        if (inside) length = 1;
 
-        target.normalize();
-        // addArrow(target, origin, length, inside ? 0xff0000 : 0x00ff00);
+        // if (i3 == 6) addArrow(steer, origin, length * 1.5, 0xff0000);
 
-        // if (i3 == 6)
-        // addArrow(target, origin, length * 2, inside ? 0xff0000 : 0x00ff00);
+        steer.setLength(length);
+        line2vec.push(steer);
 
-        // if (length != 0) addArrow(target, origin, length, 0x00ff00);
+        const d = fieldDimension;
+        if (i1 == 0 || i2 == 0 || i3 == 0 || i1 == d || i2 == d || i3 == d)
+          length = 0;
 
-        target.setLength(length);
-        // if (inside) target = false;
-
-        line2vec.push(target);
         line2dist.push(length);
       }
       line1vec.push(line2vec);
@@ -102,73 +104,42 @@ function colorFromScalar(scalar) {
 function addGradientField() {
   gradientField = [];
 
+  before = Date.now();
   for (let i1 = 0; i1 < fieldDimension; i1++) {
     line1vec = [];
     for (let i2 = 0; i2 < fieldDimension; i2++) {
       line2vec = [];
       for (let i3 = 0; i3 < fieldDimension; i3++) {
-        surroundingValues = [];
+        dist = distanceField[i1][i2][i3];
+        gradient = new THREE.Vector3();
+
+        if (dist == 0) {
+          line2vec.push(gradient);
+          continue;
+        }
 
         const d = fieldDimension;
-        for (let x = i1 == 0 ? 0 : -1; x < (i1 + 1 == d ? 1 : 2); x++) {
-          for (let y = i2 == 0 ? 0 : -1; y < (i2 + 1 == d ? 1 : 2); y++) {
-            for (let z = i3 == 0 ? 0 : -1; z < (i3 + 1 == d ? 1 : 2); z++) {
-              surroundingPos = [i1 + x, i2 + y, i3 + z];
-              value =
-                distanceField[surroundingPos[0]][surroundingPos[1]][
-                  surroundingPos[2]
-                ];
-              surroundingValues.push([x * value, y * value, z * value]);
+        for (let x = Math.max(-1, -i1); x < Math.min(2, d - i1); x++)
+          for (let y = Math.max(-1, -i2); y < Math.min(2, d - i2); y++)
+            for (let z = Math.max(-1, -i3); z < Math.min(2, d - i3); z++) {
+              value = distanceField[i1 + x][i2 + y][i3 + z];
+              gradient.add(new THREE.Vector3(x * value, y * value, z * value));
             }
-          }
-        }
 
-        vector = new THREE.Vector3(...findMeanPos(surroundingValues));
-        vector.multiplyScalar(-1);
-        const origin = new THREE.Vector3(i1, i2, i3);
-        origin.multiplyScalar(voxelSize);
+        gradient.multiplyScalar(-1);
+        gradient.setLength(dist);
 
-        // console.log(vector.length());
+        // const origin = new THREE.Vector3(i1, i2, i3);
+        // origin.multiplyScalar(voxelSize);
+        // if (i3 == 6) addArrow(vector, origin, dist * 1.5, 0xff0000);
 
-        dist = distanceField[i1][i2][i3];
-
-        if (dist != 0) {
-          // addArrow(vector.clone().normalize(), origin, dist, 0xff0000);
-          // addArrow(
-          //   vector.clone().normalize(),
-          //   origin,
-          //   1,
-          //   colorFromScalar(dist)
-          // );
-        }
-
-        vector.setLength(dist);
-
-        line2vec.push(vector);
+        line2vec.push(gradient);
       }
       line1vec.push(line2vec);
     }
     gradientField.push(line1vec);
   }
-}
-
-function findMeanPos(positions) {
-  mean = [0, 0, 0];
-  for (let i = 0; i < positions.length; i++) {
-    const pos = positions[i];
-    for (let i = 0; i < 3; i++) {
-      mean[0] += pos[0];
-      mean[1] += pos[1];
-      mean[2] += pos[2];
-    }
-  }
-
-  for (let i = 0; i < 3; i++) {
-    mean[0] /= positions.length;
-    mean[1] /= positions.length;
-    mean[2] /= positions.length;
-  }
-  return mean;
+  console.log("gradient field calc time:", Date.now() - before);
 }
 
 function addPlane() {
@@ -198,34 +169,6 @@ function texturePosToWorldPos(pos) {
   return pos;
 }
 
-function worldPosToGradientVector(pos, field, deltas = []) {
-  voxels = [];
-
-  for (let i = 0; i < 3; i++) {
-    const worldAxisPos = pos[i];
-    if (worldAxisPos < 0 || worldAxisPos > fieldSize) return false;
-    const voxel = worldAxisPos / voxelSize;
-    const floorVoxel = Math.floor(voxel);
-    deltas.push(voxel - floorVoxel);
-    voxels.push(floorVoxel);
-  }
-
-  const fieldValues = [];
-
-  for (let x = 0; x < 2; x++) {
-    for (let y = 0; y < 2; y++) {
-      for (let z = 0; z < 2; z++) {
-        let xVal = voxels[0] + x;
-        let yVal = voxels[1] + y;
-        let zVal = voxels[2] + z;
-        fieldValues.push(field[xVal][yVal][zVal]);
-      }
-    }
-  }
-
-  return fieldValues;
-}
-
 function worldPosToFieldValues(pos, field, deltas = []) {
   voxels = [];
 
@@ -240,16 +183,14 @@ function worldPosToFieldValues(pos, field, deltas = []) {
 
   const fieldValues = [];
 
-  for (let x = 0; x < 2; x++) {
-    for (let y = 0; y < 2; y++) {
+  for (let x = 0; x < 2; x++)
+    for (let y = 0; y < 2; y++)
       for (let z = 0; z < 2; z++) {
         let xVal = voxels[0] + x;
         let yVal = voxels[1] + y;
         let zVal = voxels[2] + z;
         fieldValues.push(field[xVal][yVal][zVal]);
       }
-    }
-  }
 
   return fieldValues;
 }
@@ -271,19 +212,6 @@ function worldPosToFieldValue(pos, field, deltas = []) {
 
 function lerp(x, q0, q1) {
   return (1 - x) * q0 + x * q1;
-}
-
-function smootherstep(x, q0, q1) {
-  // Scale, and clamp x to 0..1 range
-  x = clamp((x - q0) / (q1 - q0), 0, 1);
-  // Evaluate polynomial
-  return x * x * x * (x * (x * 6 - 15) + 10);
-}
-
-function clamp(x, lowerlimit, upperlimit) {
-  if (x < lowerlimit) x = lowerlimit;
-  if (x > upperlimit) x = upperlimit;
-  return x;
 }
 
 function lerpVecs(x, q0, q1) {
@@ -309,7 +237,6 @@ function updatePlaneTexture() {
   plane.position.z =
     vars.boundSize / 2.8 + (Math.sin(Date.now() / 500) * vars.boundSize) / 6;
   plane.position.z = vars.boundSize / 2;
-  // plane.position.z = voxelSize * 4;
 
   const pixelData = [];
 
@@ -319,29 +246,21 @@ function updatePlaneTexture() {
       worldPos[2] = plane.position.z;
       let deltas = [];
 
-      // fieldValues = worldPosToFieldValues(worldPos, vectorField, deltas);
-      // value = triLerp(lerp, ...deltas, ...fieldValues);
-      // value = fieldValues[0];
-      // value = triLerp(smootherstep, ...deltas, ...fieldValues);
+      // interpolated distance field value
+      // fieldVectors = worldPosToFieldValues(worldPos, distanceField, deltas);
+      // value = triLerp(lerp, ...deltas, ...fieldVectors);
 
-      // let deltas = [];
-      // fieldValues = worldPosToFieldValues(worldPos, distanceField, deltas);
-      // value = triLerp(lerp, ...deltas, ...fieldValues);
-      // value = fieldValues[0];
-      // // value = triLerp(smootherstep, ...deltas, ...fieldValues);
-
-      fieldVectors = worldPosToFieldValues(worldPos, vectorField, deltas);
-      // fieldVectors = worldPosToFieldValues(worldPos, gradientField, deltas);
+      // interpolated vector field value
+      // fieldVectors = worldPosToFieldValues(worldPos, vectorField, deltas);
+      fieldVectors = worldPosToFieldValues(worldPos, gradientField, deltas);
       value = triLerp(lerpVecs, ...deltas, ...fieldVectors);
-      // if (!value) value = 1;
-      // else value = value.length();
-      value = value.length();
-      // value *= 100;
-
-      value = worldPosToFieldValue(worldPos, vectorField);
       value = value.length();
 
-      pixelData.push(value * 255, 0, 0, 255);
+      // field value
+      // value = worldPosToFieldValue(worldPos, vectorField);
+      // value = value.length();
+
+      pixelData.push(255, 255 - value * 255, 255 - value * 255, 255);
       // pixelData.push(255, 0, 0, value * 255 + 10);
     }
   }
@@ -360,19 +279,26 @@ function updatePlaneTexture() {
 }
 
 function addArrow(target, origin, length = 1, color = 0xffffff) {
-  const arrow = new THREE.ArrowHelper(
-    target,
-    origin,
-    length,
-    color,
-    0.44,
-    0.36
-  );
-  // console.log(arrow);
+  if (length === 0) {
+    addSphere(origin, 0xff0000);
+  } else {
+    const arrow = new THREE.ArrowHelper(
+      target.clone().normalize(),
+      origin,
+      length,
+      color,
+      0.44,
+      0.36
+    );
+    scene.add(arrow);
+  }
+}
 
-  arrow.children.forEach((child) => {
-    child.material.transparent = true;
-    child.material.opacity = 0.5;
-  });
-  scene.add(arrow);
+function addSphere(position, color = 0xff00f0) {
+  sphere = new THREE.Mesh(
+    new THREE.SphereGeometry(0.08, 8, 8),
+    new THREE.MeshBasicMaterial({ color: color })
+  );
+  sphere.position.copy(position);
+  scene.add(sphere);
 }

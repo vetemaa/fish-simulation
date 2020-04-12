@@ -1,3 +1,5 @@
+// TODO: make boid a class
+
 function addBoids() {
   const { boundSize } = vars;
   for (let i = 0; i < boidTotalCount; i++) {

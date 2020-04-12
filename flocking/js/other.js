@@ -216,7 +216,7 @@ function addBounds() {
 
   helper = new THREE.BoxHelper(
     new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1)),
-    "#fff"
+    "#000"
   );
   helper.material.opacity = 0.25;
   helper.material.transparent = true;
