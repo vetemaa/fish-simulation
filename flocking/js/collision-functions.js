@@ -2,7 +2,7 @@ var plane;
 var vectorField;
 var distanceField;
 var gradientField;
-const fieldDimension = 13; // 13 for figures
+const fieldDimension = 19; // 13 for figures
 const fieldSize = 40; // 40 for figures
 const voxelSize = fieldSize / (fieldDimension - 1);
 const textureSize = 140; // 1080 for figures
@@ -13,9 +13,9 @@ function addObstacle(animateFunction) {
   loader.load("rocks.glb", (gltf) => {
     const rocks = new THREE.Mesh(
       new THREE.Geometry().fromBufferGeometry(gltf.scene.children[0].geometry),
-      new THREE.MeshBasicMaterial({
-        wireframe: true,
-        color: 0x000000,
+      new THREE.MeshNormalMaterial({
+        wireframe: false,
+        color: 0x333333,
         opacity: 1,
         transparent: true,
       })
@@ -26,7 +26,6 @@ function addObstacle(animateFunction) {
     // rocks.visible = false;
 
     const torus = new THREE.Mesh(
-      // new THREE.ConeGeometry(1, 2, 6),
       // new THREE.TorusGeometry(3, 0.3, 8, 12),
       new THREE.TorusKnotGeometry(10, 0.4, 40, 4),
       new THREE.MeshNormalMaterial({ wireframe: false })
@@ -34,6 +33,8 @@ function addObstacle(animateFunction) {
     torus.position.set(20, 20, 20);
 
     const obstacles = [];
+    obstacles.push(rocks);
+    // obstacles.push(torus);
     obstacles.forEach((obstacle) => {
       scene.add(obstacle);
     });
@@ -75,7 +76,7 @@ function addVectorField(obstacles) {
           }
         }
 
-        const d = fieldDimension;
+        const d = fieldDimension - 1;
         if (i1 == 0 || i2 == 0 || i3 == 0 || i1 == d || i2 == d || i3 == d) {
           length = 0;
         } else if (inside) {
@@ -84,11 +85,12 @@ function addVectorField(obstacles) {
           length = 0;
         } else {
           length = 1 - length / avoidRadius;
-          length = Math.pow(length, 1);
+          length = Math.pow(length, 4);
         }
         steer.setLength(length);
 
         // if (i3 == 6) addArrow(steer, origin, length * 1.5, 0x00ff00);
+        // addArrow(steer, origin, length * 1.5, inside ? 0xff0000 : 0x00ff00);
 
         zArrayVec.push(steer);
         zArrayDist.push(length);
@@ -222,7 +224,8 @@ function addPlane() {
     })
   );
   plane.position.set(planeSize / 2, planeSize / 2, 0);
-  plane.visible = false;
+  plane.size = planeSize;
+  // plane.visible = false;
   scene.add(plane);
 
   updatePlaneTexture();
@@ -232,8 +235,8 @@ function updatePlaneTexture() {
   if (!plane.visible) return;
 
   plane.position.z =
-    vars.boundSize / 2.8 + (Math.sin(Date.now() / 500) * vars.boundSize) / 6;
-  plane.position.z = vars.boundSize / 2;
+    plane.size / 2.8 + (Math.sin(Date.now() / 500) * plane.size) / 6;
+  plane.position.z = plane.size / 2;
 
   const pixelData = [];
 

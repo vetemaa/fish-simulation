@@ -12,7 +12,7 @@ const boids = [];
 const predators = [];
 const foods = [];
 const boidTotalCount = 700;
-const boidStartCount = 500;
+const boidStartCount = 0;
 const predatorTotalCount = 5;
 const predatorStartCount = 0;
 const foodTotalCount = 100;
@@ -65,10 +65,7 @@ function init() {
   addBounds();
   addNoiseCurve();
 
-  addExperiment();
-
   addObstacle(animate);
-  // animate();
 
   // animate frame(s) for paused analysis (problem with loading rocks)
   // moveBoids(1);

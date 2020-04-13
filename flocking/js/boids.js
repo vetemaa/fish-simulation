@@ -83,36 +83,6 @@ function addBoid(position, index) {
   return boid;
 }
 
-var arrVel;
-var arrCross;
-function addExperiment() {
-  const justVec = new THREE.Vector3();
-  const pos = new THREE.Vector3(
-    vars.boundSize / 2,
-    vars.boundSize / 2,
-    vars.boundSize / 2
-  );
-  arrVel = new THREE.ArrowHelper(justVec, pos, 1, 0xff0000, 0.24, 0.16);
-  scene.add(arrVel);
-  arrCross = new THREE.ArrowHelper(justVec, pos, 1, 0x00ff00, 0.24, 0.16);
-  scene.add(arrCross);
-}
-
-function updateExperiment() {
-  // const vel = subject.velocity.clone();
-  const vel = subject.position.clone();
-  const center = new THREE.Vector3(
-    vars.boundSize / 2,
-    vars.boundSize / 2,
-    vars.boundSize / 2
-  );
-  vel.sub(center);
-  const dir = new THREE.Vector3(0, -1, 0);
-  const cross = new THREE.Vector3().crossVectors(vel, dir);
-  setArrow(arrVel, vel);
-  setArrow(arrCross, cross);
-}
-
 function moveBoids(delta) {
   for (let i = 0; i < vars.predatorCount; i++) {
     const predator = predators[i];
@@ -125,8 +95,6 @@ function moveBoids(delta) {
     moveBoid(delta, boid, vars.ruleScalar, vars.maxSpeed);
     setBoidColor(boid);
   }
-
-  updateExperiment();
 }
 
 function moveBoid(delta, boid, ruleScalar, maxSpeed) {

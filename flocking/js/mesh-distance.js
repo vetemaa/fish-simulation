@@ -51,7 +51,7 @@ function closestPointToTriangle(p, a, b, c) {
 function findClosestPosition(point, object) {
   var closestDistance = 1e9; // inf
   var closestPointVec = new THREE.Vector3(); // inf
-  var closestFaces = [];
+  var closestFace;
 
   var geometry = object.geometry;
   geometry.faces.forEach((face) => {
@@ -68,27 +68,21 @@ function findClosestPosition(point, object) {
     var proj = point.clone().sub(normal.clone().multiplyScalar(pd));
     var cp = closestPointToTriangle(proj, va, vb, vc);
 
-    if (
-      parseFloat(cp.distanceTo(point).toFixed(8)) <=
-      parseFloat(closestDistance.toFixed(8))
-    ) {
-      if (cp.distanceTo(point) == closestDistance) {
-        closestFaces.push(face);
-      } else closestFaces = [face];
+    if (cp.distanceTo(point) <= closestDistance) {
       closestDistance = cp.distanceTo(point);
       closestPointVec.copy(cp);
+      closestFace = face;
     }
   });
 
-  isin = true;
+  dot = closestFace.normal.dot(point.clone().sub(closestPointVec).normalize());
+  // to avoid imprecision issues with digital numbers round to 3 decimal points
+  dot = Math.round(dot * 1000) / 1000;
+  insideMesh = dot == -1;
 
-  for (let i = 0; i < closestFaces.length; i++) {
-    const angle = point
-      .clone()
-      .sub(closestPointVec)
-      .angleTo(closestFaces[i].normal);
-    if (angle <= Math.PI / 2) isin = false;
-  }
+  return [closestPointVec, insideMesh];
+}
 
-  return [closestPointVec, isin];
+function round(x) {
+  return Math.round((x + Number.EPSILON) * 1000) / 1000;
 }
