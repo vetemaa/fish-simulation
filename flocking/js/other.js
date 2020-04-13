@@ -25,7 +25,7 @@ var info = [
     showArr: true,
   },
   {
-    name: "avd",
+    name: "esc",
     color: "#8e64bd",
     showArr: true,
   },
@@ -38,11 +38,6 @@ var info = [
     name: "obs",
     color: "#64c3ec",
     showArr: true,
-  },
-  {
-    name: "tes",
-    color: "#bbd668",
-    showArr: false,
   },
   {
     name: "exp",

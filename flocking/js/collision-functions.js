@@ -2,6 +2,7 @@ var plane;
 var vectorField;
 var distanceField;
 var gradientField;
+var obstacle;
 const fieldDimension = 19; // 13 for figures
 const fieldSize = 40; // 40 for figures
 const voxelSize = fieldSize / (fieldDimension - 1);
@@ -39,9 +40,12 @@ function addObstacle(animateFunction) {
       scene.add(obstacle);
     });
 
+    obstacle = rocks;
+
     addVectorField(obstacles);
     addGradientField();
     addPlane();
+    changeObstacles();
 
     animateFunction();
   });
@@ -225,7 +229,7 @@ function addPlane() {
   );
   plane.position.set(planeSize / 2, planeSize / 2, 0);
   plane.size = planeSize;
-  // plane.visible = false;
+  obstacle.plane = plane;
   scene.add(plane);
 
   updatePlaneTexture();

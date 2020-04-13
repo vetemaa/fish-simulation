@@ -400,8 +400,9 @@ function interpolate(pa, pb, px) {
   return pa * (1 - f) + pb * f;
 }
 
-function vectorfield(boid) {
+function obstacles(boid) {
   const steer = new THREE.Vector3();
+  if (!vars.enabled) return steer;
 
   deltas = [];
   fieldVectors = worldPosToFieldValues(
@@ -423,7 +424,7 @@ function experiments(boid) {
 
   const center = new THREE.Vector3(20, 20, 20).sub(boid.position);
   center.setLength(0.01);
-  steer.add(center);
+  if (vars.directTowards) steer.add(center);
 
   // turn = new THREE.Vector3().crossVectors(
   //   boid.velocity,

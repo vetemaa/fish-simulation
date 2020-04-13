@@ -150,7 +150,7 @@ function accelerationRules(boid) {
   acceleration.set(0, 0, 0);
   const bnd = bounds(boid);
   const ran = random(boid);
-  const fld = vectorfield(boid);
+  const fld = obstacles(boid);
   const exp = experiments(boid);
 
   let rules;
@@ -164,15 +164,15 @@ function accelerationRules(boid) {
     ];
   } else {
     // const fed = feed(boid); // VEL RULE!
-    const avd = escape(boid, predators, vars.predatorCount);
+    const esc = escape(boid, predators, vars.predatorCount);
     rules = [
       { name: "sep", vec: sep, scalar: vars.separationScalar },
       { name: "ali", vec: ali, scalar: vars.alignmentScalar },
       { name: "coh", vec: coh, scalar: vars.cohesionScalar },
       { name: "bnd", vec: bnd, scalar: vars.boundsScalar },
       { name: "ran", vec: ran, scalar: vars.randomScalar },
-      { name: "avd", vec: avd, scalar: vars.avoidScalar },
-      { name: "obs", vec: fld, scalar: vars.fieldScalar },
+      { name: "esc", vec: esc, scalar: vars.escapeScalar },
+      { name: "obs", vec: fld, scalar: vars.obstacleScalar },
       { name: "exp", vec: exp, scalar: 1 },
       // { name: "fed", vec: fed, scalar: vars.feedScalar },
     ];

@@ -12,7 +12,7 @@ const boids = [];
 const predators = [];
 const foods = [];
 const boidTotalCount = 700;
-const boidStartCount = 0;
+const boidStartCount = 500;
 const predatorTotalCount = 5;
 const predatorStartCount = 0;
 const foodTotalCount = 100;
@@ -84,7 +84,7 @@ function animate() {
     moveFood(delta);
     animateNoise();
     updateInfo();
-    updatePlaneTexture(delta);
+    // updatePlaneTexture(delta);
   }
 
   requestAnimationFrame(animate);

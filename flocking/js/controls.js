@@ -1,6 +1,8 @@
+var obs = {};
+
 function datGui() {
   var vars = function () {
-    this.play = false;
+    this.play = true;
     this.playSpeed = 5;
     this.chaseCamera = false;
     this.boundSize = 40;
@@ -12,7 +14,7 @@ function datGui() {
     this.maxAcceleration = 0.01;
 
     this.avoidRadius = 32;
-    this.avoidScalar = 0.3;
+    this.escapeScalar = 0.3;
     this.feedRadius = 28;
     this.feedScalar = 1;
     this.alignmentRadius = 9;
@@ -23,7 +25,7 @@ function datGui() {
     this.separationScalar = 0.34; // 0.44 in graph simulation
     this.randomScalar = 0.08;
     this.randomWavelenScalar = 0.5;
-    this.fieldScalar = 0.8;
+    this.obstacleScalar = 0.8;
     this.boundsScalar = 0.01;
 
     this.predatorCount = predatorStartCount;
@@ -31,6 +33,12 @@ function datGui() {
     this.maxSpeed_p = 0.04;
     this.attackRadius = 34;
     this.attackScalar = 1;
+
+    // this.obstacle = 0;
+    this.enabled = true;
+    this.showMesh = true;
+    this.showPlane = true;
+    this.directTowards = true;
 
     this.showVectors = true;
     this.vectorLenMultiplier = 1;
@@ -51,8 +59,9 @@ function datGui() {
   folBoids = gui.addFolder("Boids");
   folPredators = gui.addFolder("Predators");
   folVisual = gui.addFolder("UI");
+  folObstacles = gui.addFolder("Obstacles");
 
-  // folBoids.open();
+  folObstacles.open();
 
   folMain.add(vars, "play").listen();
   folMain.add(vars, "playSpeed", 0, 10).step(0.1);
@@ -83,9 +92,9 @@ function datGui() {
   folWeights.add(vars, "boundsScalar", 0, 1).step(0.01);
   folWeights.add(vars, "randomScalar", 0, 1).step(0.01);
   folWeights.add(vars, "randomWavelenScalar", 0, 10).step(0.1);
-  folWeights.add(vars, "avoidScalar", 0, 1).step(0.01);
+  folWeights.add(vars, "escapeScalar", 0, 1).step(0.01);
   folWeights.add(vars, "feedScalar", 0, 1).step(0.01);
-  folWeights.add(vars, "fieldScalar", 0, 1).step(0.01);
+  folWeights.add(vars, "obstacleScalar", 0, 1).step(0.01);
 
   folDists = folBoids.addFolder("Rule Radiuses");
   // folDists.open();
@@ -119,6 +128,17 @@ function datGui() {
   // folDists.open();
   folDists.add(vars, "attackRadius", 0, 100).step(1);
   // /PREDATORS --------------------------
+
+  // folObstacles.add(variables, "obstacle", { Stonehenge: 0, Knot: 1 })
+  // .onChange(value => changeObstacle(value));
+  folObstacles.add(vars, "enabled").onChange(() => changeObstacles());
+  obs.mesh = folObstacles
+    .add(vars, "showMesh")
+    .onChange((value) => (obstacle.visible = value));
+  obs.plane = folObstacles
+    .add(vars, "showPlane")
+    .onChange((value) => (obstacle.plane.visible = value));
+  obs.direct = folObstacles.add(vars, "directTowards");
 
   folVisual
     .add(vars, "showVectors")
@@ -232,10 +252,21 @@ function changeVectorVisibility(value) {
 }
 
 function changeArrowLens() {
-  console.log(setArrows());
+  setArrows();
   // boids.forEach((boid) => {
   //   boid.helpArrows.children.forEach((arrow) => setArrowLen(arrow));
   // });
+}
+
+function changeObstacles() {
+  const en = vars.enabled;
+  obstacle.visible = en ? vars.showMesh : false;
+  obstacle.plane.visible = en ? vars.showPlane : false;
+  Object.keys(obs).forEach((key) => {
+    const parentStyle = obs[key].domElement.parentElement.parentElement.style;
+    parentStyle.pointerEvents = en ? "auto" : "none";
+    parentStyle.opacity = en ? 1 : 0.82;
+  });
 }
 
 function updateBounds(size) {
