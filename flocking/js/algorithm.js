@@ -433,6 +433,6 @@ function experiments(boid) {
   // turn.setLength(0.05);
   // steer.add(turn);
 
-  steer.multiplyScalar(10);
+  steer.multiplyScalar(8);
   return steer;
 }

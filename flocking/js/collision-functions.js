@@ -7,11 +7,11 @@ const fieldDimension = 19; // 13 for figures
 const fieldSize = 40; // 40 for figures
 const voxelSize = fieldSize / (fieldDimension - 1);
 const textureSize = 140; // 1080 for figures
-const avoidRadius = 9; // 9 for figures
+const avoidRadius = 12; // 9 for figures
 
 function addObstacle(animateFunction) {
   const loader = new THREE.GLTFLoader();
-  loader.load("rocks.glb", (gltf) => {
+  loader.load("rocks2.glb", (gltf) => {
     const rocks = new THREE.Mesh(
       new THREE.Geometry().fromBufferGeometry(gltf.scene.children[0].geometry),
       new THREE.MeshNormalMaterial({
@@ -21,8 +21,8 @@ function addObstacle(animateFunction) {
         transparent: true,
       })
     );
-    rocks.scale.set(5, 5, 5);
-    rocks.position.set(20, 8, 20);
+    rocks.scale.set(2.8, 2.8, 2.8);
+    rocks.position.set(20, 15, 20);
     // rocks.rotation.y = 4.74;
     // rocks.visible = false;
 
@@ -89,7 +89,7 @@ function addVectorField(obstacles) {
           length = 0;
         } else {
           length = 1 - length / avoidRadius;
-          length = Math.pow(length, 4);
+          length = Math.pow(length, 6);
         }
         steer.setLength(length);
 
