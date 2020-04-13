@@ -1,6 +1,6 @@
 function datGui() {
   var vars = function () {
-    this.play = false;
+    this.play = true;
     this.playSpeed = 5;
     this.chaseCamera = false;
     this.boundSize = 40;
@@ -33,7 +33,7 @@ function datGui() {
     this.attackScalar = 1;
 
     this.showVectors = true;
-    this.vectorLenMultiplier = 10;
+    this.vectorLenMultiplier = 1;
     this.showBounds = true;
     this.showAxes = true;
     this.drawTail = false;
@@ -232,9 +232,10 @@ function changeVectorVisibility(value) {
 }
 
 function changeArrowLens() {
-  boids.forEach((boid) => {
-    boid.helpArrows.children.forEach((arrow) => setArrowLen(arrow));
-  });
+  console.log(setArrows());
+  // boids.forEach((boid) => {
+  //   boid.helpArrows.children.forEach((arrow) => setArrowLen(arrow));
+  // });
 }
 
 function updateBounds(size) {

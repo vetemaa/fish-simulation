@@ -366,10 +366,6 @@ function random(boid) {
   //   Math.random() * 2 - 1
   // );
 
-  const center = new THREE.Vector3(20, 20, 20).sub(boid.position);
-  center.multiplyScalar(0.08);
-  steer.add(center);
-
   return steer;
 }
 
@@ -419,5 +415,23 @@ function vectorfield(boid) {
   steer.copy(value);
   // }
 
+  return steer;
+}
+
+function experiments(boid) {
+  const steer = new THREE.Vector3(0, 0, 0);
+
+  const center = new THREE.Vector3(20, 20, 20).sub(boid.position);
+  center.setLength(0.01);
+  steer.add(center);
+
+  // turn = new THREE.Vector3().crossVectors(
+  //   boid.velocity,
+  //   new THREE.Vector3(0, -1, 0)
+  // );
+  // turn.setLength(0.05);
+  // steer.add(turn);
+
+  steer.multiplyScalar(1);
   return steer;
 }

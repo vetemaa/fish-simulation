@@ -42,11 +42,16 @@ var info = [
   {
     name: "tes",
     color: "#bbd668",
+    showArr: false,
+  },
+  {
+    name: "exp",
+    color: "#bbd668",
     showArr: true,
   },
   {
     name: "acc",
-    color: "#ffffff",
+    color: "#aaaaaa",
     showArr: true,
   },
 ];

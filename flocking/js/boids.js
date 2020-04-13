@@ -83,6 +83,36 @@ function addBoid(position, index) {
   return boid;
 }
 
+var arrVel;
+var arrCross;
+function addExperiment() {
+  const justVec = new THREE.Vector3();
+  const pos = new THREE.Vector3(
+    vars.boundSize / 2,
+    vars.boundSize / 2,
+    vars.boundSize / 2
+  );
+  arrVel = new THREE.ArrowHelper(justVec, pos, 1, 0xff0000, 0.24, 0.16);
+  scene.add(arrVel);
+  arrCross = new THREE.ArrowHelper(justVec, pos, 1, 0x00ff00, 0.24, 0.16);
+  scene.add(arrCross);
+}
+
+function updateExperiment() {
+  // const vel = subject.velocity.clone();
+  const vel = subject.position.clone();
+  const center = new THREE.Vector3(
+    vars.boundSize / 2,
+    vars.boundSize / 2,
+    vars.boundSize / 2
+  );
+  vel.sub(center);
+  const dir = new THREE.Vector3(0, -1, 0);
+  const cross = new THREE.Vector3().crossVectors(vel, dir);
+  setArrow(arrVel, vel);
+  setArrow(arrCross, cross);
+}
+
 function moveBoids(delta) {
   for (let i = 0; i < vars.predatorCount; i++) {
     const predator = predators[i];
@@ -95,6 +125,8 @@ function moveBoids(delta) {
     moveBoid(delta, boid, vars.ruleScalar, vars.maxSpeed);
     setBoidColor(boid);
   }
+
+  updateExperiment();
 }
 
 function moveBoid(delta, boid, ruleScalar, maxSpeed) {
@@ -151,44 +183,7 @@ function accelerationRules(boid) {
   const bnd = bounds(boid);
   const ran = random(boid);
   const fld = vectorfield(boid);
-
-  // if (boid.subject) {
-  //   const counterAmount = 10;
-  //   const valueAmount = 3000;
-  //   // TODO: MAKE COHESION RADIUS SMALL SO MORE FLICKERING
-  //   if (boid.subject) {
-  //     if (sepArray1.length < valueAmount) {
-  //       if (counter < counterAmount) {
-  //         counter += 1;
-  //         if (counter == counterAmount) console.log("counter over");
-  //       } else {
-  //         if (sepArray1.length % 100 === 0) console.log(sepArray1.length);
-  //         values1 = reynolds(boid, boids, -1);
-  //         sepArray1.push(values1.sep.x);
-  //         aliArray1.push(values1.ali.x);
-  //         cohArray1.push(values1.coh.x);
-  //         values2 = reynolds(boid, boids, 1);
-  //         sepArray2.push(values2.sep.x);
-  //         aliArray2.push(values2.ali.x);
-  //         cohArray2.push(values2.coh.x);
-  //         // console.log(sepArray1.length);
-  //         // counter = 0;
-  //       }
-  //     } else if (sepArray1.length === valueAmount) {
-  //       let data1 = "separation,alignment,cohesion\n";
-  //       let data2 = "separation,alignment,cohesion\n";
-  //       for (let i = 0; i < valueAmount; i++) {
-  //         data1 += -sepArray1[i] + "\n";
-  //         // sepArray1[i] + "," + aliArray1[i] + "," + cohArray1[i] + "\n";
-  //         data2 += -sepArray2[i] + "\n";
-  //         // sepArray2[i] + "," + aliArray2[i] + "," + cohArray2[i] + "\n";
-  //       }
-  //       console.log(data1);
-  //       console.log(data2);
-  //       sepArray1.push(0);
-  //     }
-  //   }
-  // }
+  const exp = experiments(boid);
 
   let rules;
   if (boid.predator) {
@@ -210,6 +205,7 @@ function accelerationRules(boid) {
       { name: "ran", vec: ran, scalar: vars.randomScalar },
       { name: "avd", vec: avd, scalar: vars.avoidScalar },
       { name: "obs", vec: fld, scalar: vars.fieldScalar },
+      { name: "exp", vec: exp, scalar: 1 },
       // { name: "fed", vec: fed, scalar: vars.feedScalar },
     ];
   }

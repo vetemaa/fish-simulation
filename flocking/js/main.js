@@ -12,7 +12,7 @@ const boids = [];
 const predators = [];
 const foods = [];
 const boidTotalCount = 700;
-const boidStartCount = 0;
+const boidStartCount = 500;
 const predatorTotalCount = 5;
 const predatorStartCount = 0;
 const foodTotalCount = 100;
@@ -45,7 +45,7 @@ function init() {
 
   const b = vars.boundSize;
   camera.position.set(b * 3, b * 0.6, b * 2);
-  camera.position.set(b * 3, b * 3, b * 300);
+  // camera.position.set(b * 3, b * 3, b * 300);
   // camera.position.set(b * 0.9, b * 0.3, b * 2);
   // camera.position.set(15.001, 30, 15);
 
@@ -64,6 +64,8 @@ function init() {
   addFood();
   addBounds();
   addNoiseCurve();
+
+  addExperiment();
 
   addObstacle(animate);
   // animate();
