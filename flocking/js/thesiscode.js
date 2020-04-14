@@ -1,7 +1,7 @@
 // font size: 13.5 (19)
 
 // STRUCTURE
-boids.forEach(boid => {
+boids.forEach((boid) => {
   separation = getSeparation(boid);
   alignment = getAlignment(boid);
   cohesion = getCohesion(boid);
@@ -28,7 +28,7 @@ function separation(boid) {
   separation = new THREE.Vector3();
   separationNeighbours = 0;
   distance = boid.position.distanceTo(flockmate.position);
-  flockmates.forEach(flockmate => {
+  flockmates.forEach((flockmate) => {
     if (distance < separationRadius) {
       difference = boid.position.clone().sub(flockmate.position);
       separation.add(difference);
@@ -44,7 +44,7 @@ function alignment(boid) {
   alignment = new THREE.Vector3();
   alignmentNeighbours = 0;
   distance = boid.position.distanceTo(flockmate.position);
-  flockmates.forEach(flockmate => {
+  flockmates.forEach((flockmate) => {
     if (distance < alignmentRadius) {
       velocity = flockmate.velocity.clone();
       alignment.add(velocity);
@@ -60,7 +60,7 @@ function cohesion(boid) {
   cohesion = new THREE.Vector3();
   cohesionNeighbours = 0;
   distance = boid.position.distanceTo(flockmate.position);
-  flockmates.forEach(flockmate => {
+  flockmates.forEach((flockmate) => {
     if (distance < cohesionRadius) {
       position = flockmate.position.clone();
       cohesion.add(position);
@@ -78,7 +78,7 @@ function cohesion(boid) {
 function separationaration(boid) {
   separation = new THREE.Vector3();
   distance = boid.position.distanceTo(flockmate.position);
-  flockmates.forEach(flockmate => {
+  flockmates.forEach((flockmate) => {
     if (distance < separationRadius) {
       difference = boid.position.clone().sub(flockmate.position);
       difference.setLength(1 - distance / vars.separationRadius);
@@ -94,7 +94,7 @@ function alignmentgnment(boid) {
   alignment = new THREE.Vector3();
   alignmentNeighbours = 0;
   distance = boid.position.distanceTo(flockmate.position);
-  flockmates.forEach(flockmate => {
+  flockmates.forEach((flockmate) => {
     if (distance < alignmentRadius) {
       velocity = flockmate.velocity.clone();
       velocity.setLength(1 - distance / vars.alignmentRadius);
@@ -110,7 +110,7 @@ function cohesion(boid) {
   cohesion = new THREE.Vector3();
   cohesionNeighbours = 0;
   distance = boid.position.distanceTo(flockmate.position);
-  flockmates.forEach(flockmate => {
+  flockmates.forEach((flockmate) => {
     if (distance < cohesionRadius) {
       difference = flockmate.position.clone().sub(boid.position);
       difference.setLength(1 - distance / vars.cohesionRadius);
@@ -123,7 +123,7 @@ function cohesion(boid) {
 
 sep = new THREE.Vector3();
 distance = boid.position.distanceTo(flockmate.position);
-flockmates.forEach(flockmate => {
+flockmates.forEach((flockmate) => {
   if (distance < separationRadius) {
     difference = boid.position.clone().sub(flockmate.position);
     difference.setLength(1 - distance / vars.separationRadius);
@@ -135,7 +135,7 @@ sep.clampLength(0, 1);
 ali = new THREE.Vector3();
 aliNeighbours = 0;
 distance = boid.position.distanceTo(flockmate.position);
-flockmates.forEach(flockmate => {
+flockmates.forEach((flockmate) => {
   if (distance < alignmentRadius) {
     velocity = flockmate.velocity.clone();
     velocity.setLength(1 - distance / vars.alignmentRadius);
@@ -147,7 +147,7 @@ ali.clampLength(0, 1);
 cohesion = new THREE.Vector3();
 cohesionNeighbours = 0;
 distance = boid.position.distanceTo(flockmate.position);
-flockmates.forEach(flockmate => {
+flockmates.forEach((flockmate) => {
   if (distance < cohesionRadius) {
     difference = flockmate.position.clone().sub(boid.position);
     difference.setLength(1 - distance / vars.cohesionRadius);
@@ -155,3 +155,11 @@ flockmates.forEach(flockmate => {
   }
 });
 cohesion.clampLength(0, 1);
+
+function projectVecOnVec(p, n) {
+  var dotProduct = p.dot(n);
+  var projectionLength = dotProduct / n.length();
+  var projectedP = n.clone().setLength(projectionLength);
+  projectedP;
+  return n.clone().setLength(projectionLength);
+}

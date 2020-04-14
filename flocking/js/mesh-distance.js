@@ -66,6 +66,7 @@ function findClosestPosition(point, object) {
 
     var pd = normal.dot(point.clone().sub(va));
     var proj = point.clone().sub(normal.clone().multiplyScalar(pd));
+
     var cp = closestPointToTriangle(proj, va, vb, vc);
 
     if (cp.distanceTo(point) <= closestDistance) {
@@ -78,7 +79,7 @@ function findClosestPosition(point, object) {
   dot = closestFace.normal.dot(point.clone().sub(closestPointVec).normalize());
   // to avoid imprecision issues with digital numbers round to 3 decimal points
   dot = Math.round(dot * 1000) / 1000;
-  insideMesh = dot == -1;
+  insideMesh = dot == -1; // TODO: do this comparison for each face in closestFaces
 
   return [closestPointVec, insideMesh];
 }

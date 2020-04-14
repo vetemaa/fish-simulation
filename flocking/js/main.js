@@ -44,7 +44,7 @@ function init() {
   scene.add(fishCamera);
 
   const b = vars.boundSize;
-  camera.position.set(b * 3, b * 0.6, b * 2);
+  camera.position.set(b * 2, b * 0.6, b * 3);
   // camera.position.set(b * 3, b * 3, b * 300);
   // camera.position.set(b * 0.9, b * 0.3, b * 2);
   // camera.position.set(15.001, 30, 15);

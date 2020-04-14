@@ -424,7 +424,7 @@ function experiments(boid) {
 
   const center = new THREE.Vector3(20, 20, 20).sub(boid.position);
   center.setLength(0.01);
-  if (vars.directTowards) steer.add(center);
+  if (vars.directTowards && vars.enabled) steer.add(center);
 
   // turn = new THREE.Vector3().crossVectors(
   //   boid.velocity,

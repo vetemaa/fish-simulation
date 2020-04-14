@@ -50,7 +50,7 @@ function addBoid(position, index) {
   // mesh
   const mesh = new THREE.Mesh(
     new THREE.ConeBufferGeometry(0.3, 1),
-    new THREE.MeshBasicMaterial({ wireframe: true })
+    new THREE.MeshBasicMaterial({ wireframe: false })
   );
   mesh.geometry.rotateX(THREE.Math.degToRad(90));
   boid.mesh = mesh;

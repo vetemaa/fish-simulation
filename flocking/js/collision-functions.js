@@ -3,7 +3,7 @@ var vectorField;
 var distanceField;
 var gradientField;
 var obstacle;
-const fieldDimension = 19; // 13 for figures
+const fieldDimension = 13; // 13 for figures
 const fieldSize = 40; // 40 for figures
 const voxelSize = fieldSize / (fieldDimension - 1);
 const textureSize = 140; // 1080 for figures
@@ -28,7 +28,7 @@ function addObstacle(animateFunction) {
 
     const torus = new THREE.Mesh(
       // new THREE.TorusGeometry(3, 0.3, 8, 12),
-      new THREE.TorusKnotGeometry(10, 0.4, 40, 4),
+      new THREE.TorusKnotGeometry(13, 0.4, 40, 4),
       new THREE.MeshNormalMaterial({ wireframe: false })
     );
     torus.position.set(20, 20, 20);
@@ -94,6 +94,7 @@ function addVectorField(obstacles) {
         steer.setLength(length);
 
         // if (i3 == 6) addArrow(steer, origin, length * 1.5, 0x00ff00);
+        // if (i3 == 6)
         // addArrow(steer, origin, length * 1.5, inside ? 0xff0000 : 0x00ff00);
 
         zArrayVec.push(steer);
@@ -251,15 +252,15 @@ function updatePlaneTexture() {
       let deltas = [];
 
       // // distance field
-      // const field = distanceField;
-      // const lerpFunc = lerp;
-      // const valueCalc = (value) => value;
+      const field = distanceField;
+      const lerpFunc = lerp;
+      const valueCalc = (value) => value;
 
       // vector field
-      // const field = vectorField;
-      const field = gradientField;
-      const lerpFunc = lerpVecs;
-      const valueCalc = (value) => value.length();
+      // // const field = vectorField;
+      // const field = gradientField;
+      // const lerpFunc = lerpVecs;
+      // const valueCalc = (value) => value.length();
 
       fieldVectors = worldPosToFieldValues(worldPos, field, deltas);
       value = triLerp(lerpFunc, ...deltas, ...fieldVectors);
