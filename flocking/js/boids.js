@@ -50,7 +50,7 @@ function addBoid(position, index) {
   // mesh
   const mesh = new THREE.Mesh(
     new THREE.ConeBufferGeometry(0.3, 1),
-    new THREE.MeshBasicMaterial({ wireframe: false })
+    new THREE.MeshBasicMaterial({ wireframe: true })
   );
   mesh.geometry.rotateX(THREE.Math.degToRad(90));
   boid.mesh = mesh;
@@ -146,7 +146,10 @@ counter = 0;
 
 function accelerationRules(boid) {
   const { acceleration } = boid;
-  let { sep, ali, coh } = reynolds(boid, boids);
+  const rey = reynolds(boid, boids);
+  const sep = rey[0];
+  const ali = rey[1];
+  const coh = rey[2];
   acceleration.set(0, 0, 0);
   const bnd = bounds(boid);
   const ran = random(boid);
@@ -155,6 +158,7 @@ function accelerationRules(boid) {
 
   let rules;
   if (boid.predator) {
+    // TODO: sep here is wrong!
     const atk = attack(boid, boids, vars.boidCount);
     rules = [
       { vec: sep, scalar: vars.separationScalar },

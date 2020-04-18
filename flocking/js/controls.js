@@ -34,10 +34,9 @@ function datGui() {
     this.attackRadius = 34;
     this.attackScalar = 1;
 
-    // this.obstacle = 0;
     this.enabled = true;
     this.showMesh = true;
-    this.showPlane = true;
+    this.showPlane = false;
     this.directTowards = true;
 
     this.showVectors = true;

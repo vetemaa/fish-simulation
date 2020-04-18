@@ -23,127 +23,144 @@ boids.forEach((boid) => {
   boid.position.add(velocity);
 });
 
-// SEPARATION - typical
-function separation(boid) {
-  separation = new THREE.Vector3();
-  separationNeighbours = 0;
-  distance = boid.position.distanceTo(flockmate.position);
-  flockmates.forEach((flockmate) => {
-    if (distance < separationRadius) {
-      difference = boid.position.clone().sub(flockmate.position);
-      separation.add(difference);
-      separationNeighbours++;
-    }
-  });
-  if (separationNeighbours > 0) separation.divideScalar(separationNeighbours);
-  return separation;
-}
+// // SEPARATION - old typical
+// function separation(boid) {
+//   separation = new THREE.Vector3();
+//   separationNeighbours = 0;
+//   distance = boid.position.distanceTo(flockmate.position);
+//   flockmates.forEach((flockmate) => {
+//     if (distance < separationRadius) {
+//       difference = boid.position.clone().sub(flockmate.position);
+//       separation.add(difference);
+//       separationNeighbours++;
+//     }
+//   });
+//   if (separationNeighbours > 0) separation.divideScalar(separationNeighbours);
+//   return separation;
+// }
 
-// ALIGNMENT - typical
-function alignment(boid) {
-  alignment = new THREE.Vector3();
-  alignmentNeighbours = 0;
-  distance = boid.position.distanceTo(flockmate.position);
-  flockmates.forEach((flockmate) => {
-    if (distance < alignmentRadius) {
-      velocity = flockmate.velocity.clone();
-      alignment.add(velocity);
-      alignmentNeighbours++;
-    }
-  });
-  if (alignmentNeighbours > 0) alignment.divideScalar(alignmentNeighbours);
-  return alignment;
-}
+// // ALIGNMENT - old typical
+// function alignment(boid) {
+//   alignment = new THREE.Vector3();
+//   alignmentNeighbours = 0;
+//   distance = boid.position.distanceTo(flockmate.position);
+//   flockmates.forEach((flockmate) => {
+//     if (distance < alignmentRadius) {
+//       velocity = flockmate.velocity.clone();
+//       alignment.add(velocity);
+//       alignmentNeighbours++;
+//     }
+//   });
+//   if (alignmentNeighbours > 0) alignment.divideScalar(alignmentNeighbours);
+//   return alignment;
+// }
 
-// COHESION - typical
-function cohesion(boid) {
-  cohesion = new THREE.Vector3();
-  cohesionNeighbours = 0;
-  distance = boid.position.distanceTo(flockmate.position);
-  flockmates.forEach((flockmate) => {
-    if (distance < cohesionRadius) {
-      position = flockmate.position.clone();
-      cohesion.add(position);
-      cohesionNeighbours++;
-    }
-  });
-  if (cohesionNeighbours > 0) {
-    cohesion.divideScalar(cohesionNeighbours);
-    cohesion.sub(boid.position);
-  }
-  return cohesion;
-}
+// // COHESION - old typical
+// function cohesion(boid) {
+//   cohesion = new THREE.Vector3();
+//   cohesionNeighbours = 0;
+//   distance = boid.position.distanceTo(flockmate.position);
+//   flockmates.forEach((flockmate) => {
+//     if (distance < cohesionRadius) {
+//       position = flockmate.position.clone();
+//       cohesion.add(position);
+//       cohesionNeighbours++;
+//     }
+//   });
+//   if (cohesionNeighbours > 0) {
+//     cohesion.divideScalar(cohesionNeighbours);
+//     cohesion.sub(boid.position);
+//   }
+//   return cohesion;
+// }
 
-// separationARATION - improved
-function separationaration(boid) {
-  separation = new THREE.Vector3();
-  distance = boid.position.distanceTo(flockmate.position);
-  flockmates.forEach((flockmate) => {
-    if (distance < separationRadius) {
-      difference = boid.position.clone().sub(flockmate.position);
-      difference.setLength(1 - distance / vars.separationRadius);
-      separation.add(difference);
-    }
-  });
-  separation.clampLength(0, 1);
-  return separation;
-}
-
-// alignmentGNMENT - improved
-function alignmentgnment(boid) {
-  alignment = new THREE.Vector3();
-  alignmentNeighbours = 0;
-  distance = boid.position.distanceTo(flockmate.position);
-  flockmates.forEach((flockmate) => {
-    if (distance < alignmentRadius) {
-      velocity = flockmate.velocity.clone();
-      velocity.setLength(1 - distance / vars.alignmentRadius);
-      alignment.add(velocity);
-    }
-  });
-  alignment.clampLength(0, 1);
-  return alignment;
-}
-
-// COHESION - improved
-function cohesion(boid) {
-  cohesion = new THREE.Vector3();
-  cohesionNeighbours = 0;
-  distance = boid.position.distanceTo(flockmate.position);
-  flockmates.forEach((flockmate) => {
-    if (distance < cohesionRadius) {
-      difference = flockmate.position.clone().sub(boid.position);
-      difference.setLength(1 - distance / vars.cohesionRadius);
-      cohesion.add(position);
-    }
-  });
-  cohesion.clampLength(0, 1);
-  return cohesion;
-}
-
-sep = new THREE.Vector3();
-distance = boid.position.distanceTo(flockmate.position);
+// SEPARATION - books
+// function separation(boid) {
+centroid = new THREE.Vector3();
+separationNeighbours = 0;
 flockmates.forEach((flockmate) => {
+  distance = boid.position.distanceTo(flockmate.position);
+  if (distance < vars.separationRadius) {
+    centroid.add(flockmate.position);
+    separationNeighbours++;
+  }
+});
+if (separationNeighbours > 0) {
+  centroid.divideScalar(separationNeighbours);
+  separation = boid.position.clone().sub(centroid);
+}
+
+// return separation;
+// }
+
+// ALIGNMENT - books
+// function alignment(boid) {
+alignment = new THREE.Vector3();
+alignmentNeighbours = 0;
+flockmates.forEach((flockmate) => {
+  distance = boid.position.distanceTo(flockmate.position);
+  if (distance < vars.alignmentRadius) {
+    alignment.add(flockmate.velocity);
+    alignmentNeighbours++;
+  }
+});
+if (alignmentNeighbours > 0) {
+  alignment.divideScalar(alignmentNeighbours);
+}
+// return alignment;
+// }
+
+// COHESION - books
+// function cohesion(boid) {
+centroid = new THREE.Vector3();
+cohesionNeighbours = 0;
+flockmates.forEach((flockmate) => {
+  distance = boid.position.distanceTo(flockmate.position);
+  if (distance < cohesionRadius) {
+    centroid.add(flockmate.position);
+    cohesionNeighbours++;
+  }
+});
+if (cohesionNeighbours > 0) {
+  centroid.divideScalar(cohesionNeighbours);
+  cohesion = centroid.sub(boid.position);
+}
+// return cohesion;
+// }
+
+// separation - improved
+// function separation(boid) {
+separation = new THREE.Vector3();
+flockmates.forEach((flockmate) => {
+  distance = boid.position.distanceTo(flockmate.position);
   if (distance < separationRadius) {
     difference = boid.position.clone().sub(flockmate.position);
     difference.setLength(1 - distance / vars.separationRadius);
-    sep.add(difference);
+    separation.add(difference);
   }
 });
-sep.clampLength(0, 1);
+separation.clampLength(0, 1);
+// return separation;
+// }
 
-ali = new THREE.Vector3();
-aliNeighbours = 0;
-distance = boid.position.distanceTo(flockmate.position);
+// alignment - improved
+// function alignment(boid) {
+alignment = new THREE.Vector3();
+alignmentNeighbours = 0;
 flockmates.forEach((flockmate) => {
+  distance = boid.position.distanceTo(flockmate.position);
   if (distance < alignmentRadius) {
     velocity = flockmate.velocity.clone();
     velocity.setLength(1 - distance / vars.alignmentRadius);
-    ali.add(velocity);
+    alignment.add(velocity);
   }
 });
-ali.clampLength(0, 1);
+alignment.clampLength(0, 1);
+// return alignment;
+// }
 
+// cohesion - improved
+// function cohesion(boid) {
 cohesion = new THREE.Vector3();
 cohesionNeighbours = 0;
 distance = boid.position.distanceTo(flockmate.position);
@@ -155,6 +172,8 @@ flockmates.forEach((flockmate) => {
   }
 });
 cohesion.clampLength(0, 1);
+// return cohesion;
+// }
 
 function projectVecOnVec(p, n) {
   var dotProduct = p.dot(n);
@@ -163,3 +182,36 @@ function projectVecOnVec(p, n) {
   projectedP;
   return n.clone().setLength(projectionLength);
 }
+
+// SHORTENED IMPROVED
+// ...
+flockmates.forEach((flockmate) => {
+  distance = boid.position.distanceTo(flockmate.position);
+  if (distance < separationRadius) {
+    difference = boid.position.clone().sub(flockmate.position);
+    difference.setLength(1 - distance / vars.separationRadius);
+    separation.add(difference);
+  }
+});
+separation.clampLength(0, 1);
+
+// ...
+flockmates.forEach((flockmate) => {
+  distance = boid.position.distanceTo(flockmate.position);
+  if (distance < alignmentRadius) {
+    velocity = flockmate.velocity.clone();
+    velocity.setLength(1 - distance / vars.alignmentRadius);
+    alignment.add(velocity);
+  }
+});
+alignment.clampLength(0, 1);
+
+// ...
+flockmates.forEach((flockmate) => {
+  if (distance < cohesionRadius) {
+    difference = flockmate.position.clone().sub(boid.position);
+    difference.setLength(1 - distance / vars.cohesionRadius);
+    cohesion.add(position);
+  }
+});
+cohesion.clampLength(0, 1);

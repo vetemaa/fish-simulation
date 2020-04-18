@@ -1,5 +1,4 @@
 function reynolds(boid, flockmates, mine = 1) {
-  // const mine = -1;
   const sep = new THREE.Vector3();
   const ali = new THREE.Vector3();
   const coh = new THREE.Vector3();
@@ -37,26 +36,6 @@ function reynolds(boid, flockmates, mine = 1) {
           diff.setLength(1 - dist / vars.cohesionRadius);
           coh.add(diff);
         }
-      } else if (mine === 0) {
-        // separation - {4}
-        if (dist < vars.separationRadius) {
-          const diff = boid.position.clone().sub(flockmate.position);
-          sep.add(diff);
-          sepNeighbours++;
-        }
-
-        // alignment - {4}
-        if (dist < vars.alignmentRadius) {
-          const vel = flockmate.velocity.clone();
-          ali.add(vel);
-        }
-
-        // cohesion - {4}
-        if (dist < vars.cohesionRadius) {
-          const pos = flockmate.position.clone();
-          coh.add(pos);
-          cohNeighbours++;
-        }
       } else {
         // separation - {books}
         if (dist < vars.separationRadius) {
@@ -88,44 +67,30 @@ function reynolds(boid, flockmates, mine = 1) {
 
     // cohesion - mine
     coh.clampLength(0, 1);
-  } else if (mine === 0) {
-    // separation - {4}
-    if (sepNeighbours > 0) sep.divideScalar(sepNeighbours);
-    sep.divideScalar(2);
-
-    ali.divideScalar(aliNeighbours);
-    ali.divideScalar(4);
-
-    // cohesion - {4}
-    if (cohNeighbours > 0) {
-      coh.divideScalar(cohNeighbours);
-      coh.sub(boid.position);
-      coh.divideScalar(5);
-    }
   } else {
     // separation - {books}
     if (sepNeighbours > 0) {
       sep.divideScalar(sepNeighbours);
       positionClone = boid.position.clone();
       sep.copy(positionClone.sub(sep.clone()));
-      sep.multiplyScalar(0.5);
+      sep.multiplyScalar(0.32);
     }
 
     // alignment - {books}
     if (aliNeighbours > 0) {
       ali.divideScalar(aliNeighbours);
-      ali.multiplyScalar(100);
+      ali.multiplyScalar(40);
     }
 
     // cohesion - {books}
     if (cohNeighbours > 0) {
       coh.divideScalar(cohNeighbours);
       coh.sub(boid.position);
-      coh.multiplyScalar(0.2);
+      coh.multiplyScalar(0.16);
     }
   }
 
-  return { ali, sep, coh };
+  return [sep, ali, coh];
 }
 
 function escape(boid, predators, predatorCount) {
@@ -433,6 +398,6 @@ function experiments(boid) {
   // turn.setLength(0.05);
   // steer.add(turn);
 
-  steer.multiplyScalar(8);
+  steer.multiplyScalar(7);
   return steer;
 }
