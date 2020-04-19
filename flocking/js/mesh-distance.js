@@ -1,38 +1,107 @@
 function findClosestPosition(point, object) {
   var closestDistance = 1e9; // inf
-  var closestPointVec = new THREE.Vector3(); // inf
-  // var closestFaces = [];
+  var closestPoint = new THREE.Vector3(); // inf
+  var closestFaces = [];
+  var largestDot = -1e9;
+  var smallestDot = 1e9;
   var closestFace;
 
   var geometry = object.geometry;
   geometry.faces.forEach((face) => {
     var normal = face.normal;
 
-    var va = geometry.vertices[face.a].clone();
-    var vb = geometry.vertices[face.b].clone();
-    var vc = geometry.vertices[face.c].clone();
-    va.applyMatrix4(object.matrixWorld);
-    vb.applyMatrix4(object.matrixWorld);
-    vc.applyMatrix4(object.matrixWorld);
+    var vertexApos = geometry.vertices[face.a].clone();
+    var vertexBpos = geometry.vertices[face.b].clone();
+    var vertexCpos = geometry.vertices[face.c].clone();
+    vertexApos.applyMatrix4(object.matrixWorld);
+    vertexBpos.applyMatrix4(object.matrixWorld);
+    vertexCpos.applyMatrix4(object.matrixWorld);
 
-    var pd = normal.dot(point.clone().sub(va));
-    var proj = point.clone().sub(normal.clone().multiplyScalar(pd));
+    // project point to face normal
+    const pointProjectedOnNormal = projectVecOnVec(point, normal);
+    // vector from previous vec to point
+    const pointProjectedOnFace = point.clone().sub(pointProjectedOnNormal);
 
-    var cp = closestPointToTriangle(proj, va, vb, vc);
+    // closest point of projectedPoint and the triangle
+    const closestPointOnFace = closestPointToTriangle(
+      pointProjectedOnFace,
+      vertexApos,
+      vertexBpos,
+      vertexCpos
+    );
+    const pointOnFaceDist = round(closestPointOnFace.distanceTo(point));
+    // const pointOnFaceDist = closestPointOnFace.distanceTo(point);
 
-    if (cp.distanceTo(point) <= closestDistance) {
-      closestDistance = cp.distanceTo(point);
-      closestPointVec.copy(cp);
+    if (pointOnFaceDist <= closestDistance) {
+      if (pointOnFaceDist == closestDistance) {
+        closestFaces.push(face);
+      } else {
+        closestFaces = [face];
+      }
+      closestDistance = pointOnFaceDist;
+      closestPoint.copy(closestPointOnFace);
       closestFace = face;
+
+      let dot = face.normal.dot(
+        point.clone().sub(closestPointOnFace).normalize()
+      );
+      if (dot > largestDot) largestDot = dot;
+      if (dot < smallestDot) smallestDot = dot;
     }
   });
 
-  dot = closestFace.normal.dot(point.clone().sub(closestPointVec).normalize());
+  let dot = closestFace.normal.dot(point.clone().sub(closestPoint).normalize());
   // to avoid imprecision issues with digital numbers round to 3 decimal points
-  dot = Math.round(dot * 1000) / 1000;
-  insideMesh = dot == -1; // TODO: do this comparison for each face in closestFaces
+  // dot = Math.round(dot * 1000) / 1000;
 
-  return [closestPointVec, insideMesh];
+  // TODO: face with smallest dot should be the correct face??!!
+
+  insideMesh = round(dot) == -1; // TODO: do this comparison for each face in closestFaces
+  // insideMesh = round(dot) <= 0;
+
+  // insideMesh = dot < 0;
+  // if (insideMesh && closestFaces.length > 1) {
+  //   insideMesh = false;
+  // }
+
+  if (dot < 0) {
+    // console.log("");
+    // console.log(dot);
+    // console.log(round(dot));
+  }
+
+  // if (insideMesh) {
+  //   // console.log("a", largestDot);
+  //   console.log("a", smallestDot);
+  //   // console.log(closestFaces);
+  //   // console.log(closestFaces.length);
+  // }
+
+  // if (
+  //   // insideMesh &&
+  //   point.x == 13.333333333333334 &&
+  //   point.y < 13 &&
+  //   point.y > 0 &&
+  //   point.z == 20
+  // ) {
+  //   console.log("");
+  //   console.log(dot, closestFaces, smallestDot);
+  //   console.log(
+  //     closestFaces[0].normal.dot(point.clone().sub(closestPoint).normalize())
+  //   );
+  //   console.log(
+  //     closestFaces[1].normal.dot(point.clone().sub(closestPoint).normalize())
+  //   );
+  //   console.log("");
+  // }
+
+  return [closestPoint, insideMesh];
+}
+
+function projectVecOnVec(a, b) {
+  var dotProduct = a.dot(b);
+  var projectionLength = dotProduct / b.length();
+  return b.clone().setLength(projectionLength);
 }
 
 function round(x) {

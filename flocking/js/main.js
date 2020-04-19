@@ -12,7 +12,7 @@ const boids = [];
 const predators = [];
 const foods = [];
 const boidTotalCount = 700;
-const boidStartCount = 0;
+const boidStartCount = 700;
 const predatorTotalCount = 5;
 const predatorStartCount = 0;
 const foodTotalCount = 100;
@@ -78,7 +78,7 @@ function animate() {
   let delta = clock.getDelta();
 
   if (delta && vars.play) {
-    if (delta > 1) delta = 0; // when tab not open
+    if (delta > 1) delta = 0; // when tab not open for some time
     cameraChase();
     moveBoids(delta);
     moveFood(delta);

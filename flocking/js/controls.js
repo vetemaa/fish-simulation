@@ -23,9 +23,9 @@ function datGui() {
     this.cohesionScalar = 0.08;
     this.separationRadius = 2.4;
     this.separationScalar = 0.34; // 0.44 in graph simulation
-    this.randomScalar = 0.08;
+    this.randomScalar = 0.12;
     this.randomWavelenScalar = 0.5;
-    this.obstacleScalar = 0.8;
+    this.obstacleScalar = 0.9;
     this.boundsScalar = 0.01;
 
     this.predatorCount = predatorStartCount;
@@ -36,7 +36,7 @@ function datGui() {
 
     this.enabled = true;
     this.showMesh = true;
-    this.showPlane = false;
+    this.showPlane = true;
     this.directTowards = true;
 
     this.showVectors = true;

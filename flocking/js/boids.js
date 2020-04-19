@@ -107,7 +107,7 @@ function moveBoid(delta, boid, ruleScalar, maxSpeed) {
 
   accelerationRules(boid);
   acceleration.multiplyScalar(playDelta * ruleScalar * 0.005);
-  acceleration.y *= 0.7;
+  acceleration.y *= 0.8; // TODO: think about this more
 
   velocity.add(acceleration);
   velocityRules(boid, playDelta);

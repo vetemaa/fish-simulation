@@ -3,7 +3,7 @@ var vectorField;
 var distanceField;
 var gradientField;
 var obstacle;
-const fieldDimension = 7; // 13 for figures
+const fieldDimension = 13; // 13 for figures
 const fieldSize = 40; // 40 for figures
 const voxelSize = fieldSize / (fieldDimension - 1);
 const textureSize = 140; // 1080 for figures
@@ -15,7 +15,7 @@ function addObstacle(animateFunction) {
     const rocks = new THREE.Mesh(
       new THREE.Geometry().fromBufferGeometry(gltf.scene.children[0].geometry),
       new THREE.MeshNormalMaterial({
-        wireframe: true,
+        wireframe: false,
         color: 0x333333,
         opacity: 1,
         transparent: true,
@@ -95,7 +95,7 @@ function addVectorField(obstacles) {
 
         // if (i3 == 6) addArrow(steer, origin, length * 1.5, 0x00ff00);
         // if (i3 == 6)
-        addArrow(steer, origin, length * 1.5, inside ? 0xff0000 : 0x00ff00);
+        // addArrow(steer, origin, length * 1.5, inside ? 0xff0000 : 0x00ff00);
 
         zArrayVec.push(steer);
         zArrayDist.push(length);

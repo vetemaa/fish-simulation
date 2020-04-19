@@ -322,7 +322,7 @@ function random(boid) {
   // );
   const steer = new THREE.Vector3(
     noise(time, boid, "x"),
-    noise(time, boid, "y"),
+    noise(time, boid, "y") * 0.2,
     noise(time, boid, "z")
   );
   // const steer = new THREE.Vector3(
