@@ -52,8 +52,6 @@ var info = [
 ];
 
 function addArrows(boid) {
-  if (boid.index != 0) return;
-
   var helpArrows = new THREE.Group();
   helpArrows.visible = vars.showVectors;
   boid.helpArrows = helpArrows;
@@ -67,17 +65,25 @@ function addArrows(boid) {
     helpArrows.add(arrow);
   }
 
+  helpArrows.position.set(0, 1, 0);
   boid.add(helpArrows);
 }
 
 function setArrows() {
-  boid = boids[0];
+  // boids[0].helpArrows.children.forEach((arrow) => {
+  //   const infoItem = findInfoByName(arrow.name);
+  //   const enabled = infoItem.showArr && infoItem.vec !== undefined;
+  //   if (enabled) setArrow(arrow, infoItem.vec);
+  // });
 
-  boid.helpArrows.children.forEach((arrow) => {
-    const infoItem = findInfoByName(arrow.name);
-    const enabled = infoItem.showArr && infoItem.vec !== undefined;
-    if (enabled) setArrow(arrow, infoItem.vec);
-  });
+  for (let i = 0; i < vars.boidCount; i++) {
+    const boid = boids[i];
+    boid.helpArrows.children.forEach((arrow) => {
+      const infoItem = findInfoByName(arrow.name);
+      const enabled = infoItem.showArr && infoItem.vec !== undefined;
+      if (enabled && arrow.name == "sep") setArrow(arrow, boid.sep);
+    });
+  }
 }
 
 function setArrow(arrow, vec) {
@@ -204,7 +210,11 @@ function addLineSegment(line, vector) {
 
   const segment = new THREE.Line(
     lineGeom,
-    new THREE.LineBasicMaterial({ color: line.color })
+    new THREE.LineBasicMaterial({
+      color: line.color,
+      opacity: 0.7,
+      transparent: true,
+    })
   );
 
   line.add(segment);
@@ -227,16 +237,14 @@ function addBounds() {
   updateBounds(vars.boundSize);
 }
 
-function drawCircle(boid, dist) {
+function drawCircle(boid, dist, color) {
   const circleGeom = new THREE.Geometry();
   for (let i = 0; i < 2.1 * Math.PI; i += 0.1) {
     circleGeom.vertices.push(new THREE.Vector3(Math.sin(i), 0, Math.cos(i)));
   }
   const circle = new THREE.Line(
     circleGeom,
-    new THREE.LineBasicMaterial({
-      color: 0x66bb6a,
-    })
+    new THREE.LineBasicMaterial({ color: color })
   );
 
   circle.scale.set(dist, dist, dist);

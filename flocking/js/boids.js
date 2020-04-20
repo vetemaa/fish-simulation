@@ -14,17 +14,22 @@ function addBoids() {
 
   changeBoidCount(boids, vars.boidCount);
 
-  // time = Date.now();
-  // for (let i = 0; i < 10000000; i++) {
-  //   simplex.noise2D(i);
-  // }
-  // console.log("simplex took: ", Date.now() - time);
-  // time = Date.now();
-  // for (let i = 0; i < 10000000; i++) {
-  //   // noise(i, boids[0], "x");
-  //   interpolate(0, 1, i / 10000000);
-  // }
-  // console.log("noise took: ", Date.now() - time);
+  // subject.mesh.material.wireframe = false;
+  drawCircle(subject, vars.separationRadius, info[0].color);
+  boidpos = [
+    [9.9, 10, 9.9],
+    [11.3, 10, 11.3],
+    [10.7, 10, 9.3],
+  ];
+  boid1pos = new THREE.Vector3(9.9, 10, 9.9);
+  boid2pos = new THREE.Vector3(10.7, 10, 11.5);
+  boid3pos = new THREE.Vector3(10.9, 10, 9.5);
+  boids[0].velocity = boid1pos.clone().sub(new THREE.Vector3(10, 10, 10));
+  boids[1].velocity = boid2pos.clone().sub(new THREE.Vector3(10, 10, 10));
+  boids[2].velocity = boid3pos.clone().sub(new THREE.Vector3(10, 10, 10));
+  boids[0].position.copy(boid1pos);
+  boids[1].position.copy(boid2pos);
+  boids[2].position.copy(boid3pos);
 }
 
 function addPredators() {
@@ -107,7 +112,8 @@ function moveBoid(delta, boid, ruleScalar, maxSpeed) {
 
   accelerationRules(boid);
   acceleration.multiplyScalar(playDelta * ruleScalar * 0.005);
-  acceleration.y *= 0.8; // TODO: think about this more
+  // acceleration.y *= 0.8; // TODO: think about this more
+  acceleration.y = 0; // TODO: think about this more
 
   velocity.add(acceleration);
   velocityRules(boid, playDelta);
@@ -119,6 +125,8 @@ function moveBoid(delta, boid, ruleScalar, maxSpeed) {
 
   boidDirection(velClone, boid);
   if (boid.subject && drawTail) addLineSegment(boid.tailLine, boid.position);
+  // if (drawTail && boid.index % 7 == 0)
+  // addLineSegment(boid.tailLine, boid.position);
 }
 
 function velocityRules(boid, playDelta) {

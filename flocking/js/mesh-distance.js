@@ -144,9 +144,9 @@ function closestPointToTriangle(p, a, b, c) {
   unom = bp.dot(bc);
   udenom = cp.dot(cb);
 
-  if (snom <= 0 && tnom <= 0) return a; // Vertex region early out
-  if (sdenom <= 0 && unom <= 0) return b; // Vertex region early out
-  if (tdenom <= 0 && udenom <= 0) return c; // Vertex region early out
+  if (snom <= 0 && tnom <= 0) return a; // Voronoi region early out
+  if (sdenom <= 0 && unom <= 0) return b; // Voronoi region early out
+  if (tdenom <= 0 && udenom <= 0) return c; // Voronoi region early out
 
   // P is outside (or on) AB if the triple scalar product [N PA PB] <= 0
   vc = normal.dot(new THREE.Vector3().crossVectors(pa, pb)); // !!! Basically same as sameside!!

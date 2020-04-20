@@ -2,10 +2,10 @@ var obs = {};
 
 function datGui() {
   var vars = function () {
-    this.play = true;
-    this.playSpeed = 5;
+    this.play = false;
+    this.playSpeed = 0.1;
     this.chaseCamera = false;
-    this.boundSize = 40;
+    this.boundSize = 20;
 
     this.boidCount = boidStartCount;
     this.foodCount = foodStartCount;
@@ -13,20 +13,34 @@ function datGui() {
     this.maxSpeed = 0.03;
     this.maxAcceleration = 0.01;
 
+    // this.avoidRadius = 32;
+    // this.escapeScalar = 0.3;
+    // this.feedRadius = 28;
+    // this.feedScalar = 1;
+    // this.alignmentRadius = 9;
+    // this.alignmentScalar = 0.08;
+    // this.cohesionRadius = 14; // 14 is normal
+    // this.cohesionScalar = 0.08;
+    // this.separationRadius = 2.4;
+    // this.separationScalar = 0.34; // 0.44 in graph simulation
+    // this.randomScalar = 0.12;
+    // this.randomWavelenScalar = 0.5;
+    // this.obstacleScalar = 0.9;
+    // this.boundsScalar = 0.01;
     this.avoidRadius = 32;
-    this.escapeScalar = 0.3;
+    this.escapeScalar = 0;
     this.feedRadius = 28;
-    this.feedScalar = 1;
-    this.alignmentRadius = 9;
-    this.alignmentScalar = 0.08;
-    this.cohesionRadius = 14; // 14 is normal
-    this.cohesionScalar = 0.08;
-    this.separationRadius = 2.4;
-    this.separationScalar = 0.34; // 0.44 in graph simulation
-    this.randomScalar = 0.12;
-    this.randomWavelenScalar = 0.5;
-    this.obstacleScalar = 0.9;
-    this.boundsScalar = 0.01;
+    this.feedScalar = 0;
+    this.alignmentRadius = 2.3;
+    this.alignmentScalar = 0.0;
+    this.cohesionRadius = 2.3; // 14 is normal
+    this.cohesionScalar = 0.5;
+    this.separationRadius = 2.3;
+    this.separationScalar = 0.0; // 0.44 in graph simulation
+    this.randomScalar = 0;
+    this.randomWavelenScalar = 0;
+    this.obstacleScalar = 0;
+    this.boundsScalar = 0;
 
     this.predatorCount = predatorStartCount;
     this.ruleScalar_p = 0.3;
@@ -34,13 +48,13 @@ function datGui() {
     this.attackRadius = 34;
     this.attackScalar = 1;
 
-    this.enabled = true;
+    this.enabled = false;
     this.showMesh = true;
     this.showPlane = true;
     this.directTowards = true;
 
     this.showVectors = true;
-    this.vectorLenMultiplier = 1;
+    this.vectorLenMultiplier = 3.1; // sep: x, ali: 2, coh: 4,
     this.showBounds = true;
     this.showAxes = true;
     this.drawTail = false;
@@ -164,8 +178,11 @@ function datGui() {
 }
 
 function removeTail() {
-  const tailLine = boids[0].tailLine;
-  tailLine.children = [];
+  boids.forEach((boid) => {
+    const tailLine = boid.tailLine;
+    tailLine.previous = null;
+    tailLine.children = [];
+  });
 }
 
 function changeCamera(value) {

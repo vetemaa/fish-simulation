@@ -15,7 +15,7 @@ function addObstacle(animateFunction) {
     const rocks = new THREE.Mesh(
       new THREE.Geometry().fromBufferGeometry(gltf.scene.children[0].geometry),
       new THREE.MeshNormalMaterial({
-        wireframe: false,
+        wireframe: true,
         color: 0x333333,
         opacity: 1,
         transparent: true,
@@ -28,8 +28,8 @@ function addObstacle(animateFunction) {
 
     const torus = new THREE.Mesh(
       // new THREE.TorusGeometry(3, 0.3, 8, 12),
-      new THREE.TorusKnotGeometry(13, 0.4, 40, 4),
-      new THREE.MeshNormalMaterial({ wireframe: false })
+      new THREE.TorusKnotGeometry(10, 0.4, 40, 4),
+      new THREE.MeshNormalMaterial({ wireframe: true })
     );
     torus.position.set(20, 20, 20);
 

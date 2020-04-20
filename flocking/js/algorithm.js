@@ -90,6 +90,10 @@ function reynolds(boid, flockmates, mine = 1) {
     }
   }
 
+  // TODO: remove
+  boid.sep = sep.clone();
+  boid.ali = ali.clone();
+  boid.coh = coh.clone();
   return [sep, ali, coh];
 }
 
