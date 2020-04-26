@@ -1,11 +1,12 @@
 var obs = {};
 
+// TODO: add Advanced folder to main folders
 function datGui() {
   var vars = function () {
     this.play = false;
-    this.playSpeed = 0.1;
+    this.playSpeed = 5;
     this.chaseCamera = false;
-    this.boundSize = 20;
+    this.boundSize = 40;
 
     this.boidCount = boidStartCount;
     this.foodCount = foodStartCount;
@@ -13,34 +14,18 @@ function datGui() {
     this.maxSpeed = 0.03;
     this.maxAcceleration = 0.01;
 
-    // this.avoidRadius = 32;
-    // this.escapeScalar = 0.3;
-    // this.feedRadius = 28;
-    // this.feedScalar = 1;
-    // this.alignmentRadius = 9;
-    // this.alignmentScalar = 0.08;
-    // this.cohesionRadius = 14; // 14 is normal
-    // this.cohesionScalar = 0.08;
-    // this.separationRadius = 2.4;
-    // this.separationScalar = 0.34; // 0.44 in graph simulation
-    // this.randomScalar = 0.12;
-    // this.randomWavelenScalar = 0.5;
-    // this.obstacleScalar = 0.9;
-    // this.boundsScalar = 0.01;
     this.avoidRadius = 32;
-    this.escapeScalar = 0;
-    this.feedRadius = 28;
-    this.feedScalar = 0;
-    this.alignmentRadius = 2.3;
-    this.alignmentScalar = 0.0;
-    this.cohesionRadius = 2.3; // 14 is normal
-    this.cohesionScalar = 0.5;
-    this.separationRadius = 2.3;
-    this.separationScalar = 0.0; // 0.44 in graph simulation
-    this.randomScalar = 0;
-    this.randomWavelenScalar = 0;
-    this.obstacleScalar = 0;
-    this.boundsScalar = 0;
+    this.escapeScalar = 0.3;
+    this.alignmentRadius = 9;
+    this.alignmentScalar = 0.08;
+    this.cohesionRadius = 14;
+    this.cohesionScalar = 0.08;
+    this.separationRadius = 2.4;
+    this.separationScalar = 0.34;
+    this.randomScalar = 0.1;
+    this.randomWavelenScalar = 0.6;
+    this.obstacleScalar = 0.9;
+    this.boundsScalar = 0.01;
 
     this.predatorCount = predatorStartCount;
     this.ruleScalar_p = 0.3;
@@ -48,15 +33,15 @@ function datGui() {
     this.attackRadius = 34;
     this.attackScalar = 1;
 
-    this.enabled = false;
+    this.enabled = true;
     this.showMesh = true;
     this.showPlane = true;
     this.directTowards = true;
 
-    this.showVectors = true;
-    this.vectorLenMultiplier = 3.1; // sep: x, ali: 2, coh: 4,
+    this.showVectors = false;
+    this.vectorLenMultiplier = 60;
     this.showBounds = true;
-    this.showAxes = true;
+    this.showAxes = false;
     this.drawTail = false;
     this.drawRandomFunction = false;
     this.removeTail = () => removeTail();
@@ -64,8 +49,7 @@ function datGui() {
   };
 
   vars = new vars();
-  gui = new dat.GUI();
-  gui.width = 333;
+  gui = new dat.GUI({ width: 290 });
   prevBoundSize = vars.boundSize;
 
   folMain = gui.addFolder("Main");
@@ -104,9 +88,8 @@ function datGui() {
   folWeights.add(vars, "cohesionScalar", 0, 1).step(0.01);
   folWeights.add(vars, "boundsScalar", 0, 1).step(0.01);
   folWeights.add(vars, "randomScalar", 0, 1).step(0.01);
-  folWeights.add(vars, "randomWavelenScalar", 0, 10).step(0.1);
+  folWeights.add(vars, "randomWavelenScalar", 0, 3).step(0.1);
   folWeights.add(vars, "escapeScalar", 0, 1).step(0.01);
-  folWeights.add(vars, "feedScalar", 0, 1).step(0.01);
   folWeights.add(vars, "obstacleScalar", 0, 1).step(0.01);
 
   folDists = folBoids.addFolder("Rule Radiuses");
@@ -115,7 +98,6 @@ function datGui() {
   folDists.add(vars, "alignmentRadius", 0, 100).step(1);
   folDists.add(vars, "cohesionRadius", 0, 100).step(1);
   folDists.add(vars, "avoidRadius", 0, 100).step(1);
-  folDists.add(vars, "feedRadius", 0, 100).step(1);
 
   folFood = folBoids.addFolder("Food");
   // folFood.open();

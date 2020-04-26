@@ -13,23 +13,6 @@ function addBoids() {
   subject = boids[0];
 
   changeBoidCount(boids, vars.boidCount);
-
-  // subject.mesh.material.wireframe = false;
-  drawCircle(subject, vars.separationRadius, info[0].color);
-  boidpos = [
-    [9.9, 10, 9.9],
-    [11.3, 10, 11.3],
-    [10.7, 10, 9.3],
-  ];
-  boid1pos = new THREE.Vector3(9.9, 10, 9.9);
-  boid2pos = new THREE.Vector3(10.7, 10, 11.5);
-  boid3pos = new THREE.Vector3(10.9, 10, 9.5);
-  boids[0].velocity = boid1pos.clone().sub(new THREE.Vector3(10, 10, 10));
-  boids[1].velocity = boid2pos.clone().sub(new THREE.Vector3(10, 10, 10));
-  boids[2].velocity = boid3pos.clone().sub(new THREE.Vector3(10, 10, 10));
-  boids[0].position.copy(boid1pos);
-  boids[1].position.copy(boid2pos);
-  boids[2].position.copy(boid3pos);
 }
 
 function addPredators() {
@@ -70,9 +53,9 @@ function addBoid(position, index) {
 
   // start data for noise
   boid.noise = {
-    x: { a: null, b: rand(), cumWavLen: 0 },
-    y: { a: null, b: rand(), cumWavLen: 0 },
-    z: { a: null, b: rand(), cumWavLen: 0 },
+    x: { a: 0, b: rand(), cumWavLen: 0 },
+    y: { a: 0, b: rand(), cumWavLen: 0 },
+    z: { a: 0, b: rand(), cumWavLen: 0 },
   };
 
   // helper arrows
@@ -112,11 +95,11 @@ function moveBoid(delta, boid, ruleScalar, maxSpeed) {
 
   accelerationRules(boid);
   acceleration.multiplyScalar(playDelta * ruleScalar * 0.005);
-  // acceleration.y *= 0.8; // TODO: think about this more
-  acceleration.y = 0; // TODO: think about this more
+  acceleration.y *= 0.8; // TODO: think about this more
 
+  // velocity.multiplyScalar(0.8);
   velocity.add(acceleration);
-  velocityRules(boid, playDelta);
+  if (boid.predator) velocityRules(boid, playDelta);
 
   velocity.clampLength(0, maxSpeed);
   const velClone = velocity.clone();
@@ -130,23 +113,17 @@ function moveBoid(delta, boid, ruleScalar, maxSpeed) {
 }
 
 function velocityRules(boid, playDelta) {
-  if (boid.predator) {
-    const atk = velattack(boid);
-    atk.multiplyScalar(playDelta);
-    rules = [{ vec: atk, scalar: vars.attackScalar }];
-  } else {
-    const fed = velfeed(boid);
-    fed.multiplyScalar(playDelta);
-    rules = [{ name: "fed", vec: fed, scalar: vars.feedScalar }];
-    if (boid.subject) setInfo(rules);
-  }
-
+  const atk = velattack(boid);
+  atk.multiplyScalar(playDelta);
+  rules = [{ vec: atk, scalar: vars.attackScalar }];
   applyRules(rules, boid.velocity);
 }
 
+accArray1 = [];
 sepArray1 = [];
 aliArray1 = [];
 cohArray1 = [];
+accArray2 = [];
 sepArray2 = [];
 aliArray2 = [];
 cohArray2 = [];
@@ -163,6 +140,57 @@ function accelerationRules(boid) {
   const ran = random(boid);
   const fld = obstacles(boid);
   const exp = experiments(boid);
+
+  // if (boid.subject) {
+  //   const counterAmount = 10;
+  //   const valueAmount = 4000;
+  //   // TODO: MAKE COHESION RADIUS SMALL SO MORE FLICKERING
+  //   if (boid.subject) {
+  //     if (accArray1.length < valueAmount) {
+  //       if (counter < counterAmount) {
+  //         counter += 1;
+  //         if (counter == counterAmount) console.log("counter over");
+  //       } else {
+  //         if (accArray1.length % 100 === 0) console.log(accArray1.length);
+
+  //         values1 = reynolds(boid, boids, -1);
+  //         // sepArray1.push(values1[0].x);
+  //         // aliArray1.push(values1[1].x);
+  //         // cohArray1.push(values1[2].x);
+  //         const acc1 = new THREE.Vector3();
+  //         acc1.add(values1[0].multiplyScalar(vars.separationScalar));
+  //         acc1.add(values1[1].multiplyScalar(vars.alignmentScalar));
+  //         acc1.add(values1[2].multiplyScalar(vars.cohesionScalar));
+  //         accArray1.push(acc1.x);
+
+  //         values2 = reynolds(boid, boids, 1);
+  //         // sepArray2.push(values2[0].x);
+  //         // aliArray2.push(values2[1].x);
+  //         // cohArray2.push(values2[2].x);
+  //         const acc2 = new THREE.Vector3();
+  //         acc2.add(values2[0].multiplyScalar(vars.separationScalar));
+  //         acc2.add(values2[1].multiplyScalar(vars.alignmentScalar));
+  //         acc2.add(values2[2].multiplyScalar(vars.cohesionScalar));
+  //         accArray2.push(acc2.x);
+
+  //         // console.log(sepArray1.length);
+  //         // counter = 0;
+  //       }
+  //     } else if (accArray1.length === valueAmount) {
+  //       let data1 = "acceleration,separation,alignment,cohesion\n";
+  //       let data2 = "acceleration,separation,alignment,cohesion\n";
+  //       for (let i = 0; i < valueAmount; i++) {
+  //         data1 += accArray1[i] + "\n";
+  //         // sepArray1[i] + "," + aliArray1[i] + "," + cohArray1[i] + "\n";
+  //         data2 += accArray2[i] + "\n";
+  //         // sepArray2[i] + "," + aliArray2[i] + "," + cohArray2[i] + "\n";
+  //       }
+  //       console.log(data1);
+  //       console.log(data2);
+  //       accArray1.push(0);
+  //     }
+  //   }
+  // }
 
   let rules;
   if (boid.predator) {
@@ -185,7 +213,7 @@ function accelerationRules(boid) {
       { name: "ran", vec: ran, scalar: vars.randomScalar },
       { name: "esc", vec: esc, scalar: vars.escapeScalar },
       { name: "obs", vec: fld, scalar: vars.obstacleScalar },
-      { name: "exp", vec: exp, scalar: 1 },
+      { name: "dir", vec: exp, scalar: 1 },
       // { name: "fed", vec: fed, scalar: vars.feedScalar },
     ];
   }

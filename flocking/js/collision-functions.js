@@ -6,16 +6,17 @@ var obstacle;
 const fieldDimension = 13; // 13 for figures
 const fieldSize = 40; // 40 for figures
 const voxelSize = fieldSize / (fieldDimension - 1);
-const textureSize = 140; // 1080 for figures
+const textureSize = 180; // 1080 for figures
 const avoidRadius = 12; // 9 for figures
 
+// TODO: work without server
 function addObstacle(animateFunction) {
   const loader = new THREE.GLTFLoader();
   loader.load("rocks2.glb", (gltf) => {
     const rocks = new THREE.Mesh(
       new THREE.Geometry().fromBufferGeometry(gltf.scene.children[0].geometry),
       new THREE.MeshNormalMaterial({
-        wireframe: true,
+        wireframe: false,
         color: 0x333333,
         opacity: 1,
         transparent: true,
@@ -28,8 +29,9 @@ function addObstacle(animateFunction) {
 
     const torus = new THREE.Mesh(
       // new THREE.TorusGeometry(3, 0.3, 8, 12),
-      new THREE.TorusKnotGeometry(10, 0.4, 40, 4),
-      new THREE.MeshNormalMaterial({ wireframe: true })
+      // new THREE.TorusKnotGeometry(10, 0.4, 40, 4),
+      new THREE.TorusKnotGeometry(10, 0.4, 120, 6),
+      new THREE.MeshNormalMaterial({ wireframe: false })
     );
     torus.position.set(20, 20, 20);
 
@@ -266,7 +268,7 @@ function updatePlaneTexture() {
       value = triLerp(lerpFunc, ...deltas, ...fieldVectors);
       value = valueCalc(value);
 
-      // pixelData.push(255, 255 - value * 255, 255 - value * 255, 255);
+      // pixelData.push(255, 255 - value * 255, 255 - value * 255, 200);
       pixelData.push(255, 255 - value * 255, 255 - value * 255, value * 255);
     }
   }

@@ -5,22 +5,18 @@ boids.forEach((boid) => {
   separation = getSeparation(boid);
   alignment = getAlignment(boid);
   cohesion = getCohesion(boid);
-  // bounds = getBounds(boid);
   // additional rules
 
   acceleration = new THREE.Vector3();
   acceleration.add(separation.multiplyScalar(separationScalar));
   acceleration.add(alignment.multiplyScalar(alignmentScalar));
   acceleration.add(cohesion.multiplyScalar(cohesionScalar));
-  // acceleration.add(bounds.multiplyScalar(boundsScalar));
   // additional rules added to acceleration
-  acceleration.multiplyScalar(deltaTime);
 
-  boid.velocity.add(acceleration);
+  boid.velocity.add(acceleration.multiplyScalar(deltaTime));
   boid.velocity.capLength(0, maxSpeed);
   velocity = boid.velocity.clone();
-  velocity.multiplyScalar(deltaTime);
-  boid.position.add(velocity);
+  boid.position.add(velocity.multiplyScalar(deltaTime));
 });
 
 // // SEPARATION - old typical

@@ -1,4 +1,4 @@
-function reynolds(boid, flockmates, mine = 1) {
+function reynolds(boid, flockmates, mine = -1) {
   const sep = new THREE.Vector3();
   const ali = new THREE.Vector3();
   const coh = new THREE.Vector3();
@@ -222,85 +222,6 @@ function attack(boid, preys, preyCount) {
   return steer;
 }
 
-function velfeed(boid) {
-  const steer = new THREE.Vector3();
-
-  let closestFood;
-  let closestDist = Infinity;
-
-  for (let i = 0; i < foodTotalCount; i++) {
-    const food = foods[i];
-    if (!food.visible) continue;
-
-    const dist = boid.position.distanceTo(food.position);
-
-    if (dist < 0.3) eatFood(i);
-
-    if (boid.foodIndex == null && dist < closestDist) {
-      closestDist = dist;
-      closestFood = food;
-    } else if (dist < closestDist) {
-      closestDist = dist;
-      closestFood = food;
-    }
-  }
-
-  if (closestDist < vars.feedRadius) {
-    steer.add(closestFood.position);
-    steer.sub(boid.position);
-    steer.sub(boid.velocity);
-    let len = 1 - closestDist / vars.feedRadius;
-    len = Math.pow(len, 8);
-    steer.setLength(len);
-    boid.foodIndex = closestFood.index;
-  } else {
-    boid.foodIndex = null;
-  }
-
-  steer.multiplyScalar(0.01);
-  // steer.clampLength(0, 0.01);
-  // steer.setLength(1);
-
-  return steer;
-}
-
-function feed(boid) {
-  if (boid.subject) console.log("b");
-  const steer = new THREE.Vector3();
-
-  let closestFood;
-  let closestDist = Infinity;
-
-  for (let i = 0; i < foodTotalCount; i++) {
-    const food = foods[i];
-    if (!food.visible) continue;
-    const dist = boid.position.distanceTo(food.position);
-
-    if (dist < 0.3) eatFood(i);
-
-    if (boid.foodIndex == null && dist < closestDist) {
-      closestDist = dist;
-      closestFood = food;
-    } else if (dist < closestDist) {
-      closestDist = dist;
-      closestFood = food;
-    }
-  }
-
-  if (closestDist < vars.feedRadius) {
-    steer.add(closestFood.position);
-    steer.sub(boid.position);
-    boid.foodIndex = closestFood.index;
-  } else {
-    boid.foodIndex = null;
-  }
-
-  steer.clampLength(0, 1);
-  // steer.setLength(1);
-
-  return steer;
-}
-
 function bounds(boid) {
   const minBound = 0;
   const maxBound = vars.boundSize;
@@ -309,11 +230,12 @@ function bounds(boid) {
 
   if (x < minBound) steer.x = minBound - x;
   else if (x > maxBound) steer.x = maxBound - x;
-  if (y < minBound) steer.y = (minBound - y) * 10;
+  if (y < minBound) steer.y = minBound - y;
   else if (y > maxBound) steer.y = maxBound - y;
   if (z < minBound) steer.z = minBound - z;
   else if (z > maxBound) steer.z = maxBound - z;
 
+  steer.y *= 2;
   return steer;
 }
 
@@ -323,11 +245,12 @@ function random(boid) {
   //   simplex.noise2D(time, (boid.index + 1) * 10),
   //   simplex.noise2D(time, (boid.index + 1) * 100),
   //   simplex.noise2D(time, (boid.index + 1) * 1000)
+  // console.log(time);
   // );
   const steer = new THREE.Vector3(
-    noise(time, boid, "x"),
-    noise(time, boid, "y") * 0.2,
-    noise(time, boid, "z")
+    noise(time + 0.0, boid, "x"),
+    noise(time + 0.1, boid, "y") * 0.1,
+    noise(time + 0.2, boid, "z")
   );
   // const steer = new THREE.Vector3(
   //   Math.random() * 2 - 1,
@@ -338,17 +261,18 @@ function random(boid) {
   return steer;
 }
 
-function noise(x, boid, axis) {
+function noise(time, boid, axis) {
   const wavelen = 0.3;
   var noiseData = boid.noise[axis];
 
-  if (x >= noiseData.cumWavLen) {
+  if (time >= noiseData.cumWavLen) {
     noiseData.cumWavLen += wavelen;
     noiseData.a = noiseData.b;
     noiseData.b = rand();
   }
 
-  const y = interpolate(noiseData.a, noiseData.b, (x % wavelen) / wavelen);
+  const y = interpolate(noiseData.a, noiseData.b, (time % wavelen) / wavelen);
+
   return y * 2 - 1;
 }
 
@@ -366,6 +290,7 @@ function rand() {
 function interpolate(pa, pb, px) {
   var ft = px * Math.PI,
     f = (1 - Math.cos(ft)) * 0.5;
+  // console.log(pa);
   return pa * (1 - f) + pb * f;
 }
 

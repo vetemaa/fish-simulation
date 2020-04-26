@@ -30,17 +30,12 @@ var info = [
     showArr: true,
   },
   {
-    name: "fed",
-    color: "#dce775",
-    showArr: true,
-  },
-  {
     name: "obs",
     color: "#64c3ec",
     showArr: true,
   },
   {
-    name: "exp",
+    name: "dir",
     color: "#bbd668",
     showArr: true,
   },
@@ -65,25 +60,25 @@ function addArrows(boid) {
     helpArrows.add(arrow);
   }
 
-  helpArrows.position.set(0, 1, 0);
+  // helpArrows.position.set(0, 1, 0);
   boid.add(helpArrows);
 }
 
 function setArrows() {
-  // boids[0].helpArrows.children.forEach((arrow) => {
-  //   const infoItem = findInfoByName(arrow.name);
-  //   const enabled = infoItem.showArr && infoItem.vec !== undefined;
-  //   if (enabled) setArrow(arrow, infoItem.vec);
-  // });
+  boids[0].helpArrows.children.forEach((arrow) => {
+    const infoItem = findInfoByName(arrow.name);
+    const enabled = infoItem.showArr && infoItem.vec !== undefined;
+    if (enabled) setArrow(arrow, infoItem.vec);
+  });
 
-  for (let i = 0; i < vars.boidCount; i++) {
-    const boid = boids[i];
-    boid.helpArrows.children.forEach((arrow) => {
-      const infoItem = findInfoByName(arrow.name);
-      const enabled = infoItem.showArr && infoItem.vec !== undefined;
-      if (enabled && arrow.name == "sep") setArrow(arrow, boid.sep);
-    });
-  }
+  // for (let i = 0; i < vars.boidCount; i++) {
+  //   const boid = boids[i];
+  //   boid.helpArrows.children.forEach((arrow) => {
+  //     const infoItem = findInfoByName(arrow.name);
+  //     const enabled = infoItem.showArr && infoItem.vec !== undefined;
+  //     if (enabled && arrow.name == "sep") setArrow(arrow, boid.sep);
+  //   });
+  // }
 }
 
 function setArrow(arrow, vec) {
@@ -228,7 +223,7 @@ function addBounds() {
     new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1)),
     "#000"
   );
-  helper.material.opacity = 0.25;
+  // helper.material.opacity = 0.25;
   helper.material.transparent = true;
   boundBox.add(helper);
 
