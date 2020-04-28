@@ -1,4 +1,4 @@
-function reynolds(boid, flockmates, mine = -1) {
+function reynolds(boid, flockmates, mine = 1) {
   const sep = new THREE.Vector3();
   const ali = new THREE.Vector3();
   const coh = new THREE.Vector3();
@@ -30,7 +30,7 @@ function reynolds(boid, flockmates, mine = -1) {
           ali.add(vel);
         }
 
-        // cohesion - mine TODO: vb pole smooth, hoopis teisiti peaks vist
+        // cohesion - mine
         if (dist < vars.cohesionRadius) {
           const diff = flockmate.position.clone().sub(boid.position);
           diff.setLength(1 - dist / vars.cohesionRadius);
@@ -90,10 +90,6 @@ function reynolds(boid, flockmates, mine = -1) {
     }
   }
 
-  // TODO: remove
-  boid.sep = sep.clone();
-  boid.ali = ali.clone();
-  boid.coh = coh.clone();
   return [sep, ali, coh];
 }
 
@@ -116,64 +112,47 @@ function escape(boid, predators, predatorCount) {
   return steer;
 }
 
-function velattack(boid) {
-  const steer = new THREE.Vector3();
+function velattack(predator) {
+  const restTime = 0.2;
+  const attackTime = 1.4;
 
-  let closestPrey;
-  let closestDist = Infinity;
+  if (predator.rest) {
+    if (predator.ownTime - predator.restStartTime > restTime) {
+      predator.rest = false;
+      predator.attackStartTime = predator.ownTime;
 
-  if (boid.rest) {
-    if (boid.lastTime + 0.4 < boid.ownTime) {
-      boid.lastTime = boid.ownTime;
-      boid.rest = false;
+      // choosing the prey
+      let closest = 0;
+      let closestDist = Infinity;
+      for (let i = 0; i < vars.boidCount; i++) {
+        const prey = boids[i];
+        const dist = predator.position.distanceTo(prey.position);
+        if (dist < closestDist) {
+          closest = prey.index;
+          closestDist = dist;
+        }
+      }
+      predator.preyIndex = closest;
     }
-  } else {
-    if (boid.lastTime + 0.4 < boid.ownTime) {
-      boid.lastTime = boid.ownTime;
-      boid.rest = true;
-    }
+    return new THREE.Vector3();
   }
 
-  for (let i = 0; i < vars.boidCount; i++) {
-    const prey = boids[i];
-    const dist = boid.position.distanceTo(prey.position);
+  const closest = boids[predator.preyIndex];
+  const diff = closest.position.clone().sub(predator.position);
 
-    if (dist < 1) {
-      boid.lastTime = boid.ownTime;
-      boid.rest = true;
-    }
-
-    if (boid.preyIndex == null && dist < closestDist) {
-      // esimesel kaardril otsib lähima // vb pigem statest sõltuv
-      closestDist = dist;
-      closestPrey = prey;
-    } else if (dist + 5 < closestDist) {
-      // hiljem lähima kui see 10 uniti jagu lähemal
-      closestDist = dist;
-      closestPrey = prey;
-    }
+  const speedUpTime = predator.ownTime - predator.attackStartTime;
+  if (speedUpTime > attackTime || diff.length() < 1) {
+    predator.rest = true;
+    predator.restStartTime = predator.ownTime;
+    predator.preyIndex = undefined;
   }
 
-  if (closestDist < vars.attackRadius) {
-    steer.add(closestPrey.position);
-    steer.sub(boid.position);
-    steer.sub(boid.velocity);
-    let len = 1 - closestDist / vars.feedRadius;
-    // let len = closestDist;
-    len = Math.pow(len, 2);
-    steer.setLength(len);
-    boid.preyIndex = closestPrey.index;
-  } else {
-    boid.preyIndex = null;
-  }
-
-  steer.multiplyScalar(0.01);
-  if (boid.rest) steer.multiplyScalar(0.001);
-
-  return steer;
+  diff.sub(predator.velocity);
+  diff.multiplyScalar(Math.pow(speedUpTime, 8)); // smoother attack
+  return diff;
 }
 
-function attack(boid, preys, preyCount) {
+function oldattack(boid, preys, preyCount) {
   const steer = new THREE.Vector3();
 
   let closestPrey;
@@ -218,7 +197,7 @@ function attack(boid, preys, preyCount) {
     boid.preyIndex = null;
   }
 
-  if (boid.rest) steer.multiplyScalar(0.3);
+  if (boid.rest) steer.multiplyScalar(0.003);
   return steer;
 }
 
@@ -316,7 +295,7 @@ function obstacles(boid) {
 function experiments(boid) {
   const steer = new THREE.Vector3(0, 0, 0);
 
-  const center = new THREE.Vector3(20, 20, 20).sub(boid.position);
+  const center = new THREE.Vector3(19, 15, 20).sub(boid.position);
   center.setLength(0.01);
   if (vars.directTowards && vars.enabled) steer.add(center);
 

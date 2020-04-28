@@ -10,24 +10,17 @@ function findClosestPosition(point, object) {
   geometry.faces.forEach((face) => {
     var normal = face.normal;
 
-    var vertexApos = geometry.vertices[face.a].clone();
-    var vertexBpos = geometry.vertices[face.b].clone();
-    var vertexCpos = geometry.vertices[face.c].clone();
-    vertexApos.applyMatrix4(object.matrixWorld);
-    vertexBpos.applyMatrix4(object.matrixWorld);
-    vertexCpos.applyMatrix4(object.matrixWorld);
-
     // project point to face normal
     const pointProjectedOnNormal = projectVecOnVec(point, normal);
-    // vector from previous vec to point
+    // project point to face
     const pointProjectedOnFace = point.clone().sub(pointProjectedOnNormal);
 
     // closest point of projectedPoint and the triangle
     const closestPointOnFace = closestPointToTriangle(
       pointProjectedOnFace,
-      vertexApos,
-      vertexBpos,
-      vertexCpos
+      geometry.vertices[face.a].clone().applyMatrix4(object.matrixWorld),
+      geometry.vertices[face.b].clone().applyMatrix4(object.matrixWorld),
+      geometry.vertices[face.c].clone().applyMatrix4(object.matrixWorld)
     );
     const pointOnFaceDist = round(closestPointOnFace.distanceTo(point));
     // const pointOnFaceDist = closestPointOnFace.distanceTo(point);
@@ -45,55 +38,13 @@ function findClosestPosition(point, object) {
       let dot = face.normal.dot(
         point.clone().sub(closestPointOnFace).normalize()
       );
-      if (dot > largestDot) largestDot = dot;
-      if (dot < smallestDot) smallestDot = dot;
+      // if (dot > largestDot) largestDot = dot;
+      // if (dot < smallestDot) smallestDot = dot;
     }
   });
 
   let dot = closestFace.normal.dot(point.clone().sub(closestPoint).normalize());
-  // to avoid imprecision issues with digital numbers round to 3 decimal points
-  // dot = Math.round(dot * 1000) / 1000;
-
-  // TODO: face with smallest dot should be the correct face??!!
-
-  insideMesh = round(dot) == -1; // TODO: do this comparison for each face in closestFaces
-  // insideMesh = round(dot) <= 0;
-
-  // insideMesh = dot < 0;
-  // if (insideMesh && closestFaces.length > 1) {
-  //   insideMesh = false;
-  // }
-
-  if (dot < 0) {
-    // console.log("");
-    // console.log(dot);
-    // console.log(round(dot));
-  }
-
-  // if (insideMesh) {
-  //   // console.log("a", largestDot);
-  //   console.log("a", smallestDot);
-  //   // console.log(closestFaces);
-  //   // console.log(closestFaces.length);
-  // }
-
-  // if (
-  //   // insideMesh &&
-  //   point.x == 13.333333333333334 &&
-  //   point.y < 13 &&
-  //   point.y > 0 &&
-  //   point.z == 20
-  // ) {
-  //   console.log("");
-  //   console.log(dot, closestFaces, smallestDot);
-  //   console.log(
-  //     closestFaces[0].normal.dot(point.clone().sub(closestPoint).normalize())
-  //   );
-  //   console.log(
-  //     closestFaces[1].normal.dot(point.clone().sub(closestPoint).normalize())
-  //   );
-  //   console.log("");
-  // }
+  insideMesh = round(dot) == -1;
 
   return [closestPoint, insideMesh];
 }
@@ -110,22 +61,19 @@ function round(x) {
 
 // from book Real-Time Collision Detection
 function closestPointToTriangle(p, a, b, c) {
-  a = a.clone();
-  b = b.clone();
-  c = c.clone();
-  ab = b.clone().sub(a);
-  ac = c.clone().sub(a);
-  ap = p.clone().sub(a);
-  ba = a.clone().sub(b);
-  bc = c.clone().sub(b);
-  bp = p.clone().sub(b);
-  ca = a.clone().sub(c);
-  cb = b.clone().sub(c);
-  cp = p.clone().sub(c);
-  pa = a.clone().sub(p);
-  pb = b.clone().sub(p);
-  pc = c.clone().sub(p);
-  normal = new THREE.Vector3().crossVectors(ab, ac);
+  const ab = b.clone().sub(a);
+  const ac = c.clone().sub(a);
+  const ap = p.clone().sub(a);
+  const ba = a.clone().sub(b);
+  const bc = c.clone().sub(b);
+  const bp = p.clone().sub(b);
+  const ca = a.clone().sub(c);
+  const cb = b.clone().sub(c);
+  const cp = p.clone().sub(c);
+  const pa = a.clone().sub(p);
+  const pb = b.clone().sub(p);
+  const pc = c.clone().sub(p);
+  const normal = new THREE.Vector3().crossVectors(ab, ac);
 
   // Compute parametric position s for projection P’ of P on AB,
   // P’ = A + s * AB, s = snom / (snom + sdenom)
@@ -136,8 +84,6 @@ function closestPointToTriangle(p, a, b, c) {
   // P’ = A + t * AC, t = tnom / (tnom + tdenom)
   tnom = ap.dot(ac);
   tdenom = cp.dot(ca);
-
-  // console.log(tnom, tdenom);
 
   // Compute parametric position u for projection P’ of P on BC,
   // P’ = B + u * BC, u = unom / (unom + udenom)

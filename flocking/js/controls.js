@@ -1,9 +1,11 @@
 var obs = {};
 
 // TODO: add Advanced folder to main folders
+// TODO: fix or remove chaseCamera
+
 function datGui() {
   var vars = function () {
-    this.play = false;
+    this.play = true;
     this.playSpeed = 5;
     this.chaseCamera = false;
     this.boundSize = 40;
@@ -107,7 +109,6 @@ function datGui() {
     .step(1)
     .onChange((value) => changeFoodCount(value));
 
-  // PREDATORS -------------------------- TODO: vars. asemel mingi muu
   folPredators
     .add(vars, "predatorCount", 0, predatorTotalCount)
     .step(1)

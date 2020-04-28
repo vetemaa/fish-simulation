@@ -149,8 +149,6 @@ function addNoiseCurve() {
 }
 
 function animateNoise() {
-  if (!vars.drawRandomFunction) return;
-
   const boid = boids[0];
   const lines = boid.noise.lines.children;
 
@@ -158,9 +156,10 @@ function animateNoise() {
   // x = simplex.noise2D(time, (boid.index + 1) * 10);
   // y = simplex.noise2D(time, (boid.index + 1) * 100);
   // z = simplex.noise2D(time, (boid.index + 1) * 1000) * 10;
-  x = noise(time, boid, "x") * 10;
-  y = noise(time, boid, "y") * 10;
-  z = noise(time, boid, "z") * 10;
+
+  x = noise(time + 0.0, boid, "x") * 10;
+  y = noise(time + 0.1, boid, "y") * 10;
+  z = noise(time + 0.2, boid, "z") * 10;
   xAxis = time * 100;
 
   addLineSegment(lines[0], new THREE.Vector3(xAxis, x, 0));
@@ -248,17 +247,18 @@ function drawCircle(boid, dist, color) {
 
 function setBoidColor(boid) {
   preys = [];
-  for (let i = 0; i < vars.predatorCount; i++) {
-    const predator = predators[i];
-    if (predator.preyIndex) preys.push(predator.preyIndex);
-  }
+  if (predators.length != 0)
+    for (let i = 0; i < vars.predatorCount; i++) {
+      const predator = predators[i];
+      if (predator.preyIndex) preys.push(predator.preyIndex);
+    }
 
   let color = 0x0000ff;
   if (boid.predator) {
-    if (boid.rest) color = 0xff9955;
-    else color = 0xff5555;
+    if (boid.rest) color = 0xff8866;
+    else color = 0xff2222;
   } else {
-    if (preys.includes(boid.index)) color = 0x66ff66;
+    if (preys.includes(boid.index)) color = 0xffaa44;
     else if (boid.subject) color = 0xff00ff;
     else color = 0x000000;
   }

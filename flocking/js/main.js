@@ -11,10 +11,10 @@ let fishCameraFOV = 90;
 const boids = [];
 const predators = [];
 const foods = [];
-const boidTotalCount = 1200;
-const boidStartCount = 700;
-const predatorTotalCount = 5;
-const predatorStartCount = 0;
+const boidTotalCount = 700;
+const boidStartCount = 500;
+const predatorTotalCount = 15;
+const predatorStartCount = 1;
 const foodTotalCount = 100;
 const foodStartCount = 0;
 
@@ -46,7 +46,8 @@ function init() {
   const b = vars.boundSize;
   camera.position.set(b * 2, b * 0.6, b * 3); // figures
   // camera.position.set(b * 3, b * 3, b * 300);
-  // camera.position.set( // figures in 2D
+  // camera.position.set(
+  //   // figures in 2D
   //   20.932490428341506,
   //   18.265853946124924,
   //   419.9976011344496
@@ -92,7 +93,7 @@ function animate() {
     cameraChase();
     moveBoids(delta);
     moveFood(delta);
-    animateNoise();
+    if (vars.drawRandomFunction) animateNoise();
     updateInfo();
     // updatePlaneTexture(delta);
   }
