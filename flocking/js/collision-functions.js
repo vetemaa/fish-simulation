@@ -17,7 +17,7 @@ function addObstacle(animateFunction) {
       new THREE.Geometry().fromBufferGeometry(gltf.scene.children[0].geometry),
       new THREE.MeshNormalMaterial({
         wireframe: false,
-        color: 0x333333,
+        // color: 0x333333,
       })
     );
     rocks.scale.set(3, 3, 3);
@@ -239,59 +239,56 @@ function addPlane() {
       side: THREE.DoubleSide,
       transparent: true,
       depthWrite: false,
+      map: new THREE.DataTexture(
+        new Uint8Array(129600),
+        textureSize,
+        textureSize
+      ),
     })
   );
-  plane.position.set(planeSize / 2, planeSize / 2, 0);
+  plane.position.set(planeSize / 2, planeSize / 2, planeSize / 2);
   plane.size = planeSize;
+  plane.ownTime = 0;
   obstacle.plane = plane;
   scene.add(plane);
 
+  plane.changePos = true;
   updatePlaneTexture();
 }
 
 function updatePlaneTexture() {
   if (!plane.visible) return;
-
-  // plane.position.z =
-  //   plane.size / 2.8 + (Math.sin(Date.now() / 500) * plane.size) / 6;
-  plane.position.z = plane.size / 2;
+  plane.position.z = vars.planePosition;
 
   const pixelData = [];
-
   for (let y = 0; y < textureSize; ++y) {
     for (let x = 0; x < textureSize; ++x) {
       worldPos = texturePosToWorldPos([x, y]);
       worldPos[2] = plane.position.z;
       let deltas = [];
 
-      // // distance field
+      // // show distance field
       // const field = distanceField;
       // const lerpFunc = lerp;
       // const valueCalc = (value) => value;
 
-      // vector field
+      // // show vector field
       // const field = vectorField;
       const field = gradientField;
       const lerpFunc = lerpVecs;
       const valueCalc = (value) => value.length();
 
       fieldVectors = worldPosToFieldValues(worldPos, field, deltas);
-      value = triLerp(lerpFunc, ...deltas, ...fieldVectors);
-      value = valueCalc(value);
+      value = valueCalc(triLerp(lerpFunc, ...deltas, ...fieldVectors));
 
-      // pixelData.push(255, 255 - value * 255, 255 - value * 255, 200);
-      pixelData.push(255, 255 - value * 255, 255 - value * 255, value * 255);
+      // pixelData.push(255, 255 - value * 255, 255 - value * 255, value * 255);
+      pixelData.push(255, 0, 0, value * 255);
     }
   }
 
-  plane.material.map = new THREE.DataTexture(
-    Uint8Array.from(pixelData),
-    textureSize,
-    textureSize,
-    THREE.RGBAFormat,
-    THREE.UnsignedByteType,
-    THREE.UVMapping
-  );
+  plane.material.map.image.data.set(Uint8Array.from(pixelData));
+  plane.material.map.needsUpdate = true;
+  plane.changePos = false;
 }
 
 // helper func for visuals

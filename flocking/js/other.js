@@ -25,18 +25,13 @@ var info = [
     showArr: true,
   },
   {
-    name: "esc",
+    name: "fle",
     color: "#8e64bd",
     showArr: true,
   },
   {
     name: "obs",
     color: "#64c3ec",
-    showArr: true,
-  },
-  {
-    name: "dir",
-    color: "#bbd668",
     showArr: true,
   },
   {
@@ -60,7 +55,6 @@ function addArrows(boid) {
     helpArrows.add(arrow);
   }
 
-  // helpArrows.position.set(0, 1, 0);
   boid.add(helpArrows);
 }
 
@@ -70,15 +64,6 @@ function setArrows() {
     const enabled = infoItem.showArr && infoItem.vec !== undefined;
     if (enabled) setArrow(arrow, infoItem.vec);
   });
-
-  // for (let i = 0; i < vars.boidCount; i++) {
-  //   const boid = boids[i];
-  //   boid.helpArrows.children.forEach((arrow) => {
-  //     const infoItem = findInfoByName(arrow.name);
-  //     const enabled = infoItem.showArr && infoItem.vec !== undefined;
-  //     if (enabled && arrow.name == "sep") setArrow(arrow, boid.sep);
-  //   });
-  // }
 }
 
 function setArrow(arrow, vec) {
@@ -91,7 +76,9 @@ function setArrow(arrow, vec) {
 }
 
 function setInfo(rules) {
-  rules.forEach((rule) => setInfoItem(rule));
+  rules.forEach((rule) => {
+    if (rule.name) setInfoItem(rule);
+  });
 }
 
 function setInfoItem(item) {
@@ -169,25 +156,28 @@ function animateNoise() {
   boid.noise.lines.position.x = -xAxis - 5;
 }
 
+function addBoidCamera() {
+  boids[0].mesh.add(fishCamera);
+  fishCamera.rotation.set(0, Math.PI, 0);
+  fishCamera.position.set(0, 0.8 * fishCameraDist, -2 * fishCameraDist);
+}
+
 function cameraChase() {
   const relativeCameraOffset = new THREE.Vector3(
     0,
     0.8 * fishCameraDist,
     -2 * fishCameraDist
   );
-
-  const cameraOffset = relativeCameraOffset.applyMatrix4(
-    boids[0].mesh.matrixWorld
-  );
-
-  fishCamera.position.copy(cameraOffset);
-
-  const velClone = boids[0].velocity.clone();
-  velClone.add(boids[0].position);
-  let yOffset = 0.6;
-  if (fishCameraDist < 1) yOffset *= fishCameraDist;
-  velClone.y += yOffset;
-  fishCamera.lookAt(velClone);
+  // const cameraOffset = relativeCameraOffset.applyMatrix4(
+  //   boids[0].mesh.matrixWorld
+  // );
+  // fishCamera.position.copy(cameraOffset);
+  // const velClone = boids[0].velocity.clone();
+  // velClone.add(boids[0].position);
+  // let yOffset = 0.6;
+  // if (fishCameraDist < 1) yOffset *= fishCameraDist;
+  // velClone.y += yOffset;
+  // fishCamera.lookAt(velClone);
 }
 
 function addLineSegment(line, vector) {
@@ -222,7 +212,7 @@ function addBounds() {
     new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1)),
     "#000"
   );
-  // helper.material.opacity = 0.25;
+  helper.material.opacity = 0.2;
   helper.material.transparent = true;
   boundBox.add(helper);
 
@@ -252,15 +242,14 @@ function setBoidColor(boid) {
       const predator = predators[i];
       if (predator.preyIndex) preys.push(predator.preyIndex);
     }
-
   let color = 0x0000ff;
   if (boid.predator) {
     if (boid.rest) color = 0xff8866;
     else color = 0xff2222;
   } else {
-    if (preys.includes(boid.index)) color = 0xffaa44;
+    if (preys.includes(boid.index)) color = 0xdd6100;
     else if (boid.subject) color = 0xff00ff;
-    else color = 0x000000;
+    else color = 0x00000;
   }
   boid.mesh.material.color.setHex(color);
 }

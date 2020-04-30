@@ -41,10 +41,10 @@ function init() {
   h /= 40;
   // camera = new THREE.OrthographicCamera(-w, w, h, -h, 1, 1000);
   scene.add(camera);
-  scene.add(fishCamera);
+  // scene.add(fishCamera);
 
   const b = vars.boundSize;
-  camera.position.set(b * 2, b * 0.6, b * 3); // figures
+  camera.position.set(b * 2.2, b * 0.7, b * 3.3); // figures
   // camera.position.set(b * 3, b * 3, b * 300);
   // camera.position.set(
   //   // figures in 2D
@@ -59,7 +59,7 @@ function init() {
   cameraControls.rotateSpeed = 0.3;
   cameraControls.maxDistance = 400;
   cameraControls.minDistance = 1;
-  cameraControls.enabled = !vars.chaseCamera;
+  cameraControls.enabled = !vars.boidCamera;
   // cameraControls.enabled = false;
 
   axesHelper = new THREE.AxesHelper(vars.boundSize * 0.8);
@@ -67,18 +67,14 @@ function init() {
   scene.add(axesHelper);
 
   addBoids();
+  addBoidCamera();
   addPredators();
-  addFood();
   addBounds();
   addNoiseCurve();
-
-  rand();
-  rand();
 
   // animate frame(s) for paused analysis (problem with loading rocks)
   // moveBoids(0.001);
   updateInfo();
-  // cameraChase(1);
 
   addObstacle(animate);
 
@@ -92,10 +88,10 @@ function animate() {
     if (delta > 1) delta = 0; // when tab not open for some time
     cameraChase();
     moveBoids(delta);
-    moveFood(delta);
-    if (vars.drawRandomFunction) animateNoise();
     updateInfo();
-    // updatePlaneTexture(delta);
+    if (vars.drawRandomFunction) animateNoise();
+    // if (vars.movePlane && vars.enabled) updatePlaneTexture(delta);
+    if (plane.changePos) updatePlaneTexture();
   }
 
   requestAnimationFrame(animate);
@@ -106,6 +102,6 @@ function animate() {
 function render() {
   cameraControls.update();
 
-  if (vars.chaseCamera) renderer.render(scene, fishCamera);
+  if (vars.boidCamera) renderer.render(scene, fishCamera);
   else renderer.render(scene, camera);
 }

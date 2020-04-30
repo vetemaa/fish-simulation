@@ -93,22 +93,20 @@ function reynolds(boid, flockmates, mine = 1) {
   return [sep, ali, coh];
 }
 
-function escape(boid, predators, predatorCount) {
+function flee(boid) {
   const steer = new THREE.Vector3();
 
-  for (let i = 0; i < predatorCount; i++) {
+  for (let i = 0; i < vars.predatorCount; i++) {
     const predator = predators[i];
-    const dist = boid.position.distanceTo(predator.position);
+    const diff = boid.position.clone().sub(predator.position);
 
-    if (dist < vars.avoidRadius) {
-      const diff = boid.position.clone().sub(predator.position);
-      diff.setLength(1 - dist / vars.avoidRadius);
+    if (diff.length() < vars.fleeRadius) {
+      diff.setLength(1 - dist / vars.fleeRadius);
       steer.add(diff);
     }
   }
 
   steer.clampLength(0, 1);
-
   return steer;
 }
 
@@ -147,58 +145,11 @@ function velattack(predator) {
     predator.preyIndex = undefined;
   }
 
-  diff.sub(predator.velocity);
+  diff.normalize();
+  diff.sub(predator.velocity); // steer velocity to right direction
   diff.multiplyScalar(Math.pow(speedUpTime, 8)); // smoother attack
+  diff.clampLength(0, 0.01);
   return diff;
-}
-
-function oldattack(boid, preys, preyCount) {
-  const steer = new THREE.Vector3();
-
-  let closestPrey;
-  let closestDist = Infinity;
-
-  if (boid.rest) {
-    if (boid.lastTime + 0.3 < boid.ownTime) {
-      boid.lastTime = boid.ownTime;
-      boid.rest = false;
-    } else {
-      // return steer;
-    }
-  } else {
-    if (boid.lastTime + 0.3 < boid.ownTime) {
-      boid.lastTime = boid.ownTime;
-      boid.rest = true;
-    }
-  }
-
-  for (let i = 0; i < preyCount; i++) {
-    const prey = preys[i];
-    const dist = boid.position.distanceTo(prey.position);
-
-    if (dist < 1) console.log(dist);
-
-    if (boid.preyIndex == null && dist < closestDist) {
-      // esimesel kaardril otsib lähima // vb pigem statest sõltuv
-      closestDist = dist;
-      closestPrey = prey;
-    } else if (dist + 5 < closestDist) {
-      // hiljem lähima kui see 10 uniti jagu lähemal
-      closestDist = dist;
-      closestPrey = prey;
-    }
-  }
-
-  if (closestDist < vars.attackRadius) {
-    steer.add(closestPrey.position);
-    steer.sub(boid.position);
-    boid.preyIndex = closestPrey.index;
-  } else {
-    boid.preyIndex = null;
-  }
-
-  if (boid.rest) steer.multiplyScalar(0.003);
-  return steer;
 }
 
 function bounds(boid) {
@@ -220,22 +171,12 @@ function bounds(boid) {
 
 function random(boid) {
   const time = boid.ownTime * vars.randomWavelenScalar;
-  // const steer = new THREE.Vector3(
-  //   simplex.noise2D(time, (boid.index + 1) * 10),
-  //   simplex.noise2D(time, (boid.index + 1) * 100),
-  //   simplex.noise2D(time, (boid.index + 1) * 1000)
-  // console.log(time);
-  // );
+
   const steer = new THREE.Vector3(
     noise(time + 0.0, boid, "x"),
     noise(time + 0.1, boid, "y") * 0.1,
     noise(time + 0.2, boid, "z")
   );
-  // const steer = new THREE.Vector3(
-  //   Math.random() * 2 - 1,
-  //   Math.random() * 2 - 1,
-  //   Math.random() * 2 - 1
-  // );
 
   return steer;
 }
@@ -259,7 +200,7 @@ function noise(time, boid, axis) {
 const M = 4294967296;
 const A = 1664525;
 const C = 1;
-var Z = Math.floor(0.1 * M); // var Z = Math.floor(Math.random() * M);
+var Z = Math.floor(0.1 * M);
 function rand() {
   Z = (A * Z + C) % M;
   return Z / M;
@@ -287,25 +228,21 @@ function obstacles(boid) {
   value = triLerp(lerpVecs, ...deltas, ...fieldVectors);
 
   steer.copy(value);
-  // }
+  if (vars.towardsMesh) {
+    const center = new THREE.Vector3(19, 15, 20).sub(boid.position);
+    center.setLength(0.01);
+    steer.add(center);
+  }
 
   return steer;
 }
 
-function experiments(boid) {
+function towards(boid) {
   const steer = new THREE.Vector3(0, 0, 0);
 
   const center = new THREE.Vector3(19, 15, 20).sub(boid.position);
-  center.setLength(0.01);
-  if (vars.directTowards && vars.enabled) steer.add(center);
+  center.setLength(0.05);
+  if (vars.enabled) steer.add(center);
 
-  // turn = new THREE.Vector3().crossVectors(
-  //   boid.velocity,
-  //   new THREE.Vector3(0, -1, 0)
-  // );
-  // turn.setLength(0.05);
-  // steer.add(turn);
-
-  steer.multiplyScalar(7);
   return steer;
 }

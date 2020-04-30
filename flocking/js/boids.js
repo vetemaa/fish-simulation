@@ -33,7 +33,6 @@ function addBoid(position, index) {
   boid.ownTime = 0;
   scene.add(boid);
 
-  // mesh
   const mesh = new THREE.Mesh(
     new THREE.ConeBufferGeometry(0.3, 1),
     new THREE.MeshBasicMaterial({ wireframe: true })
@@ -42,7 +41,6 @@ function addBoid(position, index) {
   boid.mesh = mesh;
   boid.add(mesh);
 
-  // vel, acc, pos
   boid.velocity = new THREE.Vector3(rand(), rand(), rand());
   boid.velocity.setLength(vars.maxSpeed);
   boid.acceleration = new THREE.Vector3();
@@ -84,16 +82,16 @@ function moveBoids(delta) {
 }
 
 function moveBoid(delta, boid, ruleScalar, maxSpeed) {
-  const { velocity, acceleration, position } = boid;
+  const { velocity, position } = boid;
   const { playSpeed, drawTail } = vars;
 
   if (playSpeed == 0 || maxSpeed == 0) return;
   let playDelta = playSpeed * delta * 100;
   boid.ownTime += playDelta * 0.0002;
 
-  accelerationRules(boid);
+  const acceleration = accelerationRules(boid);
   acceleration.multiplyScalar(playDelta * ruleScalar * 0.005);
-  acceleration.y *= 0.8; // to lessen vertical movement
+  acceleration.y *= 0.8; // to reduce vertical movement
 
   velocity.add(acceleration);
   if (boid.predator) velocityRules(boid, playDelta);
@@ -115,52 +113,79 @@ function velocityRules(boid, playDelta) {
 }
 
 function accelerationRules(boid) {
-  const { acceleration } = boid;
-  acceleration.set(0, 0, 0);
-
-  const bnd = bounds(boid);
-  const ran = random(boid);
-  const fld = obstacles(boid);
-  const exp = experiments(boid);
-
+  const acceleration = new THREE.Vector3();
   let rules;
+
   if (boid.predator) {
-    const rey = reynolds(boid, predators);
-    const sep = rey[0];
     rules = [
-      { vec: sep, scalar: vars.separationScalar },
-      { vec: bnd, scalar: vars.boundsScalar / 1.5 },
-      { vec: ran, scalar: vars.randomScalar / 2 },
-      { vec: fld, scalar: vars.obstacleScalar },
+      { vec: reynolds(boid, predators)[0], scalar: vars.separationScalar },
+      { vec: bounds(boid), scalar: vars.boundsScalar / 1.5 },
+      { vec: random(boid), scalar: vars.randomScalar / 2 },
+      { vec: obstacles(boid), scalar: vars.obstacleScalar * 4 },
     ];
   } else {
     const rey = reynolds(boid, boids);
-    const sep = rey[0];
-    const ali = rey[1];
-    const coh = rey[2];
-    const esc = escape(boid, predators, vars.predatorCount);
     rules = [
-      { name: "sep", vec: sep, scalar: vars.separationScalar },
-      { name: "ali", vec: ali, scalar: vars.alignmentScalar },
-      { name: "coh", vec: coh, scalar: vars.cohesionScalar },
-      { name: "bnd", vec: bnd, scalar: vars.boundsScalar },
-      { name: "ran", vec: ran, scalar: vars.randomScalar },
-      { name: "esc", vec: esc, scalar: vars.escapeScalar },
-      { name: "obs", vec: fld, scalar: vars.obstacleScalar },
-      { name: "dir", vec: exp, scalar: 1 },
+      {
+        name: "sep",
+        vec: rey[0],
+        enabled: vars.separation,
+        scalar: vars.separationScalar,
+      },
+      {
+        name: "ali",
+        vec: rey[1],
+        enabled: vars.alignment,
+        scalar: vars.alignmentScalar,
+      },
+      {
+        name: "coh",
+        vec: rey[2],
+        enabled: vars.cohesion,
+        scalar: vars.cohesionScalar,
+      },
+      {
+        name: "bnd",
+        vec: bounds(boid),
+        enabled: vars.bounds,
+        scalar: vars.boundsScalar,
+      },
+      {
+        name: "ran",
+        vec: random(boid),
+        enabled: vars.random,
+        scalar: vars.randomScalar,
+      },
+      {
+        name: "fle",
+        vec: flee(boid),
+        enabled: vars.flee,
+        scalar: vars.fleeScalar,
+      },
+      {
+        name: "obs",
+        vec: obstacles(boid),
+        enabled: vars.obstacle,
+        scalar: vars.obstacleScalar,
+      },
+      { enabled: vars.towardsMesh, vec: towards(boid), scalar: 1 },
     ];
   }
 
   applyRules(rules, acceleration);
+
   if (boid.subject) {
     setInfo(rules);
     setInfoItem({ name: "acc", vec: acceleration.clone() });
   }
+
+  return acceleration;
 }
 
 function applyRules(rules, vector) {
   for (let i = 0; i < rules.length; i++) {
-    const { scalar, vec } = rules[i];
+    const { scalar, vec, enabled } = rules[i];
+    if (enabled == false) continue;
     vec.multiplyScalar(scalar);
     vector.add(vec);
   }
