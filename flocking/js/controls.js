@@ -48,7 +48,7 @@ function datGui() {
     // Obstacles
     this.enabled = true;
     this.showMesh = true;
-    this.showPlane = false;
+    this.showPlane = true;
     this.planePosition = 20;
 
     // UI

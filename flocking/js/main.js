@@ -12,9 +12,9 @@ const boids = [];
 const predators = [];
 const foods = [];
 const boidTotalCount = 700;
-const boidStartCount = 500;
+const boidStartCount = 0;
 const predatorTotalCount = 15;
-const predatorStartCount = 1;
+const predatorStartCount = 0;
 const foodTotalCount = 100;
 const foodStartCount = 0;
 
@@ -39,19 +39,19 @@ function init() {
   fishCamera = new THREE.PerspectiveCamera(90, w / h, 0.1, 1000);
   w /= 40; // figures 40
   h /= 40;
-  // camera = new THREE.OrthographicCamera(-w, w, h, -h, 1, 1000);
+  camera = new THREE.OrthographicCamera(-w, w, h, -h, 1, 1000);
   scene.add(camera);
   // scene.add(fishCamera);
 
   const b = vars.boundSize;
   camera.position.set(b * 2.2, b * 0.7, b * 3.3); // figures
   // camera.position.set(b * 3, b * 3, b * 300);
-  // camera.position.set(
-  //   // figures in 2D
-  //   20.932490428341506,
-  //   18.265853946124924,
-  //   419.9976011344496
-  // );
+  camera.position.set(
+    // figures in 2D
+    20.932490428341506,
+    18.265853946124924,
+    419.9976011344496
+  );
   // camera.position.set(b * 0.9, b * 0.3, b * 2);
   // camera.position.set(10.001, 30, 10);
 

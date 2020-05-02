@@ -221,7 +221,7 @@ function obstacles(boid) {
   deltas = [];
   fieldVectors = worldPosToFieldValues(
     boid.position.toArray(),
-    gradientField,
+    avoidanceField,
     deltas
   );
   if (!fieldVectors) return steer;
