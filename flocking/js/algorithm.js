@@ -183,8 +183,8 @@ function obstacles(boid) {
 function towards(boid) {
   const steer = new THREE.Vector3(0, 0, 0);
 
-  const center = new THREE.Vector3(19, 15, 20).sub(boid.position);
-  center.setLength(0.05);
+  const center = new THREE.Vector3(19, 15, 18).sub(boid.position);
+  center.setLength(0.03);
   if (vars.enabled) steer.add(center);
 
   return steer;

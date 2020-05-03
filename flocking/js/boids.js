@@ -41,8 +41,7 @@ function addBoid(position, index) {
   boid.mesh = mesh;
   boid.add(mesh);
 
-  boid.velocity = new THREE.Vector3(rand(), rand(), rand());
-  boid.velocity.setLength(vars.maxSpeed);
+  boid.velocity = new THREE.Vector3(0, 0, 0);
   boid.acceleration = new THREE.Vector3();
   boid.position.set(...position);
   boidDirection(boid.velocity.clone(), boid);
@@ -108,7 +107,7 @@ function moveBoid(delta, boid, ruleScalar, maxSpeed) {
 function velocityRules(boid, playDelta) {
   const atk = velocityAttack(boid);
   atk.multiplyScalar(playDelta);
-  rules = [{ vec: atk, scalar: vars.attackScalar }];
+  rules = [{ vec: atk, scalar: vars.attackScalar * 2 }];
   applyRules(rules, boid.velocity);
 }
 

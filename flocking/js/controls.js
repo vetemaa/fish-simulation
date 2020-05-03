@@ -1,8 +1,5 @@
 var obs = {};
 
-// TODO: add Advanced folder to main folders
-// TODO: fix or remove boidCamera
-
 function datGui() {
   var vars = function () {
     // Main
@@ -28,7 +25,7 @@ function datGui() {
     this.fleeRadius = 26;
 
     this.separationScalar = 0.34;
-    this.alignmentScalar = 0.08;
+    this.alignmentScalar = 0.07;
     this.cohesionScalar = 0.08;
     this.boundsScalar = 0.01;
     this.randomScalar = 0.1;
@@ -45,7 +42,7 @@ function datGui() {
     this.ruleScalar_p = 0.3;
     this.maxSpeed_p = 0.04;
     this.attackRadius = 34;
-    this.attackScalar = 1;
+    this.attackScalar = 0.5;
 
     // Obstacles
     this.enabled = true;
@@ -59,7 +56,7 @@ function datGui() {
     this.showBounds = true;
     this.showAxes = false;
     this.drawTail = false;
-    this.drawRandomFunction = false;
+    this.drawNoiseFunction = false;
     this.removeTail = () => removeTail();
     this.shuffleBoids = () => shuffleBoids();
   };
@@ -73,10 +70,10 @@ function datGui() {
   folBoids = gui.addFolder("Boids");
   folPredators = gui.addFolder("Predators");
   folObstacles = gui.addFolder("Obstacles");
-  folVisual = gui.addFolder("UI");
+  folUI = gui.addFolder("UI");
   folBoids.open();
 
-  // Main
+  // Main ------------------------------------------------------------------
   folMain.add(vars, "play").listen();
   folMain.add(vars, "playSpeed", 0, 10).step(0.1);
   folMain
@@ -95,32 +92,27 @@ function datGui() {
     .add(vars, "boidCount", 0, boidTotalCount)
     .step(1)
     .onChange((value) => changeBoidCount(boids, value));
-
+  folBoids.add(vars, "shuffleBoids");
+  const rules = [
+    ["separation", 1, 10],
+    ["alignment", 1, 100],
+    ["cohesion", 1, 100],
+    ["flee", 1, 100],
+    ["bounds", 1],
+    ["random", 1],
+    ["obstacle", 1],
+    ["towardsMesh"],
+  ];
+  rules.forEach((rule) => {
+    folBoids.add(vars, rule[0]);
+  });
   folWeights = folBoids.addFolder("Rule Weights");
   folDists = folBoids.addFolder("Rule Radiuses");
-  [
-    ["shuffleBoids"],
-    ["separation", "separationScalar", "separationRadius", 10],
-    ["alignment", "alignmentScalar", "alignmentRadius", 100],
-    ["cohesion", "cohesionScalar", "cohesionRadius", 100],
-    ["flee", "fleeScalar", "fleeRadius", 100],
-    ["bounds", "boundsScalar"],
-    ["random", "randomScalar"],
-    ["obstacle", "obstacleScalar"],
-    ["towardsMesh"],
-  ].forEach((button) => {
-    folBoids.add(vars, button[0]);
-    if (button[1]) folWeights.add(vars, button[1], 0, 0.5).step(0.01);
-    if (button[2])
-      folDists.add(vars, button[2], 0, button[3]).step(button[3] / 100);
+  rules.forEach((rule) => {
+    if (rule[1]) folWeights.add(vars, rule[0] + "Scalar", 0, 0.5).step(0.01);
+    if (rule[2])
+      folDists.add(vars, rule[0] + "Radius", 0, rule[2]).step(rule[2] / 100);
   });
-
-  // // folDists.open();
-  // folDists.add(vars, "separationRadius", 0, 10).step(0.1);
-  // folDists.add(vars, "alignmentRadius", 0, 100).step(1);
-  // folDists.add(vars, "cohesionRadius", 0, 100).step(1);
-  // folDists.add(vars, "fleeRadius", 0, 100).step(1);
-
   folBoidsAdvanced = folBoids.addFolder("Advanced");
   folBoidsAdvanced.add(vars, "ruleScalar", 0, 3).step(0.01);
   folBoidsAdvanced.add(vars, "maxSpeed", 0, 0.1).step(0.001);
@@ -139,7 +131,7 @@ function datGui() {
   folPreatorsAdvanced.add(vars, "maxSpeed_p", 0, 0.1).step(0.01);
 
   // Obstacles -------------------------------------------------------------
-  folObstacles.add(vars, "enabled").onChange(() => changeObstacles());
+  folObstacles.add(vars, "enabled").onChange(changeObstacles);
   obs.mesh = folObstacles
     .add(vars, "showMesh")
     .onChange((value) => (obstacle.visible = value));
@@ -149,25 +141,18 @@ function datGui() {
   obs.plane = folObstacles
     .add(vars, "planePosition", 10, 30)
     .step(0.01)
-    .onChange((value) => (plane.changePos = true));
+    .onChange(() => (plane.changePos = true));
 
   // UI --------------------------------------------------------------------
-  folVisual
+  folUI
     .add(vars, "showVectors")
-    .onChange((value) => changeVectorVisibility(value));
-  folVisual
-    .add(vars, "vectorLenMultiplier", 0, 100)
-    .step(1)
-    .onChange(changeArrowLens);
-  folVisual
-    .add(vars, "showBounds")
-    .onChange((value) => (boundBox.visible = value));
-  folVisual
-    .add(vars, "showAxes")
-    .onChange((value) => (axesHelper.visible = value));
-  folVisual.add(vars, "drawTail");
-  folVisual.add(vars, "drawRandomFunction");
-  folVisual.add(vars, "removeTail");
+    .onChange((value) => (subject.helpArrows.visible = value));
+  folUI.add(vars, "vectorLenMultiplier", 0, 100).step(1).onChange(setArrows);
+  folUI.add(vars, "showBounds").onChange((value) => (boundBox.visible = value));
+  folUI.add(vars, "showAxes").onChange((value) => (axesHelper.visible = value));
+  folUI.add(vars, "drawTail");
+  folUI.add(vars, "drawNoiseFunction");
+  folUI.add(vars, "removeTail");
 
   return vars;
 }
@@ -234,18 +219,6 @@ function shuffleBoids() {
     boid.velocity.set(rand() - 0.5, rand() - 0.5, rand() - 0.5);
     boid.velocity.setLength(vars.maxSpeed);
   });
-}
-
-function changeVectorVisibility(value) {
-  // boids.forEach((boid) => (boid.helpArrows.visible = value));
-  subject.helpArrows.visible = value;
-}
-
-function changeArrowLens() {
-  setArrows();
-  // boids.forEach((boid) => {
-  //   boid.helpArrows.children.forEach((arrow) => setArrowLen(arrow));
-  // });
 }
 
 function changeObstacles() {

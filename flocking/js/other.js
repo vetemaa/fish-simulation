@@ -1,44 +1,12 @@
 var info = [
-  {
-    name: "sep",
-    color: "#e57373",
-    showArr: true,
-  },
-  {
-    name: "ali",
-    color: "#66bb6a",
-    showArr: true,
-  },
-  {
-    name: "coh",
-    color: "#5d7ada",
-    showArr: true,
-  },
-  {
-    name: "bnd",
-    color: "#866144",
-    showArr: true,
-  },
-  {
-    name: "ran",
-    color: "#ffb74d",
-    showArr: true,
-  },
-  {
-    name: "fle",
-    color: "#8e64bd",
-    showArr: true,
-  },
-  {
-    name: "obs",
-    color: "#64c3ec",
-    showArr: true,
-  },
-  {
-    name: "acc",
-    color: "#aaaaaa",
-    showArr: true,
-  },
+  { name: "sep", color: "#e57373", showArr: true },
+  { name: "ali", color: "#66bb6a", showArr: true },
+  { name: "coh", color: "#5d7ada", showArr: true },
+  { name: "bnd", color: "#866144", showArr: true },
+  { name: "ran", color: "#ffb74d", showArr: true },
+  { name: "fle", color: "#8e64bd", showArr: true },
+  { name: "obs", color: "#64c3ec", showArr: true },
+  { name: "acc", color: "#aaaaaa", showArr: true },
 ];
 
 function addArrows(boid) {

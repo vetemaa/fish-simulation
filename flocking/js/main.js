@@ -130,7 +130,7 @@ function animate() {
     cameraChase();
     moveBoids(delta);
     updateInfo();
-    if (vars.drawRandomFunction) animateNoise();
+    if (vars.drawNoiseFunction) animateNoise();
     // if (vars.movePlane && vars.enabled) updatePlaneTexture(delta);
     if (plane.changePos) updatePlaneTexture();
   }

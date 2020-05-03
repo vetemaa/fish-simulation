@@ -153,7 +153,7 @@ function addGradientField() {
           //     2
           // );
 
-          gradient.setLength(Math.pow(1 - dist, 2));
+          gradient.setLength(Math.pow(1 - dist, 3));
         }
 
         // const origin = new THREE.Vector3(i1, i2, i3).multiplyScalar(voxelSize);
