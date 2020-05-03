@@ -49,9 +49,9 @@ function addBoid(position, index) {
 
   // start data for noise
   boid.noise = {
-    x: { a: 0, b: rand(), cumWavLen: 0 },
-    y: { a: 0, b: rand(), cumWavLen: 0 },
-    z: { a: 0, b: rand(), cumWavLen: 0 },
+    x: { cumWavLen: 0, randomValues: [rand(), rand(), rand(), rand()] },
+    y: { cumWavLen: 0, randomValues: [rand(), rand(), rand(), rand()] },
+    z: { cumWavLen: 0, randomValues: [rand(), rand(), rand(), rand()] },
   };
 
   // helper arrows
@@ -106,7 +106,7 @@ function moveBoid(delta, boid, ruleScalar, maxSpeed) {
 }
 
 function velocityRules(boid, playDelta) {
-  const atk = velattack(boid);
+  const atk = velocityAttack(boid);
   atk.multiplyScalar(playDelta);
   rules = [{ vec: atk, scalar: vars.attackScalar }];
   applyRules(rules, boid.velocity);
@@ -166,7 +166,7 @@ function accelerationRules(boid) {
         name: "obs",
         vec: obstacles(boid),
         enabled: vars.obstacle,
-        scalar: vars.obstacleScalar,
+        scalar: vars.obstacleScalar * 2,
       },
       { enabled: vars.towardsMesh, vec: towards(boid), scalar: 1 },
     ];

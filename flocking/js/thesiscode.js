@@ -211,3 +211,13 @@ flockmates.forEach((flockmate) => {
   }
 });
 cohesion.clampLength(0, 1);
+
+function cubicInterpolate(values, x) {
+  const x2 = x * x;
+  a0 = values[3] - values[2] - values[0] + values[1];
+  a1 = values[0] - values[1] - a0;
+  a2 = values[2] - values[0];
+  a3 = values[1];
+
+  return a0 * x * x2 + a1 * x2 + a2 * x + a3;
+}

@@ -110,7 +110,87 @@ function flee(boid) {
   return steer;
 }
 
-function velattack(predator) {
+function bounds(boid) {
+  const minBound = 0;
+  const maxBound = vars.boundSize;
+  const steer = new THREE.Vector3();
+  const { x, y, z } = boid.position;
+
+  if (x < minBound) steer.x = minBound - x;
+  else if (x > maxBound) steer.x = maxBound - x;
+  if (y < minBound) steer.y = minBound - y;
+  else if (y > maxBound) steer.y = maxBound - y;
+  if (z < minBound) steer.z = minBound - z;
+  else if (z > maxBound) steer.z = maxBound - z;
+
+  steer.y *= 2;
+  return steer;
+}
+
+function random(boid) {
+  const time = boid.ownTime * vars.randomWavelenScalar;
+
+  const steer = new THREE.Vector3(
+    noise(time + 0.0, boid, "x"),
+    noise(time + 0.1, boid, "y") * 0.1,
+    noise(time + 0.2, boid, "z")
+  );
+
+  return steer;
+}
+
+function noise(time, boid, axis) {
+  const wavelen = 0.3;
+  const noiseData = boid.noise[axis];
+
+  if (time >= noiseData.cumWavLen) {
+    noiseData.cumWavLen += wavelen;
+    noiseData.randomValues.shift();
+    noiseData.randomValues.push(rand());
+  }
+
+  const y = cubicInterpolate(
+    noiseData.randomValues,
+    (time % wavelen) / wavelen
+  );
+
+  return y * 2 - 1;
+}
+
+function obstacles(boid) {
+  const steer = new THREE.Vector3();
+  if (!vars.enabled) return steer;
+
+  deltas = [];
+  fieldVectors = worldPosToFieldValues(
+    boid.position.toArray(),
+    avoidanceField,
+    deltas
+  );
+  if (!fieldVectors) return steer;
+  value = triLerp(lerpVecs, ...deltas, ...fieldVectors);
+
+  steer.copy(value);
+  if (vars.towardsMesh) {
+    const center = new THREE.Vector3(19, 15, 20).sub(boid.position);
+    center.setLength(0.01);
+    steer.add(center);
+  }
+
+  return steer;
+}
+
+function towards(boid) {
+  const steer = new THREE.Vector3(0, 0, 0);
+
+  const center = new THREE.Vector3(19, 15, 20).sub(boid.position);
+  center.setLength(0.05);
+  if (vars.enabled) steer.add(center);
+
+  return steer;
+}
+
+function velocityAttack(predator) {
   const restTime = 0.2;
   const attackTime = 1.4;
 
@@ -152,50 +232,6 @@ function velattack(predator) {
   return diff;
 }
 
-function bounds(boid) {
-  const minBound = 0;
-  const maxBound = vars.boundSize;
-  const steer = new THREE.Vector3();
-  const { x, y, z } = boid.position;
-
-  if (x < minBound) steer.x = minBound - x;
-  else if (x > maxBound) steer.x = maxBound - x;
-  if (y < minBound) steer.y = minBound - y;
-  else if (y > maxBound) steer.y = maxBound - y;
-  if (z < minBound) steer.z = minBound - z;
-  else if (z > maxBound) steer.z = maxBound - z;
-
-  steer.y *= 2;
-  return steer;
-}
-
-function random(boid) {
-  const time = boid.ownTime * vars.randomWavelenScalar;
-
-  const steer = new THREE.Vector3(
-    noise(time + 0.0, boid, "x"),
-    noise(time + 0.1, boid, "y") * 0.1,
-    noise(time + 0.2, boid, "z")
-  );
-
-  return steer;
-}
-
-function noise(time, boid, axis) {
-  const wavelen = 0.3;
-  var noiseData = boid.noise[axis];
-
-  if (time >= noiseData.cumWavLen) {
-    noiseData.cumWavLen += wavelen;
-    noiseData.a = noiseData.b;
-    noiseData.b = rand();
-  }
-
-  const y = interpolate(noiseData.a, noiseData.b, (time % wavelen) / wavelen);
-
-  return y * 2 - 1;
-}
-
 // https://codepen.io/Tobsta/post/procedural-generation-part-1-1d-perlin-noise
 const M = 4294967296;
 const A = 1664525;
@@ -206,43 +242,14 @@ function rand() {
   return Z / M;
 }
 
-// https://codepen.io/Tobsta/post/procedural-generation-part-1-1d-perlin-noise
-function interpolate(pa, pb, px) {
-  var ft = px * Math.PI,
-    f = (1 - Math.cos(ft)) * 0.5;
-  // console.log(pa);
-  return pa * (1 - f) + pb * f;
-}
+// cubic interpolation using Paul Breeuwsma coefficients
+function cubicInterpolate(values, x) {
+  const x2 = x * x;
+  const a0 =
+    -0.5 * values[0] + 1.5 * values[1] - 1.5 * values[2] + 0.5 * values[3];
+  const a1 = values[0] - 2.5 * values[1] + 2 * values[2] - 0.5 * values[3];
+  const a2 = -0.5 * values[0] + 0.5 * values[2];
+  const a3 = values[1];
 
-function obstacles(boid) {
-  const steer = new THREE.Vector3();
-  if (!vars.enabled) return steer;
-
-  deltas = [];
-  fieldVectors = worldPosToFieldValues(
-    boid.position.toArray(),
-    avoidanceField,
-    deltas
-  );
-  if (!fieldVectors) return steer;
-  value = triLerp(lerpVecs, ...deltas, ...fieldVectors);
-
-  steer.copy(value);
-  if (vars.towardsMesh) {
-    const center = new THREE.Vector3(19, 15, 20).sub(boid.position);
-    center.setLength(0.01);
-    steer.add(center);
-  }
-
-  return steer;
-}
-
-function towards(boid) {
-  const steer = new THREE.Vector3(0, 0, 0);
-
-  const center = new THREE.Vector3(19, 15, 20).sub(boid.position);
-  center.setLength(0.05);
-  if (vars.enabled) steer.add(center);
-
-  return steer;
+  return a0 * x * x2 + a1 * x2 + a2 * x + a3;
 }

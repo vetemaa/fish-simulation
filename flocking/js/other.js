@@ -140,10 +140,6 @@ function animateNoise() {
   const lines = boid.noise.lines.children;
 
   time = boid.ownTime * vars.randomWavelenScalar;
-  // x = simplex.noise2D(time, (boid.index + 1) * 10);
-  // y = simplex.noise2D(time, (boid.index + 1) * 100);
-  // z = simplex.noise2D(time, (boid.index + 1) * 1000) * 10;
-
   x = noise(time + 0.0, boid, "x") * 10;
   y = noise(time + 0.1, boid, "y") * 10;
   z = noise(time + 0.2, boid, "z") * 10;

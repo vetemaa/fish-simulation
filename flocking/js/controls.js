@@ -21,18 +21,20 @@ function datGui() {
     this.flee = true;
     this.obstacle = true;
     this.towardsMesh = true;
-    this.fleeRadius = 26;
-    this.fleeScalar = 0.22;
-    this.alignmentRadius = 9;
-    this.alignmentScalar = 0.08;
-    this.cohesionRadius = 14;
-    this.cohesionScalar = 0.08;
+
     this.separationRadius = 2.4;
+    this.cohesionRadius = 14;
+    this.alignmentRadius = 9;
+    this.fleeRadius = 26;
+
     this.separationScalar = 0.34;
-    this.randomScalar = 0.1;
-    this.obstacleScalar = 0.9;
+    this.alignmentScalar = 0.08;
+    this.cohesionScalar = 0.08;
     this.boundsScalar = 0.01;
-    this.randomWavelenScalar = 0.6;
+    this.randomScalar = 0.1;
+    this.fleeScalar = 0.22;
+    this.obstacleScalar = 0.4;
+    this.randomWavelenScalar = 0.6; //TODO: test 0.6, 0.4
 
     this.ruleScalar = 0.5;
     this.maxSpeed = 0.03;
@@ -93,32 +95,31 @@ function datGui() {
     .add(vars, "boidCount", 0, boidTotalCount)
     .step(1)
     .onChange((value) => changeBoidCount(boids, value));
-  folBoids.add(vars, "shuffleBoids");
-  folBoids.add(vars, "separation");
-  folBoids.add(vars, "alignment");
-  folBoids.add(vars, "cohesion");
-  folBoids.add(vars, "bounds");
-  folBoids.add(vars, "random");
-  folBoids.add(vars, "flee");
-  folBoids.add(vars, "obstacle");
-  folBoids.add(vars, "towardsMesh");
 
   folWeights = folBoids.addFolder("Rule Weights");
-  // folWeights.open();
-  folWeights.add(vars, "separationScalar", 0, 1).step(0.01);
-  folWeights.add(vars, "alignmentScalar", 0, 1).step(0.01);
-  folWeights.add(vars, "cohesionScalar", 0, 1).step(0.01);
-  folWeights.add(vars, "boundsScalar", 0, 1).step(0.01);
-  folWeights.add(vars, "randomScalar", 0, 1).step(0.01);
-  folWeights.add(vars, "fleeScalar", 0, 1).step(0.01);
-  folWeights.add(vars, "obstacleScalar", 0, 1).step(0.01);
-
   folDists = folBoids.addFolder("Rule Radiuses");
-  // folDists.open();
-  folDists.add(vars, "separationRadius", 0, 10).step(0.1);
-  folDists.add(vars, "alignmentRadius", 0, 100).step(1);
-  folDists.add(vars, "cohesionRadius", 0, 100).step(1);
-  folDists.add(vars, "fleeRadius", 0, 100).step(1);
+  [
+    ["shuffleBoids"],
+    ["separation", "separationScalar", "separationRadius", 10],
+    ["alignment", "alignmentScalar", "alignmentRadius", 100],
+    ["cohesion", "cohesionScalar", "cohesionRadius", 100],
+    ["flee", "fleeScalar", "fleeRadius", 100],
+    ["bounds", "boundsScalar"],
+    ["random", "randomScalar"],
+    ["obstacle", "obstacleScalar"],
+    ["towardsMesh"],
+  ].forEach((button) => {
+    folBoids.add(vars, button[0]);
+    if (button[1]) folWeights.add(vars, button[1], 0, 0.5).step(0.01);
+    if (button[2])
+      folDists.add(vars, button[2], 0, button[3]).step(button[3] / 100);
+  });
+
+  // // folDists.open();
+  // folDists.add(vars, "separationRadius", 0, 10).step(0.1);
+  // folDists.add(vars, "alignmentRadius", 0, 100).step(1);
+  // folDists.add(vars, "cohesionRadius", 0, 100).step(1);
+  // folDists.add(vars, "fleeRadius", 0, 100).step(1);
 
   folBoidsAdvanced = folBoids.addFolder("Advanced");
   folBoidsAdvanced.add(vars, "ruleScalar", 0, 3).step(0.01);

@@ -12,7 +12,7 @@ const boids = [];
 const predators = [];
 const foods = [];
 const boidTotalCount = 700;
-const boidStartCount = 0;
+const boidStartCount = 500;
 const predatorTotalCount = 15;
 const predatorStartCount = 0;
 const foodTotalCount = 100;
@@ -39,21 +39,18 @@ function init() {
   fishCamera = new THREE.PerspectiveCamera(90, w / h, 0.1, 1000);
   w /= 40; // figures 40
   h /= 40;
-  camera = new THREE.OrthographicCamera(-w, w, h, -h, 1, 1000);
+  // camera = new THREE.OrthographicCamera(-w, w, h, -h, 1, 1000);
   scene.add(camera);
   // scene.add(fishCamera);
 
   const b = vars.boundSize;
   camera.position.set(b * 2.2, b * 0.7, b * 3.3); // figures
-  // camera.position.set(b * 3, b * 3, b * 300);
-  camera.position.set(
-    // figures in 2D
-    20.932490428341506,
-    18.265853946124924,
-    419.9976011344496
-  );
-  // camera.position.set(b * 0.9, b * 0.3, b * 2);
-  // camera.position.set(10.001, 30, 10);
+  // camera.position.set(
+  //   // figures in 2D
+  //   20.932490428341506,
+  //   18.265853946124924,
+  //   419.9976011344496
+  // );
 
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
   cameraControls.rotateSpeed = 0.3;
@@ -79,6 +76,50 @@ function init() {
   addObstacle(animate);
 
   // animate();
+}
+
+log = [];
+faceArr = [];
+timeArr = [];
+function closestPointSpeedTest() {
+  // const origin = new THREE.Vector3(5, 5, 5);
+  // for (let i = 1; i < 30 + 1; i = i + 1) {
+  //   const obstacle = new THREE.Mesh(
+  //     new THREE.BoxGeometry(5, 5, 5, i * 20, 5, 5),
+  //     new THREE.MeshNormalMaterial()
+  //   );
+  //   obstacle.position.set(20, 20, 20);
+  //   obstacle.updateMatrixWorld();
+  //   // scene.add(obstacle);
+  //   const start = Date.now();
+  //   const iters = 50;
+  //   for (let j = 0; j < iters; j++) {
+  //     findClosestPosition(origin, obstacle);
+  //   }
+  //   timeArr.push((Date.now() - start) / iters);
+  //   // closest.sub(origin);
+  //   faceArr.push(obstacle.geometry.faces.length + 0);
+  //   // addArrow(closest, origin, closest.length(), 0xff0000);
+  // }
+  // log += "face count" + "," + "time" + "\n";
+  // for (let i = 0; i < faceArr.length; i++) {
+  //   log += faceArr[i] + "," + timeArr[i] + "\n";
+  // }
+  // console.log(log);
+  // ------------------------------------
+  // console.log(avoidanceField);
+  // const start = Date.now();
+  // const iters = 50000;
+  // for (let j = 0; j < iters; j++) {
+  //   const deltas = [];
+  //   const fieldVectors = worldPosToFieldValues(
+  //     [3, 3, 3],
+  //     avoidanceField,
+  //     deltas
+  //   );
+  //   value = triLerp(lerpVecs, ...deltas, ...fieldVectors);
+  // }
+  // console.log(Date.now() - start);
 }
 
 function animate() {

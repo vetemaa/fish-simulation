@@ -6,38 +6,39 @@ var obstacle;
 const fieldDimension = 13; // 13 for figures
 const fieldSize = 40; // 40 for figures
 const voxelSize = fieldSize / (fieldDimension - 1);
-const textureSize = 1080; // 1080 for figures
-const avoidRadius = 10; // 9 for figures
+const textureSize = 180; // 1080 for figures
+const avoidRadius = 9; // 9 for figures
 
 // TODO: work without server
 function addObstacle(animateFunction) {
   const loader = new THREE.GLTFLoader();
-  loader.load("rocks-original.glb", (gltf) => {
+  loader.load("rocks.glb", (gltf) => {
     const rocks = new THREE.Mesh(
       new THREE.Geometry().fromBufferGeometry(gltf.scene.children[0].geometry),
-      new THREE.MeshBasicMaterial({
-        wireframe: true,
-        color: 0x333333,
+      new THREE.MeshNormalMaterial({
+        // wireframe: true,
+        // color: 0x333333,
       })
     );
-    // rocks.scale.set(3, 3, 3);
-    // rocks.position.set(21, 16, 20);
+    // new rocks
+    rocks.scale.set(3, 3, 3);
+    rocks.position.set(21, 16, 20);
 
     // original rocks
-    rocks.scale.set(5, 5, 5);
-    rocks.position.set(20, 8, 20);
+    // rocks.scale.set(5, 5, 5);
+    // rocks.position.set(20, 8, 20);
 
     const torus = new THREE.Mesh(
       // new THREE.TorusGeometry(12, 0.3, 4, 24),
-      new THREE.TorusKnotGeometry(10, 0.4, 40, 4),
-      // new THREE.TorusKnotGeometry(10, 0.4, 120, 6), // figures
+      // new THREE.TorusKnotGeometry(10, 0.4, 40, 4),
+      new THREE.TorusKnotGeometry(10, 0.7, 100, 8), // figures
       new THREE.MeshNormalMaterial({
         wireframe: false,
         // opacity: 0,
         // transparent: true,
       })
     );
-    torus.position.set(24, 20, 20);
+    torus.position.set(18, 20, 20);
 
     const obstacles = [];
     obstacles.push(rocks);
@@ -54,6 +55,8 @@ function addObstacle(animateFunction) {
     changeObstacles();
 
     animateFunction();
+
+    closestPointSpeedTest();
   });
 }
 
@@ -193,6 +196,7 @@ function worldPosToFieldValues(pos, field, deltas = []) {
         let xVal = voxels[0] + x;
         let yVal = voxels[1] + y;
         let zVal = voxels[2] + z;
+        // console.log(xVal, yVal, zVal);
         fieldValues.push(field[xVal][yVal][zVal]);
       }
 
