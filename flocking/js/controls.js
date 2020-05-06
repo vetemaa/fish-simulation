@@ -1,7 +1,5 @@
-var obs = {};
-
 function datGui() {
-  var vars = function () {
+  vars = function () {
     // Main
     this.play = true;
     this.playSpeed = 5;
@@ -10,13 +8,14 @@ function datGui() {
 
     // Boids
     this.boidCount = boidStartCount;
+    this.shuffleBoids = () => shuffleBoids();
     this.separation = true;
     this.alignment = true;
     this.cohesion = true;
     this.bounds = true;
     this.random = true;
     this.flee = true;
-    this.obstacle = true;
+    this.avoidance = true;
     this.towardsMesh = true;
 
     this.separationRadius = 2.4;
@@ -30,7 +29,7 @@ function datGui() {
     this.boundsScalar = 0.01;
     this.randomScalar = 0.1;
     this.fleeScalar = 0.22;
-    this.obstacleScalar = 0.4;
+    this.avoidanceScalar = 0.26;
     this.randomWavelenScalar = 0.6; //TODO: test 0.6, 0.4
 
     this.ruleScalar = 0.5;
@@ -47,8 +46,13 @@ function datGui() {
     // Obstacles
     this.enabled = true;
     this.showMesh = true;
-    this.showPlane = true;
+    this.showPlane = false;
     this.planePosition = 20;
+
+    this.resoultion = 15;
+    this.avoidRadius = 10;
+    this.raisedTo = 2;
+    this.generate = () => generateAvoidanceField(obstacles);
 
     // UI
     this.showVectors = false;
@@ -58,13 +62,11 @@ function datGui() {
     this.drawTail = false;
     this.drawNoiseFunction = false;
     this.removeTail = () => removeTail();
-    this.shuffleBoids = () => shuffleBoids();
   };
 
   vars = new vars();
   gui = new dat.GUI({ width: 270 });
   gui.domElement.style.opacity = 0.8;
-  prevBoundSize = vars.boundSize;
 
   folMain = gui.addFolder("Main");
   folBoids = gui.addFolder("Boids");
@@ -94,25 +96,27 @@ function datGui() {
     .onChange((value) => changeBoidCount(boids, value));
   folBoids.add(vars, "shuffleBoids");
   const rules = [
-    ["separation", 1, 10],
-    ["alignment", 1, 100],
-    ["cohesion", 1, 100],
-    ["flee", 1, 100],
-    ["bounds", 1],
-    ["random", 1],
-    ["obstacle", 1],
-    ["towardsMesh"],
+    ["separation", 10],
+    ["alignment", 100],
+    ["cohesion", 100],
+    ["flee", 100],
+    ["bounds"],
+    ["random"],
+    ["avoidance"],
   ];
   rules.forEach((rule) => {
     folBoids.add(vars, rule[0]);
   });
+  folBoids.add(vars, "towardsMesh");
+
   folWeights = folBoids.addFolder("Rule Weights");
   folDists = folBoids.addFolder("Rule Radiuses");
   rules.forEach((rule) => {
-    if (rule[1]) folWeights.add(vars, rule[0] + "Scalar", 0, 0.5).step(0.01);
-    if (rule[2])
-      folDists.add(vars, rule[0] + "Radius", 0, rule[2]).step(rule[2] / 100);
+    folWeights.add(vars, rule[0] + "Scalar", 0, 0.5).step(0.01);
+    if (rule[1])
+      folDists.add(vars, rule[0] + "Radius", 0, rule[1]).step(rule[2] / 100);
   });
+
   folBoidsAdvanced = folBoids.addFolder("Advanced");
   folBoidsAdvanced.add(vars, "ruleScalar", 0, 3).step(0.01);
   folBoidsAdvanced.add(vars, "maxSpeed", 0, 0.1).step(0.001);
@@ -124,6 +128,7 @@ function datGui() {
     .step(1)
     .onChange((value) => changeBoidCount(predators, value));
   folPredators.add(vars, "attack");
+
   folPreatorsAdvanced = folPredators.addFolder("Advanced");
   folPreatorsAdvanced.add(vars, "attackScalar", 0, 0.1).step(0.001);
   folPreatorsAdvanced.add(vars, "attackRadius", 0, 100).step(1);
@@ -132,16 +137,18 @@ function datGui() {
 
   // Obstacles -------------------------------------------------------------
   folObstacles.add(vars, "enabled").onChange(changeObstacles);
-  obs.mesh = folObstacles
-    .add(vars, "showMesh")
-    .onChange((value) => (obstacle.visible = value));
-  obs.plane = folObstacles
-    .add(vars, "showPlane")
-    .onChange((value) => (obstacle.plane.visible = value));
-  obs.plane = folObstacles
+  folObstacles.add(vars, "showMesh").onChange(changeObstacles);
+  folObstacles.add(vars, "showPlane").onChange(changeObstacles);
+  folObstacles
     .add(vars, "planePosition", 10, 30)
-    .step(0.01)
+    .step(0.1)
     .onChange(() => (plane.changePos = true));
+
+  folObstaclesGenerate = folObstacles.addFolder("Generate Field");
+  folObstaclesGenerate.add(vars, "resoultion", 0, 25).step(1);
+  folObstaclesGenerate.add(vars, "avoidRadius", 0, 20).step(1);
+  folObstaclesGenerate.add(vars, "raisedTo", 1, 5).step(0.1);
+  folObstaclesGenerate.add(vars, "generate");
 
   // UI --------------------------------------------------------------------
   folUI
@@ -152,17 +159,14 @@ function datGui() {
   folUI.add(vars, "showAxes").onChange((value) => (axesHelper.visible = value));
   folUI.add(vars, "drawTail");
   folUI.add(vars, "drawNoiseFunction");
-  folUI.add(vars, "removeTail");
+  folUI.add(vars, "removeTail").onChange(() => {
+    boids.forEach((boid) => {
+      boid.tailLine.previous = null;
+      boid.tailLine.children = [];
+    });
+  });
 
   return vars;
-}
-
-function removeTail() {
-  boids.forEach((boid) => {
-    const tailLine = boid.tailLine;
-    tailLine.previous = null;
-    tailLine.children = [];
-  });
 }
 
 function changeCamera(value) {
@@ -181,21 +185,21 @@ function initControls() {
     "mousewheel",
     (e) => {
       if (vars.boidCamera) {
-        if (e.deltaY > 0) fishCameraDist += 0.1;
-        else if (e.deltaY < 0 && fishCameraDist > 0.1) fishCameraDist -= 0.1;
-        if (fishCameraDist < 0.1) boids[0].visible = false;
+        if (e.deltaY > 0) fishCamera.dist += 0.1;
+        else if (e.deltaY < 0 && fishCamera.dist > 0.1) fishCamera.dist -= 0.1;
+        if (fishCamera.dist < 0.1) boids[0].visible = false;
         else boids[0].visible = true;
 
-        fishCamera.position.set(0, 0.8 * fishCameraDist, -2 * fishCameraDist);
+        fishCamera.position.set(0, 0.8 * fishCamera.dist, -2 * fishCamera.dist);
 
         // side-scroll
-        if (e.deltaX < 0) fishCameraFOV += e.deltaX * 0.01;
-        else if (e.deltaX > 0) fishCameraFOV += e.deltaX * 0.01;
-        if (fishCameraFOV > 160) fishCameraFOV = 160;
-        else if (fishCameraFOV < 30) fishCameraFOV = 30;
-        fishCamera.fov = fishCameraFOV;
+        if (e.deltaX < 0) fishCamera.fov += e.deltaX * 0.01;
+        else if (e.deltaX > 0) fishCamera.fov += e.deltaX * 0.01;
+        if (fishCamera.fov > 160) fishCamera.fov = 160;
+        else if (fishCamera.fov < 30) fishCamera.fov = 30;
+
         fishCamera.updateProjectionMatrix();
-      } else if (typeof env !== "undefined");
+      }
     },
     true
   );
@@ -222,20 +226,27 @@ function shuffleBoids() {
 }
 
 function changeObstacles() {
-  const en = vars.enabled;
-  obstacle.visible = en ? vars.showMesh : false;
-  obstacle.plane.visible = en ? vars.showPlane : false;
-  Object.keys(obs).forEach((key) => {
-    const parentStyle = obs[key].domElement.parentElement.parentElement.style;
-    parentStyle.pointerEvents = en ? "auto" : "none";
-    parentStyle.opacity = en ? 1 : 0.82;
+  const enabled = vars.enabled;
+  obstacles.forEach((obstacle) => {
+    obstacle.visible = enabled ? vars.showMesh : false;
+  });
+  plane.visible = enabled ? vars.showPlane : false;
+
+  const controllers = [
+    ...folObstacles.__controllers.slice(1),
+    ...folObstacles.__folders["Generate Field"].__controllers,
+  ];
+  controllers.forEach((item) => {
+    const parentStyle = item.domElement.parentElement.parentElement.style;
+    parentStyle.pointerEvents = enabled ? "auto" : "none";
+    parentStyle.opacity = enabled ? 1 : 0.82;
   });
 }
 
 function updateBounds(size) {
-  const ratio = camera.position.length() / prevBoundSize;
+  const ratio = camera.position.length() / boundBox.prevSize;
   camera.position.setLength(ratio * size);
-  prevBoundSize = size;
+  boundBox.prevSize = size;
 
   boundBox.scale.set(size, size, size);
   const pos = size / 2 - 0.01;

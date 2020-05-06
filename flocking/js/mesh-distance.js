@@ -1,9 +1,6 @@
 function findClosestPosition(point, object) {
   var closestDistance = 1e9; // inf
-  var closestPoint = new THREE.Vector3(); // inf
-  var closestFaces = [];
-  var largestDot = -1e9;
-  var smallestDot = 1e9;
+  var closestPoint = new THREE.Vector3();
   var closestFace;
 
   var geometry = object.geometry;
@@ -26,27 +23,16 @@ function findClosestPosition(point, object) {
     // const pointOnFaceDist = closestPointOnFace.distanceTo(point);
 
     if (pointOnFaceDist <= closestDistance) {
-      if (pointOnFaceDist == closestDistance) {
-        closestFaces.push(face);
-      } else {
-        closestFaces = [face];
-      }
       closestDistance = pointOnFaceDist;
       closestPoint.copy(closestPointOnFace);
       closestFace = face;
-
-      let dot = face.normal.dot(
-        point.clone().sub(closestPointOnFace).normalize()
-      );
-      // if (dot > largestDot) largestDot = dot;
-      // if (dot < smallestDot) smallestDot = dot;
     }
   });
 
   let dot = closestFace.normal.dot(point.clone().sub(closestPoint).normalize());
-  insideMesh = round(dot) == -1;
+  const insideMesh = round(dot) == -1;
 
-  return [closestPoint, insideMesh];
+  return { closestPoint, insideMesh };
 }
 
 function projectVecOnVec(a, b) {

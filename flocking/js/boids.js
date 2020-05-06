@@ -120,7 +120,7 @@ function accelerationRules(boid) {
       { vec: reynolds(boid, predators)[0], scalar: vars.separationScalar },
       { vec: bounds(boid), scalar: vars.boundsScalar / 1.5 },
       { vec: random(boid), scalar: vars.randomScalar / 2 },
-      { vec: obstacles(boid), scalar: vars.obstacleScalar * 4 },
+      { vec: avoidance(boid), scalar: vars.avoidanceScalar * 4 },
     ];
   } else {
     const rey = reynolds(boid, boids);
@@ -163,9 +163,9 @@ function accelerationRules(boid) {
       },
       {
         name: "obs",
-        vec: obstacles(boid),
-        enabled: vars.obstacle,
-        scalar: vars.obstacleScalar * 2,
+        vec: avoidance(boid),
+        enabled: vars.avoidance,
+        scalar: vars.avoidanceScalar * 2,
       },
       { enabled: vars.towardsMesh, vec: towards(boid), scalar: 1 },
     ];

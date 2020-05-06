@@ -1,55 +1,42 @@
-function reynolds(boid, flockmates, mine = 1) {
+function reynolds(boid, flockmates, commonImplementation = false) {
   const sep = new THREE.Vector3();
   const ali = new THREE.Vector3();
   const coh = new THREE.Vector3();
   let sepNeighbours = 0;
   let aliNeighbours = 0;
   let cohNeighbours = 0;
-
-  let flockmateCount;
-  if (boid.predator) flockmateCount = vars.predatorCount;
-  else flockmateCount = vars.boidCount;
+  let flockmateCount = boid.predator ? vars.predatorCount : vars.boidCount;
 
   for (let i = 0; i < flockmateCount; i++) {
     const flockmate = flockmates[i];
-    const dist = boid.position.distanceTo(flockmate.position);
+    const difference = boid.position.clone().sub(flockmate.position);
+    const dist = difference.length();
 
     if (boid.index !== flockmate.index) {
-      if (mine === 1) {
-        // separation - mine
+      if (!commonImplementation) {
         if (dist < vars.separationRadius) {
-          const diff = boid.position.clone().sub(flockmate.position);
-          diff.setLength(1 - dist / vars.separationRadius);
-          sep.add(diff);
+          difference.setLength(1 - dist / vars.separationRadius);
+          sep.add(difference);
         }
-
-        // alignment - mine
         if (dist < vars.alignmentRadius) {
           const vel = flockmate.velocity.clone();
           vel.setLength(1 - dist / vars.alignmentRadius);
           ali.add(vel);
         }
-
-        // cohesion - mine
         if (dist < vars.cohesionRadius) {
-          const diff = flockmate.position.clone().sub(boid.position);
-          diff.setLength(1 - dist / vars.cohesionRadius);
-          coh.add(diff);
+          difference.setLength(1 - dist / vars.cohesionRadius);
+          difference.multiplyScalar(-1);
+          coh.add(difference);
         }
       } else {
-        // separation - {books}
         if (dist < vars.separationRadius) {
           sep.add(flockmate.position);
           sepNeighbours++;
         }
-
-        // alignment - {books}
         if (dist < vars.alignmentRadius) {
           ali.add(flockmate.velocity);
           aliNeighbours++;
         }
-
-        // cohesion - {books}
         if (dist < vars.cohesionRadius) {
           coh.add(flockmate.position);
           cohNeighbours++;
@@ -58,31 +45,21 @@ function reynolds(boid, flockmates, mine = 1) {
     }
   }
 
-  if (mine === 1) {
-    // separation - mine
+  if (!commonImplementation) {
     sep.clampLength(0, 1);
-
-    // alignment - mine
     ali.clampLength(0, 1);
-
-    // cohesion - mine
     coh.clampLength(0, 1);
   } else {
-    // separation - {books}
     if (sepNeighbours > 0) {
       sep.divideScalar(sepNeighbours);
       positionClone = boid.position.clone();
       sep.copy(positionClone.sub(sep.clone()));
       sep.multiplyScalar(0.32);
     }
-
-    // alignment - {books}
     if (aliNeighbours > 0) {
       ali.divideScalar(aliNeighbours);
       ali.multiplyScalar(40);
     }
-
-    // cohesion - {books}
     if (cohNeighbours > 0) {
       coh.divideScalar(cohNeighbours);
       coh.sub(boid.position);
@@ -149,47 +126,31 @@ function noise(time, boid, axis) {
     noiseData.randomValues.push(rand());
   }
 
-  const y = cubicInterpolate(
+  const value = cubicInterpolate(
     noiseData.randomValues,
     (time % wavelen) / wavelen
   );
 
-  return y * 2 - 1;
+  return value * 2 - 1;
 }
 
-function obstacles(boid) {
+function avoidance(boid) {
   const steer = new THREE.Vector3();
-  if (!vars.enabled) return steer;
-
-  deltas = [];
-  fieldVectors = worldPosToFieldValues(
-    boid.position.toArray(),
-    avoidanceField,
-    deltas
-  );
-  if (!fieldVectors) return steer;
-  value = triLerp(lerpVecs, ...deltas, ...fieldVectors);
-
-  steer.copy(value);
-  if (vars.towardsMesh) {
-    const center = new THREE.Vector3(19, 15, 20).sub(boid.position);
-    center.setLength(0.01);
-    steer.add(center);
-  }
-
+  if (vars.enabled) steer.copy(avoidanceFieldValue(boid.position));
   return steer;
 }
 
 function towards(boid) {
   const steer = new THREE.Vector3(0, 0, 0);
-
-  const center = new THREE.Vector3(19, 15, 18).sub(boid.position);
-  center.setLength(0.03);
-  if (vars.enabled) steer.add(center);
-
+  if (vars.enabled) {
+    const center = new THREE.Vector3(19, 15, 18).sub(boid.position);
+    center.setLength(0.04);
+    steer.add(center);
+  }
   return steer;
 }
 
+// attack function that steers velocity not acceleration
 function velocityAttack(predator) {
   const restTime = 0.2;
   const attackTime = 1.4;
@@ -232,14 +193,14 @@ function velocityAttack(predator) {
   return diff;
 }
 
-// https://codepen.io/Tobsta/post/procedural-generation-part-1-1d-perlin-noise
-const M = 4294967296;
-const A = 1664525;
-const C = 1;
-var Z = Math.floor(0.1 * M);
+// linear congruential generator
+const m = 4294967296; // value from codepen.io/Tobsta
+const a = 1664525; // value from codepen.io/Tobsta
+const c = 1;
+var seed = Math.floor(0.1 * m);
 function rand() {
-  Z = (A * Z + C) % M;
-  return Z / M;
+  seed = (a * seed + c) % m;
+  return seed / m;
 }
 
 // cubic interpolation using Paul Breeuwsma coefficients

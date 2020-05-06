@@ -22,49 +22,49 @@ boids.forEach((boid) => {
 // // SEPARATION - old typical
 // function separation(boid) {
 //   separation = new THREE.Vector3();
-//   separationNeighbours = 0;
+//   neighbourCount = 0;
 //   distance = boid.position.distanceTo(flockmate.position);
 //   flockmates.forEach((flockmate) => {
 //     if (distance < separationRadius) {
 //       difference = boid.position.clone().sub(flockmate.position);
 //       separation.add(difference);
-//       separationNeighbours++;
+//       neighbourCount++;
 //     }
 //   });
-//   if (separationNeighbours > 0) separation.divideScalar(separationNeighbours);
+//   if (neighbourCount > 0) separation.divideScalar(neighbourCount);
 //   return separation;
 // }
 
 // // ALIGNMENT - old typical
 // function alignment(boid) {
 //   alignment = new THREE.Vector3();
-//   alignmentNeighbours = 0;
+//   neighbourCount = 0;
 //   distance = boid.position.distanceTo(flockmate.position);
 //   flockmates.forEach((flockmate) => {
 //     if (distance < alignmentRadius) {
 //       velocity = flockmate.velocity.clone();
 //       alignment.add(velocity);
-//       alignmentNeighbours++;
+//       neighbourCount++;
 //     }
 //   });
-//   if (alignmentNeighbours > 0) alignment.divideScalar(alignmentNeighbours);
+//   if (neighbourCount > 0) alignment.divideScalar(neighbourCount);
 //   return alignment;
 // }
 
 // // COHESION - old typical
 // function cohesion(boid) {
 //   cohesion = new THREE.Vector3();
-//   cohesionNeighbours = 0;
+//   neighbourCount = 0;
 //   distance = boid.position.distanceTo(flockmate.position);
 //   flockmates.forEach((flockmate) => {
 //     if (distance < cohesionRadius) {
 //       position = flockmate.position.clone();
 //       cohesion.add(position);
-//       cohesionNeighbours++;
+//       neighbourCount++;
 //     }
 //   });
-//   if (cohesionNeighbours > 0) {
-//     cohesion.divideScalar(cohesionNeighbours);
+//   if (neighbourCount > 0) {
+//     cohesion.divideScalar(neighbourCount);
 //     cohesion.sub(boid.position);
 //   }
 //   return cohesion;
@@ -73,16 +73,16 @@ boids.forEach((boid) => {
 // SEPARATION - books
 // function separation(boid) {
 centroid = new THREE.Vector3();
-separationNeighbours = 0;
+neighbourCount = 0;
 flockmates.forEach((flockmate) => {
   distance = boid.position.distanceTo(flockmate.position);
   if (distance < vars.separationRadius) {
     centroid.add(flockmate.position);
-    separationNeighbours++;
+    neighbourCount++;
   }
 });
-if (separationNeighbours > 0) {
-  centroid.divideScalar(separationNeighbours);
+if (neighbourCount > 0) {
+  centroid.divideScalar(neighbourCount);
   separation = boid.position.clone().sub(centroid);
 }
 
@@ -92,16 +92,16 @@ if (separationNeighbours > 0) {
 // ALIGNMENT - books
 // function alignment(boid) {
 alignment = new THREE.Vector3();
-alignmentNeighbours = 0;
+neighbourCount = 0;
 flockmates.forEach((flockmate) => {
   distance = boid.position.distanceTo(flockmate.position);
   if (distance < vars.alignmentRadius) {
     alignment.add(flockmate.velocity);
-    alignmentNeighbours++;
+    neighbourCount++;
   }
 });
-if (alignmentNeighbours > 0) {
-  alignment.divideScalar(alignmentNeighbours);
+if (neighbourCount > 0) {
+  alignment.divideScalar(neighbourCount);
 }
 // return alignment;
 // }
@@ -109,16 +109,16 @@ if (alignmentNeighbours > 0) {
 // COHESION - books
 // function cohesion(boid) {
 centroid = new THREE.Vector3();
-cohesionNeighbours = 0;
+neighbourCount = 0;
 flockmates.forEach((flockmate) => {
   distance = boid.position.distanceTo(flockmate.position);
   if (distance < cohesionRadius) {
     centroid.add(flockmate.position);
-    cohesionNeighbours++;
+    neighbourCount++;
   }
 });
-if (cohesionNeighbours > 0) {
-  centroid.divideScalar(cohesionNeighbours);
+if (neighbourCount > 0) {
+  centroid.divideScalar(neighbourCount);
   cohesion = centroid.sub(boid.position);
 }
 // return cohesion;
@@ -142,7 +142,7 @@ separation.clampLength(0, 1);
 // alignment - improved
 // function alignment(boid) {
 alignment = new THREE.Vector3();
-alignmentNeighbours = 0;
+neighbourCount = 0;
 flockmates.forEach((flockmate) => {
   distance = boid.position.distanceTo(flockmate.position);
   if (distance < alignmentRadius) {
@@ -158,7 +158,7 @@ alignment.clampLength(0, 1);
 // cohesion - improved
 // function cohesion(boid) {
 cohesion = new THREE.Vector3();
-cohesionNeighbours = 0;
+neighbourCount = 0;
 distance = boid.position.distanceTo(flockmate.position);
 flockmates.forEach((flockmate) => {
   if (distance < cohesionRadius) {

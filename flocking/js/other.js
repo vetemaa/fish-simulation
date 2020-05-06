@@ -28,19 +28,16 @@ function addArrows(boid) {
 
 function setArrows() {
   boids[0].helpArrows.children.forEach((arrow) => {
-    const infoItem = findInfoByName(arrow.name);
-    const enabled = infoItem.showArr && infoItem.vec !== undefined;
-    if (enabled) setArrow(arrow, infoItem.vec);
-  });
-}
+    const { showArr, vec } = findInfoByName(arrow.name);
+    if (!showArr || vec == undefined) return;
 
-function setArrow(arrow, vec) {
-  if (vec.length() <= 0) arrow.visible = false;
-  else {
-    arrow.setLength(vec.length() * vars.vectorLenMultiplier, 0.1, 0.1);
-    arrow.setDirection(vec.clone().normalize());
-    arrow.visible = true;
-  }
+    if (vec.length() <= 0) arrow.visible = false;
+    else {
+      arrow.setLength(vec.length() * vars.vectorLenMultiplier, 0.1, 0.1);
+      arrow.setDirection(vec.clone().normalize());
+      arrow.visible = true;
+    }
+  });
 }
 
 function setInfo(rules) {
@@ -122,26 +119,10 @@ function animateNoise() {
 
 function addBoidCamera() {
   boids[0].mesh.add(fishCamera);
+  fishCamera.dist = 1.5;
+  fishCamera.fov = 90;
   fishCamera.rotation.set(0, Math.PI, 0);
-  fishCamera.position.set(0, 0.8 * fishCameraDist, -2 * fishCameraDist);
-}
-
-function cameraChase() {
-  const relativeCameraOffset = new THREE.Vector3(
-    0,
-    0.8 * fishCameraDist,
-    -2 * fishCameraDist
-  );
-  // const cameraOffset = relativeCameraOffset.applyMatrix4(
-  //   boids[0].mesh.matrixWorld
-  // );
-  // fishCamera.position.copy(cameraOffset);
-  // const velClone = boids[0].velocity.clone();
-  // velClone.add(boids[0].position);
-  // let yOffset = 0.6;
-  // if (fishCameraDist < 1) yOffset *= fishCameraDist;
-  // velClone.y += yOffset;
-  // fishCamera.lookAt(velClone);
+  fishCamera.position.set(0, 0.8 * fishCamera.dist, -2 * fishCamera.dist);
 }
 
 function addLineSegment(line, vector) {
@@ -179,9 +160,10 @@ function addBounds() {
   helper.material.opacity = 0.2;
   helper.material.transparent = true;
   boundBox.add(helper);
-
   scene.add(boundBox);
+
   boundBox.visible = vars.showBounds;
+  boundBox.prevSize = vars.boundSize;
   updateBounds(vars.boundSize);
 }
 
