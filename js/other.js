@@ -40,44 +40,6 @@ function setArrows() {
   });
 }
 
-function setInfo(rules) {
-  rules.forEach((rule) => {
-    if (rule.name) setInfoItem(rule);
-  });
-}
-
-function setInfoItem(item) {
-  findInfoByName(item.name).vec = item.vec;
-}
-
-function findInfoByName(name) {
-  for (let i = 0; i < info.length; i++)
-    if (info[i].name == name) return info[i];
-}
-
-function updateInfo() {
-  setArrows();
-
-  for (let i = 0; i < info.length; i++) {
-    const infoItem = info[i];
-    const infoDiv = document.getElementById(infoItem.name);
-    const enabled = infoItem.vec !== undefined;
-
-    let text, length;
-    if (enabled) {
-      text = `${infoItem.name}: ${infoItem.vec.length().toFixed(4)}`;
-      length = infoItem.vec.length() * 200;
-    } else {
-      text = `${infoItem.name}: -`;
-      length = 0;
-    }
-
-    infoDiv.children[0].style.backgroundColor = infoItem.color;
-    infoDiv.children[1].textContent = text;
-    infoDiv.children[2].style.width = length + "px";
-  }
-}
-
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   fishCamera.aspect = window.innerWidth / window.innerHeight;
@@ -202,4 +164,51 @@ function setBoidColor(boid) {
 
 function boidDirection(velClone, boid) {
   boid.mesh.lookAt(velClone.add(boid.position));
+}
+
+function setInfo(rules) {
+  rules.forEach((rule) => {
+    if (rule.name) setInfoItem(rule);
+  });
+}
+
+function setInfoItem(item) {
+  findInfoByName(item.name).vec = item.vec;
+}
+
+function findInfoByName(name) {
+  for (let i = 0; i < info.length; i++)
+    if (info[i].name == name) return info[i];
+}
+
+function updateInfo() {
+  setArrows();
+
+  for (let i = 0; i < info.length; i++) {
+    const infoItem = info[i];
+    const infoDiv = document.getElementById(infoItem.name);
+    const enabled = infoItem.vec !== undefined;
+
+    let text, length;
+    if (enabled) {
+      text = `${infoItem.name}: ${infoItem.vec.length().toFixed(4)}`;
+      length = infoItem.vec.length() * 200;
+    } else {
+      text = `${infoItem.name}: -`;
+      length = 0;
+    }
+
+    infoDiv.children[0].style.backgroundColor = infoItem.color;
+    infoDiv.children[1].textContent = text;
+    infoDiv.children[2].style.width = length + "px";
+  }
+}
+
+function showLoader(show = true) {
+  const elem = document.getElementById("loader");
+  if (show) {
+    elem.style.display = "inline";
+  } else {
+    elem.style.display = "none";
+  }
 }

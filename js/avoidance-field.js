@@ -47,7 +47,7 @@ function importModel(animateFunction) {
   });
 }
 
-function generateDistanceField(obstacles) {
+function generateDistanceField() {
   voxelSize = fieldSize / (vars.resoultion - 1);
 
   distanceField = [];
@@ -96,7 +96,7 @@ function generateDistanceField(obstacles) {
 }
 
 function generateAvoidanceField() {
-  generateDistanceField(obstacles);
+  generateDistanceField();
 
   avoidanceField = [];
   let yArray = [];
@@ -138,6 +138,7 @@ function generateAvoidanceField() {
   }
 
   updatePlaneTexture();
+  showLoader(false);
 }
 
 function worldPosToFieldValues(pos, field, deltas = []) {

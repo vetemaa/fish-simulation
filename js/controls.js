@@ -5,6 +5,7 @@ function datGui() {
     this.playSpeed = 5;
     this.boidCamera = false;
     this.boundSize = 40;
+    this.reset = () => location.reload();
 
     // Boids
     this.boidCount = boidStartCount;
@@ -52,7 +53,10 @@ function datGui() {
     this.resoultion = 15;
     this.avoidRadius = 10;
     this.raisedTo = 2;
-    this.generate = () => generateAvoidanceField(obstacles);
+    this.generate = () => {
+      showLoader(true);
+      setTimeout(() => generateAvoidanceField(), 500);
+    };
 
     // UI
     this.showVectors = false;
@@ -60,8 +64,13 @@ function datGui() {
     this.showBounds = true;
     this.showAxes = false;
     this.drawTail = false;
+    this.removeTail = () => {
+      boids.forEach((boid) => {
+        boid.tailLine.previous = null;
+        boid.tailLine.children = [];
+      });
+    };
     this.drawNoiseFunction = false;
-    this.removeTail = () => removeTail();
   };
 
   vars = new vars();
@@ -88,6 +97,7 @@ function datGui() {
     .add(vars, "boundSize", 0, 150)
     .step(1)
     .onChange((value) => updateBounds(value));
+  folMain.add(vars, "reset");
 
   // Boids -----------------------------------------------------------------
   folBoids
@@ -158,13 +168,8 @@ function datGui() {
   folUI.add(vars, "showBounds").onChange((value) => (boundBox.visible = value));
   folUI.add(vars, "showAxes").onChange((value) => (axesHelper.visible = value));
   folUI.add(vars, "drawTail");
+  folUI.add(vars, "removeTail");
   folUI.add(vars, "drawNoiseFunction");
-  folUI.add(vars, "removeTail").onChange(() => {
-    boids.forEach((boid) => {
-      boid.tailLine.previous = null;
-      boid.tailLine.children = [];
-    });
-  });
 
   return vars;
 }

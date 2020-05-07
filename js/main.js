@@ -3,8 +3,6 @@ var camera, cameraControls, fishCamera, axesHelper, bounds, subject;
 var stats = new Stats();
 var clock = new THREE.Clock();
 
-let prevBoundSize;
-
 const boids = [];
 const predators = [];
 const boidTotalCount = 700;
