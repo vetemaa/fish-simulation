@@ -109,7 +109,7 @@ function random(boid) {
 
   const steer = new THREE.Vector3(
     noise(time + 0.0, boid, "x"),
-    noise(time + 0.1, boid, "y") * 0.1,
+    noise(time + 0.1, boid, "y") * 0.2,
     noise(time + 0.2, boid, "z")
   );
 
@@ -144,6 +144,7 @@ function towards(boid) {
   const steer = new THREE.Vector3(0, 0, 0);
   if (vars.enabled) {
     const center = new THREE.Vector3(19, 15, 18).sub(boid.position);
+    // const center = new THREE.Vector3(24, 19, 23).sub(boid.position);
     center.setLength(0.04);
     steer.add(center);
   }

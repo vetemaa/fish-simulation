@@ -175,7 +175,7 @@ function accelerationRules(boid) {
 
   if (boid.subject) {
     setInfo(rules);
-    setInfoItem({ name: "acc", vec: acceleration.clone() });
+    setInfoItem({ name: "acc", enabled: true, vec: acceleration.clone() });
   }
 
   return acceleration;

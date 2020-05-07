@@ -14,6 +14,11 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 
+    <script
+      type="text/javascript"
+      src="js/external/CCapture.all.min.js"
+    ></script>
+
     <script type="text/javascript" src="js/external/three.js"></script>
     <script type="text/javascript" src="js/external/stats.min.js"></script>
     <script type="text/javascript" src="js/external/dat.gui.min.js"></script>
@@ -31,14 +36,14 @@
     <style>
       html,
       body {
-        background-color: #111;
-      }
-      body {
+        background-color: #fff;
         overflow: hidden;
         padding: 0;
         margin: 0;
-        font-family: arial;
-        font-size: 100%;
+
+        font-family: monospace;
+        color: #555;
+        font-size: 13px;
       }
 
       #info {
@@ -46,15 +51,11 @@
         bottom: 8px;
         left: 11px;
         z-index: 10001;
-
-        color: #777;
-        font-size: 13px;
-        font-family: monospace;
       }
 
       span.rect {
         display: inline-block;
-        background-color: #444;
+        background-color: #555;
         width: 8px;
         height: 8px;
         border-radius: 1px;
@@ -66,7 +67,7 @@
         margin: 0 0 3px 2px;
         height: 2px;
         width: 20px;
-        background-color: #ccc;
+        background-color: #999;
       }
 
       .dg {
@@ -78,7 +79,17 @@
         transform: scale(1.1);
       }
 
-      /* https://loading.io/css/ */
+      #time {
+        position: absolute;
+        bottom: 8px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        color: #aaa;
+        font-size: 10px;
+      }
+
+      /* Loading icon from: https://loading.io/css/ */
       #loader {
         position: absolute;
         margin: auto;
@@ -140,6 +151,7 @@
   </head>
   <body>
     <div id="container">
+      <div id="time">0.0</div>
       <div id="loader">
         <div></div>
         <div></div>
@@ -148,8 +160,8 @@
       </div>
       <div id="info">
         <div style="margin-bottom: 4px;">
-          purple boid<br />
-          vectors:
+          purple boid's<br />
+          vector lengths:
         </div>
         <div id="sep">
           <span class="rect"></span><span></span>

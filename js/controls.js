@@ -71,6 +71,12 @@ function datGui() {
       });
     };
     this.drawNoiseFunction = false;
+
+    this.startRecording = () => capturer.start();
+    this.stopRecording = () => {
+      capturer.stop();
+      capturer.save();
+    };
   };
 
   vars = new vars();
@@ -166,10 +172,16 @@ function datGui() {
     .onChange((value) => (subject.helpArrows.visible = value));
   folUI.add(vars, "vectorLenMultiplier", 0, 100).step(1).onChange(setArrows);
   folUI.add(vars, "showBounds").onChange((value) => (boundBox.visible = value));
-  folUI.add(vars, "showAxes").onChange((value) => (axesHelper.visible = value));
   folUI.add(vars, "drawTail");
   folUI.add(vars, "removeTail");
-  folUI.add(vars, "drawNoiseFunction");
+
+  folUIAdvanced = folUI.addFolder("Advanced");
+  folUIAdvanced.add(vars, "startRecording");
+  folUIAdvanced.add(vars, "stopRecording");
+  folUIAdvanced.add(vars, "drawNoiseFunction");
+  folUIAdvanced
+    .add(vars, "showAxes")
+    .onChange((value) => (axesHelper.visible = value));
 
   return vars;
 }
@@ -225,8 +237,14 @@ function shuffleBoids() {
       vars.boundSize * rand(),
       vars.boundSize * rand()
     );
-    boid.velocity.set(rand() - 0.5, rand() - 0.5, rand() - 0.5);
-    boid.velocity.setLength(vars.maxSpeed);
+    const velocity = new THREE.Vector3(
+      rand() - 0.5,
+      rand() - 0.5,
+      rand() - 0.5
+    );
+    velocity.setLength(vars.maxSpeed);
+    boid.velocity.copy(velocity);
+    boidDirection(velocity, boid);
   });
 }
 
@@ -258,5 +276,6 @@ function updateBounds(size) {
   boundBox.position.set(pos, pos, pos);
 
   const target = vars.boundSize / 2;
-  cameraControls.target.set(target, target / 1.16, target);
+  // cameraControls.target.set(target, target / 1.16, target);
+  cameraControls.target.set(target - 4, target / 1.1, target); //TODO:
 }

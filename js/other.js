@@ -155,7 +155,7 @@ function setBoidColor(boid) {
     if (boid.rest) color = 0xff8866;
     else color = 0xff2222;
   } else {
-    if (preys.includes(boid.index)) color = 0xdd6100;
+    if (preys.includes(boid.index)) color = 0x769000;
     else if (boid.subject) color = 0xff00ff;
     else color = 0x00000;
   }
@@ -173,7 +173,7 @@ function setInfo(rules) {
 }
 
 function setInfoItem(item) {
-  findInfoByName(item.name).vec = item.vec;
+  findInfoByName(item.name).vec = item.enabled ? item.vec : undefined;
 }
 
 function findInfoByName(name) {
@@ -191,7 +191,7 @@ function updateInfo() {
 
     let text, length;
     if (enabled) {
-      text = `${infoItem.name}: ${infoItem.vec.length().toFixed(4)}`;
+      text = `${infoItem.name}: ${infoItem.vec.length().toFixed(2)}`;
       length = infoItem.vec.length() * 200;
     } else {
       text = `${infoItem.name}: -`;

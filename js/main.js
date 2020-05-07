@@ -1,12 +1,13 @@
 var scene, renderer;
 var camera, cameraControls, fishCamera, axesHelper, bounds, subject;
 var stats = new Stats();
+var capturer = new CCapture({ framerate: 24, format: "webm" });
 var clock = new THREE.Clock();
 
 const boids = [];
 const predators = [];
 const boidTotalCount = 700;
-const boidStartCount = 500;
+const boidStartCount = 700;
 const predatorTotalCount = 15;
 const predatorStartCount = 0;
 
@@ -35,7 +36,8 @@ function init() {
   scene.add(camera);
 
   const b = vars.boundSize;
-  camera.position.set(b * 2.2, b * 0.7, b * 3.3); // figures
+  // camera.position.set(b * 2.2, b * 0.7, b * 3.3); // figures
+  camera.position.set(b * 1.45 * 0.9, b * 0.7 * 0.9, b * 3.3 * 0.9); // recording
   // camera.position.set(
   //   // figures in 2D
   //   20.932490428341506,
@@ -64,11 +66,17 @@ function init() {
   addObstacles(animate);
 }
 
+let deltaSum = 0;
+
 function animate() {
+  const time = document.getElementById("time");
+  time.textContent = deltaSum.toFixed(1);
+
   let delta = clock.getDelta();
   if (delta > 1) delta = 0; // when tab not open for some time
 
   if (delta && vars.play) {
+    deltaSum += delta;
     moveBoids(delta);
   }
 
@@ -86,4 +94,6 @@ function render() {
 
   if (vars.boidCamera) renderer.render(scene, fishCamera);
   else renderer.render(scene, camera);
+
+  capturer.capture(renderer.domElement);
 }

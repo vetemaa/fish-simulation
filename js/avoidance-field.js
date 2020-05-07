@@ -39,7 +39,9 @@ function importModel(animateFunction) {
       new THREE.MeshNormalMaterial({})
     );
     rocks.scale.set(3, 3, 3);
+    // rocks.scale.set(3.75, 3.75, 3.75);
     rocks.position.set(21, 15, 20);
+    // rocks.position.set(26.25, 18.75, 25);
     obstacles.push(rocks);
     scene.add(rocks);
 
