@@ -84,8 +84,10 @@ function moveBoid(delta, boid, ruleScalar, maxSpeed) {
   const { velocity, position } = boid;
   const { playSpeed, drawTail } = vars;
 
+  // values multiplied by arbitrary numbers that produced a good result
   if (playSpeed == 0 || maxSpeed == 0) return;
   let playDelta = playSpeed * delta * 100;
+  if (playDelta > 1000) playDelta = 30;
   boid.ownTime += playDelta * 0.0002;
 
   const acceleration = accelerationRules(boid);

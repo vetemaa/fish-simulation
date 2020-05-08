@@ -132,7 +132,7 @@ function datGui() {
   rules.forEach((rule) => {
     folWeights.add(vars, rule[0] + "Scalar", 0, 0.5).step(0.01);
     if (rule[1])
-      folDists.add(vars, rule[0] + "Radius", 0, rule[1]).step(rule[2] / 100);
+      folDists.add(vars, rule[0] + "Radius", 0, rule[1]).step(rule[1] / 100);
   });
 
   folBoidsAdvanced = folBoids.addFolder("Advanced");
@@ -162,8 +162,8 @@ function datGui() {
     .onChange(() => (plane.changePos = true));
 
   folObstaclesGenerate = folObstacles.addFolder("Generate Field");
-  folObstaclesGenerate.add(vars, "resoultion", 0, 25).step(1);
-  folObstaclesGenerate.add(vars, "avoidRadius", 0, 20).step(1);
+  folObstaclesGenerate.add(vars, "resoultion", 3, 25).step(1);
+  folObstaclesGenerate.add(vars, "avoidRadius", 1, 20).step(1);
   folObstaclesGenerate.add(vars, "raisedTo", 1, 5).step(0.1);
   folObstaclesGenerate.add(vars, "generate");
 
