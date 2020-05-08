@@ -1,4 +1,4 @@
-function reynolds(boid, flockmates, commonImplementation = false) {
+function reynolds(boid, flockmates) {
   const sep = new THREE.Vector3();
   const ali = new THREE.Vector3();
   const coh = new THREE.Vector3();
@@ -13,7 +13,7 @@ function reynolds(boid, flockmates, commonImplementation = false) {
     const dist = difference.length();
 
     if (boid.index !== flockmate.index) {
-      if (!commonImplementation) {
+      if (!vars.commonReynolds) {
         if (dist < vars.separationRadius) {
           difference.setLength(1 - dist / vars.separationRadius);
           sep.add(difference);
@@ -45,7 +45,7 @@ function reynolds(boid, flockmates, commonImplementation = false) {
     }
   }
 
-  if (!commonImplementation) {
+  if (!vars.commonReynolds) {
     sep.clampLength(0, 1);
     ali.clampLength(0, 1);
     coh.clampLength(0, 1);
@@ -54,16 +54,16 @@ function reynolds(boid, flockmates, commonImplementation = false) {
       sep.divideScalar(sepNeighbours);
       positionClone = boid.position.clone();
       sep.copy(positionClone.sub(sep.clone()));
-      sep.multiplyScalar(0.32);
+      sep.multiplyScalar(0.22);
     }
     if (aliNeighbours > 0) {
       ali.divideScalar(aliNeighbours);
-      ali.multiplyScalar(40);
+      ali.multiplyScalar(44);
     }
     if (cohNeighbours > 0) {
       coh.divideScalar(cohNeighbours);
       coh.sub(boid.position);
-      coh.multiplyScalar(0.16);
+      coh.multiplyScalar(0.14);
     }
   }
 
@@ -107,9 +107,10 @@ function bounds(boid) {
 function random(boid) {
   const time = boid.ownTime * vars.randomWavelenScalar;
 
+  // constants 0.x added to time to offset random points in function
   const steer = new THREE.Vector3(
     noise(time + 0.0, boid, "x"),
-    noise(time + 0.1, boid, "y") * 0.2,
+    noise(time + 0.1, boid, "y") * 0.2, // to reduce vertical movement
     noise(time + 0.2, boid, "z")
   );
 

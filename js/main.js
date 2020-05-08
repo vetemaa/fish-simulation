@@ -1,5 +1,5 @@
 var scene, renderer;
-var camera, cameraControls, boidCamera, axesHelper, subject, bounds;
+var camera, cameraControls, boidCamera, axesHelper, subject, bounds, noiseLines;
 let deltaSum = 0;
 
 var stats = new Stats();
@@ -66,10 +66,10 @@ function animate() {
   if (delta && vars.play) {
     deltaSum += delta;
     moveBoids(delta);
+    if (vars.drawNoiseFunction) drawNoise(delta);
   }
 
   updateInfo();
-  if (vars.drawNoiseFunction) animateNoise();
   if (plane.changePos) updatePlaneTexture();
 
   requestAnimationFrame(animate);

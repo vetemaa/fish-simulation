@@ -49,34 +49,32 @@ function onWindowResize() {
 }
 
 function addNoiseCurve() {
-  const boid = boids[0];
-  var lines = new THREE.Group();
+  noiseLines = new THREE.Group();
 
-  [0xff9999, 0x99ff99, 0x9999ff].forEach((color) => {
+  [0xff6666, 0x66ff66, 0x6666ff].forEach((color) => {
     var line = new THREE.Group();
     line.color = color;
-    lines.add(line);
+    noiseLines.add(line);
   });
 
-  boid.noise.lines = lines;
-  scene.add(lines);
+  scene.add(noiseLines);
 }
 
-function animateNoise() {
-  const boid = boids[0];
-  const lines = boid.noise.lines.children;
+function drawNoise() {
+  const lines = noiseLines.children;
+  time = subject.ownTime * vars.randomWavelenScalar;
 
-  time = boid.ownTime * vars.randomWavelenScalar;
-  x = noise(time + 0.0, boid, "x") * 10;
-  y = noise(time + 0.1, boid, "y") * 10;
-  z = noise(time + 0.2, boid, "z") * 10;
-  xAxis = time * 100;
+  x = noise(time + 0.0, subject, "x") * 10;
+  y = noise(time + 0.1, subject, "y") * 10;
+  z = noise(time + 0.2, subject, "z") * 10;
 
-  addLineSegment(lines[0], new THREE.Vector3(xAxis, x, 0));
-  addLineSegment(lines[1], new THREE.Vector3(xAxis, y, 0));
-  addLineSegment(lines[2], new THREE.Vector3(xAxis, z, 0));
+  xAxisPos = time * 100;
 
-  boid.noise.lines.position.x = -xAxis - 5;
+  addLineSegment(lines[0], new THREE.Vector3(xAxisPos, x, 0));
+  addLineSegment(lines[1], new THREE.Vector3(xAxisPos, y, 0));
+  addLineSegment(lines[2], new THREE.Vector3(xAxisPos, z, 0));
+
+  noiseLines.position.x = -xAxisPos - 5;
 }
 
 function addBoidCamera() {
@@ -127,20 +125,6 @@ function addBounds() {
   boundBox.visible = vars.showBounds;
   boundBox.prevSize = vars.boundSize;
   updateBounds(vars.boundSize);
-}
-
-function drawCircle(boid, dist, color) {
-  const circleGeom = new THREE.Geometry();
-  for (let i = 0; i < 2.1 * Math.PI; i += 0.1) {
-    circleGeom.vertices.push(new THREE.Vector3(Math.sin(i), 0, Math.cos(i)));
-  }
-  const circle = new THREE.Line(
-    circleGeom,
-    new THREE.LineBasicMaterial({ color: color })
-  );
-
-  circle.scale.set(dist, dist, dist);
-  boid.add(circle);
 }
 
 function setBoidColor(boid) {

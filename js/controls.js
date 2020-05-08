@@ -32,14 +32,14 @@ function datGui() {
     this.randomScalar = 0.1;
     this.fleeScalar = 0.22;
     this.avoidanceScalar = 0.26;
-    this.randomWavelenScalar = 0.6;
 
     this.ruleScalar = 0.5;
     this.maxSpeed = 0.03;
+    this.randomWavelenScalar = 0.6;
+    this.commonReynolds = false;
 
     // Predators
     this.predatorCount = 0;
-    this.attack = true;
     this.ruleScalar_p = 0.3;
     this.maxSpeed_p = 0.04;
     this.attackRadius = 34;
@@ -71,7 +71,7 @@ function datGui() {
         boid.tailLine.children = [];
       });
     };
-    this.drawNoiseFunction = false;
+    this.drawNoiseFunction = true;
 
     this.startRecording = () => capturer.start();
     this.stopRecording = () => {
@@ -91,7 +91,7 @@ function datGui() {
   folUI = gui.addFolder("UI");
   folBoids.open();
 
-  // Main ------------------------------------------------------------------
+  // Main folder ---------------------------------------------------------------
   folMain.add(vars, "play").listen();
   folMain.add(vars, "playSpeed", 0, 10).step(0.1);
   folMain
@@ -106,7 +106,7 @@ function datGui() {
     .onChange((value) => updateBounds(value));
   folMain.add(vars, "reset");
 
-  // Boids -----------------------------------------------------------------
+  // Boids folder --------------------------------------------------------------
   folBoids
     .add(vars, "boidCount", 0, boidTotalCount)
     .step(1)
@@ -128,6 +128,7 @@ function datGui() {
 
   folWeights = folBoids.addFolder("Rule Weights");
   folDists = folBoids.addFolder("Rule Radiuses");
+
   rules.forEach((rule) => {
     folWeights.add(vars, rule[0] + "Scalar", 0, 0.5).step(0.01);
     if (rule[1])
@@ -137,14 +138,13 @@ function datGui() {
   folBoidsAdvanced = folBoids.addFolder("Advanced");
   folBoidsAdvanced.add(vars, "ruleScalar", 0, 3).step(0.01);
   folBoidsAdvanced.add(vars, "maxSpeed", 0, 0.1).step(0.001);
-  folBoidsAdvanced.add(vars, "randomWavelenScalar", 0, 3).step(0.1);
+  folBoidsAdvanced.add(vars, "commonReynolds");
 
-  // Predators -------------------------------------------------------------
+  // Predators folder ----------------------------------------------------------
   folPredators
     .add(vars, "predatorCount", 0, predatorTotalCount)
     .step(1)
     .onChange((value) => changeBoidCount(predators, value));
-  folPredators.add(vars, "attack");
 
   folPreatorsAdvanced = folPredators.addFolder("Advanced");
   folPreatorsAdvanced.add(vars, "attackScalar", 0, 0.1).step(0.001);
@@ -152,7 +152,7 @@ function datGui() {
   folPreatorsAdvanced.add(vars, "ruleScalar_p", 0, 3).step(0.01);
   folPreatorsAdvanced.add(vars, "maxSpeed_p", 0, 0.1).step(0.01);
 
-  // Obstacles -------------------------------------------------------------
+  // Obstacles folder ----------------------------------------------------------
   folObstacles.add(vars, "enabled").onChange(updateObstacles);
   folObstacles.add(vars, "showMesh").onChange(updateObstacles);
   folObstacles.add(vars, "showPlane").onChange(updateObstacles);
@@ -167,7 +167,7 @@ function datGui() {
   folObstaclesGenerate.add(vars, "raisedTo", 1, 5).step(0.1);
   folObstaclesGenerate.add(vars, "generate");
 
-  // UI --------------------------------------------------------------------
+  // UI folder -----------------------------------------------------------------
   folUI
     .add(vars, "showVectors")
     .onChange((value) => (subject.helpArrows.visible = value));
