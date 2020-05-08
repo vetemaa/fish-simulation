@@ -71,7 +71,7 @@ function datGui() {
         boid.tailLine.children = [];
       });
     };
-    this.drawNoiseFunction = true;
+    this.drawNoiseFunction = false;
 
     this.startRecording = () => capturer.start();
     this.stopRecording = () => {
