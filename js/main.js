@@ -1,16 +1,17 @@
 var scene, renderer;
-var camera, cameraControls, fishCamera, axesHelper, bounds, subject;
+var camera, cameraControls, boidCamera, axesHelper, subject, bounds;
+let deltaSum = 0;
+
 var stats = new Stats();
-var capturer = new CCapture({ framerate: 24, format: "webm" });
 var clock = new THREE.Clock();
+var capturer = new CCapture({ framerate: 24, format: "webm" });
 
 const boids = [];
 const predators = [];
-const boidTotalCount = 700;
-const boidStartCount = 700;
+const boidTotalCount = 800;
 const predatorTotalCount = 15;
-const predatorStartCount = 0;
 
+// project setup
 function init() {
   let w = window.innerWidth;
   let h = window.innerHeight;
@@ -25,25 +26,13 @@ function init() {
   window.addEventListener("resize", onWindowResize, false);
   window.addEventListener("fullscreenchange", onWindowResize, false);
 
-  initControls();
-
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(35, w / h, 1, 1000);
-  fishCamera = new THREE.PerspectiveCamera(90, w / h, 0.1, 1000);
-  w /= 40; // figures 40
-  h /= 40;
-  // camera = new THREE.OrthographicCamera(-w, w, h, -h, 1, 1000);
+  boidCamera = new THREE.PerspectiveCamera(90, w / h, 0.1, 1000);
   scene.add(camera);
 
   const b = vars.boundSize;
-  // camera.position.set(b * 2.2, b * 0.7, b * 3.3); // figures
-  camera.position.set(b * 1.45 * 0.9, b * 0.7 * 0.9, b * 3.3 * 0.9); // recording
-  // camera.position.set(
-  //   // figures in 2D
-  //   20.932490428341506,
-  //   18.265853946124924,
-  //   419.9976011344496
-  // );
+  camera.position.set(b * 1.45, b * 0.7, b * 3.3);
 
   cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
   cameraControls.rotateSpeed = 0.3;
@@ -55,6 +44,7 @@ function init() {
   axesHelper.visible = vars.showAxes;
   scene.add(axesHelper);
 
+  initControls();
   addBoids();
   addBoidCamera();
   addPredators();
@@ -63,14 +53,12 @@ function init() {
 
   updateInfo();
 
+  // passing animation function to addObstacles to wait for import
   addObstacles(animate);
 }
 
-let deltaSum = 0;
-
 function animate() {
-  const time = document.getElementById("time");
-  time.textContent = deltaSum.toFixed(1);
+  document.getElementById("time").textContent = deltaSum.toFixed(1);
 
   let delta = clock.getDelta();
   if (delta > 1) delta = 0; // when tab not open for some time
@@ -92,7 +80,7 @@ function animate() {
 function render() {
   cameraControls.update();
 
-  if (vars.boidCamera) renderer.render(scene, fishCamera);
+  if (vars.boidCamera) renderer.render(scene, boidCamera);
   else renderer.render(scene, camera);
 
   capturer.capture(renderer.domElement);

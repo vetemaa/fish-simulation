@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Fish school simulation</title>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     <meta charset="utf-8" />
     <meta
       name="viewport"
@@ -14,12 +15,8 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 
-    <script
-      type="text/javascript"
-      src="js/external/CCapture.all.min.js"
-    ></script>
-
-    <script type="text/javascript" src="js/external/three.js"></script>
+    <script type="text/javascript" src="js/external/CCapture.min.js"></script>
+    <script type="text/javascript" src="js/external/three.min.js"></script>
     <script type="text/javascript" src="js/external/stats.min.js"></script>
     <script type="text/javascript" src="js/external/dat.gui.min.js"></script>
     <script type="text/javascript" src="js/external/OrbitControls.js"></script>
@@ -187,7 +184,7 @@
           <span class="rect"></span><span></span>
           <div class="arr"></div>
         </div>
-        <div id="obs">
+        <div id="avd">
           <span class="rect"></span><span></span>
           <div class="arr"></div>
         </div>
@@ -198,8 +195,6 @@
       </div>
     </div>
     <script type="text/javascript">
-      var currentMask = false;
-
       var vars = datGui();
       init();
     </script>

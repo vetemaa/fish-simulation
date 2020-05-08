@@ -1,3 +1,4 @@
+// UI setup
 function datGui() {
   vars = function () {
     // Main
@@ -8,7 +9,7 @@ function datGui() {
     this.reset = () => location.reload();
 
     // Boids
-    this.boidCount = boidStartCount;
+    this.boidCount = 400;
     this.shuffleBoids = () => shuffleBoids();
     this.separation = true;
     this.alignment = true;
@@ -31,13 +32,13 @@ function datGui() {
     this.randomScalar = 0.1;
     this.fleeScalar = 0.22;
     this.avoidanceScalar = 0.26;
-    this.randomWavelenScalar = 0.6; //TODO: test 0.6, 0.4
+    this.randomWavelenScalar = 0.6;
 
     this.ruleScalar = 0.5;
     this.maxSpeed = 0.03;
 
     // Predators
-    this.predatorCount = predatorStartCount;
+    this.predatorCount = 0;
     this.attack = true;
     this.ruleScalar_p = 0.3;
     this.maxSpeed_p = 0.04;
@@ -152,9 +153,9 @@ function datGui() {
   folPreatorsAdvanced.add(vars, "maxSpeed_p", 0, 0.1).step(0.01);
 
   // Obstacles -------------------------------------------------------------
-  folObstacles.add(vars, "enabled").onChange(changeObstacles);
-  folObstacles.add(vars, "showMesh").onChange(changeObstacles);
-  folObstacles.add(vars, "showPlane").onChange(changeObstacles);
+  folObstacles.add(vars, "enabled").onChange(updateObstacles);
+  folObstacles.add(vars, "showMesh").onChange(updateObstacles);
+  folObstacles.add(vars, "showPlane").onChange(updateObstacles);
   folObstacles
     .add(vars, "planePosition", 10, 30)
     .step(0.1)
@@ -202,20 +203,20 @@ function initControls() {
     "mousewheel",
     (e) => {
       if (vars.boidCamera) {
-        if (e.deltaY > 0) fishCamera.dist += 0.1;
-        else if (e.deltaY < 0 && fishCamera.dist > 0.1) fishCamera.dist -= 0.1;
-        if (fishCamera.dist < 0.1) boids[0].visible = false;
+        if (e.deltaY > 0) boidCamera.dist += 0.1;
+        else if (e.deltaY < 0 && boidCamera.dist > 0.1) boidCamera.dist -= 0.1;
+        if (boidCamera.dist < 0.1) boids[0].visible = false;
         else boids[0].visible = true;
 
-        fishCamera.position.set(0, 0.8 * fishCamera.dist, -2 * fishCamera.dist);
+        boidCamera.position.set(0, 0.8 * boidCamera.dist, -2 * boidCamera.dist);
 
         // side-scroll
-        if (e.deltaX < 0) fishCamera.fov += e.deltaX * 0.01;
-        else if (e.deltaX > 0) fishCamera.fov += e.deltaX * 0.01;
-        if (fishCamera.fov > 160) fishCamera.fov = 160;
-        else if (fishCamera.fov < 30) fishCamera.fov = 30;
+        if (e.deltaX < 0) boidCamera.fov += e.deltaX * 0.01;
+        else if (e.deltaX > 0) boidCamera.fov += e.deltaX * 0.01;
+        if (boidCamera.fov > 160) boidCamera.fov = 160;
+        else if (boidCamera.fov < 30) boidCamera.fov = 30;
 
-        fishCamera.updateProjectionMatrix();
+        boidCamera.updateProjectionMatrix();
       }
     },
     true
@@ -244,11 +245,11 @@ function shuffleBoids() {
     );
     velocity.setLength(vars.maxSpeed);
     boid.velocity.copy(velocity);
-    boidDirection(velocity, boid);
+    updateDirection(velocity, boid);
   });
 }
 
-function changeObstacles() {
+function updateObstacles() {
   const enabled = vars.enabled;
   obstacles.forEach((obstacle) => {
     obstacle.visible = enabled ? vars.showMesh : false;
@@ -276,6 +277,5 @@ function updateBounds(size) {
   boundBox.position.set(pos, pos, pos);
 
   const target = vars.boundSize / 2;
-  // cameraControls.target.set(target, target / 1.16, target);
-  cameraControls.target.set(target - 4, target / 1.1, target); //TODO:
+  cameraControls.target.set(target, target / 1.1, target);
 }

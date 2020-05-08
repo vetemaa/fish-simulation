@@ -45,7 +45,7 @@ function round(x) {
   return Math.round((x + Number.EPSILON) * 1000) / 1000;
 }
 
-// from book Real-Time Collision Detection
+// from the book Real-Time Collision Detection
 function closestPointToTriangle(p, a, b, c) {
   const ab = b.clone().sub(a);
   const ac = c.clone().sub(a);

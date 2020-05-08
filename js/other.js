@@ -5,7 +5,7 @@ var info = [
   { name: "bnd", color: "#866144", showArr: true },
   { name: "ran", color: "#ffb74d", showArr: true },
   { name: "fle", color: "#8e64bd", showArr: true },
-  { name: "obs", color: "#64c3ec", showArr: true },
+  { name: "avd", color: "#64c3ec", showArr: true },
   { name: "acc", color: "#aaaaaa", showArr: true },
 ];
 
@@ -42,9 +42,9 @@ function setArrows() {
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
-  fishCamera.aspect = window.innerWidth / window.innerHeight;
+  boidCamera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  fishCamera.updateProjectionMatrix();
+  boidCamera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
@@ -80,11 +80,11 @@ function animateNoise() {
 }
 
 function addBoidCamera() {
-  boids[0].mesh.add(fishCamera);
-  fishCamera.dist = 1.5;
-  fishCamera.fov = 90;
-  fishCamera.rotation.set(0, Math.PI, 0);
-  fishCamera.position.set(0, 0.8 * fishCamera.dist, -2 * fishCamera.dist);
+  boids[0].mesh.add(boidCamera);
+  boidCamera.dist = 1.5;
+  boidCamera.fov = 90;
+  boidCamera.rotation.set(0, Math.PI, 0);
+  boidCamera.position.set(0, 0.8 * boidCamera.dist, -2 * boidCamera.dist);
 }
 
 function addLineSegment(line, vector) {
@@ -162,7 +162,7 @@ function setBoidColor(boid) {
   boid.mesh.material.color.setHex(color);
 }
 
-function boidDirection(velClone, boid) {
+function updateDirection(velClone, boid) {
   boid.mesh.lookAt(velClone.add(boid.position));
 }
 

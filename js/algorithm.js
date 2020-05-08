@@ -136,7 +136,7 @@ function noise(time, boid, axis) {
 
 function avoidance(boid) {
   const steer = new THREE.Vector3();
-  if (vars.enabled) steer.copy(avoidanceFieldValue(boid.position));
+  if (vars.enabled) steer.copy(avoidanceFieldValue(boid.position.toArray()));
   return steer;
 }
 

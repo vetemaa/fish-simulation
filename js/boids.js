@@ -44,7 +44,7 @@ function addBoid(position, index) {
   boid.velocity = new THREE.Vector3(0, 0, 0);
   boid.acceleration = new THREE.Vector3();
   boid.position.set(...position);
-  boidDirection(boid.velocity.clone(), boid);
+  updateDirection(boid.velocity.clone(), boid);
 
   // start data for noise
   boid.noise = {
@@ -100,10 +100,11 @@ function moveBoid(delta, boid, ruleScalar, maxSpeed) {
   velClone.multiplyScalar(playDelta);
   position.add(velClone);
 
-  boidDirection(velClone, boid);
+  updateDirection(velClone, boid);
   if (boid.subject && drawTail) addLineSegment(boid.tailLine, boid.position);
 }
 
+// rules that are added to the velocity
 function velocityRules(boid, playDelta) {
   const atk = velocityAttack(boid);
   atk.multiplyScalar(playDelta);
@@ -111,6 +112,7 @@ function velocityRules(boid, playDelta) {
   applyRules(rules, boid.velocity);
 }
 
+// rules that are added to the acceleration
 function accelerationRules(boid) {
   const acceleration = new THREE.Vector3();
   let rules;
@@ -162,7 +164,7 @@ function accelerationRules(boid) {
         scalar: vars.fleeScalar,
       },
       {
-        name: "obs",
+        name: "avd",
         vec: avoidance(boid),
         enabled: vars.avoidance,
         scalar: vars.avoidanceScalar * 2,
