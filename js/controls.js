@@ -20,16 +20,16 @@ function datGui() {
     this.avoidance = true;
     this.towardsMesh = true;
 
-    this.separationRadius = 2.4;
-    this.cohesionRadius = 14;
-    this.alignmentRadius = 9;
+    this.separationRadius = 2.2;
+    this.cohesionRadius = 11;
+    this.alignmentRadius = 7;
     this.fleeRadius = 26;
 
     this.separationScalar = 0.34;
-    this.alignmentScalar = 0.07;
-    this.cohesionScalar = 0.08;
+    this.alignmentScalar = 0.08;
+    this.cohesionScalar = 0.09;
     this.boundsScalar = 0.01;
-    this.randomScalar = 0.1;
+    this.randomScalar = 0.09;
     this.fleeScalar = 0.22;
     this.avoidanceScalar = 0.26;
 
@@ -63,6 +63,7 @@ function datGui() {
     this.useOctree = true;
     this.leafCapacity = 30;
     this.showOctree = false;
+    this.useLargestRadius = true;
 
     // UI
     this.showVectors = false;
@@ -177,6 +178,9 @@ function datGui() {
   folOctree.add(vars, "useOctree");
   folOctree.add(vars, "leafCapacity", 1, 100).step(1);
   folOctree.add(vars, "showOctree");
+
+  folOctreeAdvanced = folOctree.addFolder("Advanced");
+  folOctreeAdvanced.add(vars, "useLargestRadius");
 
   // UI folder -----------------------------------------------------------------
   folUI

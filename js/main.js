@@ -5,7 +5,7 @@ var clock, capturer, stats, movingBoidsPanel;
 
 const boids = [];
 const predators = [];
-const boidTotalCount = 1000;
+const boidTotalCount = 800;
 const predatorTotalCount = 15;
 let deltaSum = 0;
 

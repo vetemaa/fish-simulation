@@ -109,6 +109,35 @@ class Octree {
     }
   }
 
+  // getPointsMult(foundPoints) {
+  //   if (!this.divided) {
+  //     foundPoints[0].push(...this.points);
+  //     foundPoints[1].push(...this.points);
+  //     foundPoints[2].push(...this.points);
+  //   } else {
+  //     for (let i = 0; i < this.children.length; i++) {
+  //       this.children[i].getPointsMult(foundPoints);
+  //     }
+  //   }
+  // }
+
+  // getPointsInRanges(foundPoints, ranges) {
+  //   if (ranges[0].containsCube(this.cube)) {
+  //     return this.getPointsMult(foundPoints);
+  //   } else if (range.intersects(this.cube)) {
+  //     if (!this.divided) {
+  //       for (let i = 0; i < this.points.length; i++) {
+  //         const point = this.points[i];
+  //         if (range.containsPosition(point.position)) foundPoints.push(point);
+  //       }
+  //     } else {
+  //       for (let i = 0; i < this.children.length; i++) {
+  //         this.children[i].getPointsInRange(foundPoints, range);
+  //       }
+  //     }
+  //   }
+  // }
+
   getPointsInRange(foundPoints, range) {
     if (range.containsCube(this.cube)) {
       return this.getPoints(foundPoints);

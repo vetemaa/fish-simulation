@@ -24,6 +24,42 @@ function reynolds(boid, flockmates) {
         cohNeighbours++;
       }
     }
+  } else if (vars.useOctree && vars.useLargestRadius) {
+    flockmates = [];
+    octree.getPointsInRange(
+      flockmates,
+      cubeFromBoidRadius(
+        boid.position,
+        Math.max(
+          vars.cohesionRadius,
+          vars.alignmentRadius,
+          vars.separationRadius
+        )
+      )
+    );
+
+    for (let i = 0; i < flockmates.length; i++) {
+      const flockmate = flockmates[i];
+      const difference = boid.position.clone().sub(flockmate.position);
+      const dist = difference.length();
+
+      if (boid.index !== flockmate.index) {
+        if (dist < vars.separationRadius) {
+          difference.setLength(1 - dist / vars.separationRadius);
+          sep.add(difference);
+        }
+        if (dist < vars.alignmentRadius) {
+          const vel = flockmate.velocity.clone();
+          vel.setLength(1 - dist / vars.alignmentRadius);
+          ali.add(vel);
+        }
+        if (dist < vars.cohesionRadius) {
+          difference.setLength(1 - dist / vars.cohesionRadius);
+          difference.multiplyScalar(-1);
+          coh.add(difference);
+        }
+      }
+    }
   } else if (vars.useOctree) {
     flockmates = [];
     octree.getPointsInRange(
@@ -64,12 +100,14 @@ function reynolds(boid, flockmates) {
       flockmates,
       cubeFromBoidRadius(boid.position, vars.cohesionRadius)
     );
+    let neighbourCount = 0;
     for (let i = 0; i < flockmates.length; i++) {
       const flockmate = flockmates[i];
       if (boid.index !== flockmate.index) {
         const difference = flockmate.position.clone().sub(boid.position);
         const dist = difference.length();
         if (dist < vars.cohesionRadius) {
+          neighbourCount++;
           difference.setLength(1 - dist / vars.cohesionRadius);
           coh.add(difference);
         }
@@ -131,7 +169,6 @@ function cubeFromBoidRadius(position, radius) {
     position.y - radius,
     position.z - radius,
     radius * 2
-    // 0x00ff00
   );
 }
 
