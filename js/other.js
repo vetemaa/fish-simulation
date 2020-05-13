@@ -134,16 +134,16 @@ function setBoidColor(boid) {
       const predator = predators[i];
       if (predator.preyIndex) preys.push(predator.preyIndex);
     }
-  let color = 0x0000ff;
+  let color = "#00f";
   if (boid.predator) {
-    if (boid.rest) color = 0xff8866;
-    else color = 0xff2222;
+    if (boid.rest) color = "#b66";
+    else color = "#f33";
   } else {
-    if (preys.includes(boid.index)) color = 0x769000;
-    else if (boid.subject) color = 0xff00ff;
-    else color = 0x00000;
+    if (preys.includes(boid.index)) color = "#790";
+    else if (boid.subject) color = "#f0f";
+    else color = "#000";
   }
-  boid.mesh.material.color.setHex(color);
+  boid.mesh.material.color.set(color);
 }
 
 function updateDirection(velClone, boid) {

@@ -20,7 +20,6 @@ function addPredators() {
     predator.rest = true;
     predator.restStartTime = 0;
     predator.scale.set(2, 2, 2);
-    predator.mesh.material.color.setHex(0xff5555);
     predators.push(predator);
   }
 
@@ -67,16 +66,25 @@ function addBoid(position, index) {
 }
 
 function moveBoids(delta) {
-  for (let i = 0; i < vars.predatorCount; i++) {
-    const predator = predators[i];
-    moveBoid(delta, predator, vars.ruleScalar_p, vars.maxSpeed_p);
-    setBoidColor(predator);
-  }
+  if (vars.useOctree) updateOctree();
 
+  const startTime = performance.now();
   for (let i = 0; i < vars.boidCount; i++) {
     const boid = boids[i];
     moveBoid(delta, boid, vars.ruleScalar, vars.maxSpeed);
     setBoidColor(boid);
+  }
+
+  // console.log(performance.now() - startTime);
+  movingBoidsPanel.update(
+    ((performance.now() - startTime) * 1000) / vars.boidCount,
+    100
+  );
+
+  for (let i = 0; i < vars.predatorCount; i++) {
+    const predator = predators[i];
+    moveBoid(delta, predator, vars.ruleScalar_p, vars.maxSpeed_p);
+    setBoidColor(predator);
   }
 }
 

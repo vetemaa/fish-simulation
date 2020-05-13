@@ -15,20 +15,21 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 
-    <script type="text/javascript" src="js/external/CCapture.min.js"></script>
-    <script type="text/javascript" src="js/external/three.min.js"></script>
-    <script type="text/javascript" src="js/external/stats.min.js"></script>
-    <script type="text/javascript" src="js/external/dat.gui.min.js"></script>
-    <script type="text/javascript" src="js/external/OrbitControls.js"></script>
-    <script type="text/javascript" src="js/external/GLTFLoader.js"></script>
+    <script src="js/external/CCapture.min.js"></script>
+    <script src="js/external/three.min.js"></script>
+    <script src="js/external/stats.min.js"></script>
+    <script src="js/external/dat.gui.min.js"></script>
+    <script src="js/external/OrbitControls.js"></script>
+    <script src="js/external/GLTFLoader.js"></script>
 
-    <script type="text/javascript" src="js/main.js"></script>
-    <script type="text/javascript" src="js/controls.js"></script>
-    <script type="text/javascript" src="js/boids.js"></script>
-    <script type="text/javascript" src="js/algorithm.js"></script>
-    <script type="text/javascript" src="js/other.js"></script>
-    <script type="text/javascript" src="js/avoidance-field.js"></script>
-    <script type="text/javascript" src="js/mesh-distance.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/controls.js"></script>
+    <script src="js/boids.js"></script>
+    <script src="js/algorithm.js"></script>
+    <script src="js/other.js"></script>
+    <script src="js/avoidance-field.js"></script>
+    <script src="js/mesh-distance.js"></script>
+    <script src="js/octree.js"></script>
 
     <style>
       html,
@@ -41,6 +42,8 @@
         font-family: monospace;
         color: #555;
         font-size: 13px;
+
+        user-select: none;
       }
 
       #info {
@@ -84,6 +87,23 @@
         text-align: center;
         color: #aaa;
         font-size: 10px;
+      }
+
+      #alert {
+        position: absolute;
+        bottom: 26px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 14px;
+        width: 100vw;
+        /* line-height: 22px; */
+      }
+
+      #alert div {
+        margin: auto;
+        width: 70%;
+        /* width: min(400px, 80%); */
       }
 
       /* Loading icon from: https://loading.io/css/ */
@@ -148,6 +168,13 @@
   </head>
   <body>
     <div id="container">
+      <div id="alert">
+        <div>
+          demo in the state of thesis submission (8 May 2020):
+          <a href="https://boids.tint.digital/">boids.tint.digital</a>
+        </div>
+      </div>
+
       <div id="time">0.0</div>
       <div id="loader">
         <div></div>

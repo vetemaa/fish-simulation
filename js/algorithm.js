@@ -7,13 +7,81 @@ function reynolds(boid, flockmates) {
   let cohNeighbours = 0;
   let flockmateCount = boid.predator ? vars.predatorCount : vars.boidCount;
 
-  for (let i = 0; i < flockmateCount; i++) {
+  if (vars.commonReynolds) {
     const flockmate = flockmates[i];
-    const difference = boid.position.clone().sub(flockmate.position);
     const dist = difference.length();
-
     if (boid.index !== flockmate.index) {
-      if (!vars.commonReynolds) {
+      if (dist < vars.separationRadius) {
+        sep.add(flockmate.position);
+        sepNeighbours++;
+      }
+      if (dist < vars.alignmentRadius) {
+        ali.add(flockmate.velocity);
+        aliNeighbours++;
+      }
+      if (dist < vars.cohesionRadius) {
+        coh.add(flockmate.position);
+        cohNeighbours++;
+      }
+    }
+  } else if (vars.useOctree) {
+    flockmates = [];
+    octree.getPointsInRange(
+      flockmates,
+      cubeFromBoidRadius(boid.position, vars.separationRadius)
+    );
+    for (let i = 0; i < flockmates.length; i++) {
+      const flockmate = flockmates[i];
+      if (boid.index !== flockmate.index) {
+        const difference = boid.position.clone().sub(flockmate.position);
+        const dist = difference.length();
+        if (dist < vars.separationRadius) {
+          difference.setLength(1 - dist / vars.separationRadius);
+          sep.add(difference);
+        }
+      }
+    }
+
+    flockmates = [];
+    octree.getPointsInRange(
+      flockmates,
+      cubeFromBoidRadius(boid.position, vars.alignmentRadius)
+    );
+    for (let i = 0; i < flockmates.length; i++) {
+      const flockmate = flockmates[i];
+      if (boid.index !== flockmate.index) {
+        const dist = boid.position.distanceTo(flockmate.position);
+        if (dist < vars.alignmentRadius) {
+          const vel = flockmate.velocity.clone();
+          vel.setLength(1 - dist / vars.alignmentRadius);
+          ali.add(vel);
+        }
+      }
+    }
+
+    flockmates = [];
+    octree.getPointsInRange(
+      flockmates,
+      cubeFromBoidRadius(boid.position, vars.cohesionRadius)
+    );
+    for (let i = 0; i < flockmates.length; i++) {
+      const flockmate = flockmates[i];
+      if (boid.index !== flockmate.index) {
+        const difference = flockmate.position.clone().sub(boid.position);
+        const dist = difference.length();
+        if (dist < vars.cohesionRadius) {
+          difference.setLength(1 - dist / vars.cohesionRadius);
+          coh.add(difference);
+        }
+      }
+    }
+  } else {
+    for (let i = 0; i < flockmateCount; i++) {
+      const flockmate = flockmates[i];
+      const difference = boid.position.clone().sub(flockmate.position);
+      const dist = difference.length();
+
+      if (boid.index !== flockmate.index) {
         if (dist < vars.separationRadius) {
           difference.setLength(1 - dist / vars.separationRadius);
           sep.add(difference);
@@ -28,28 +96,11 @@ function reynolds(boid, flockmates) {
           difference.multiplyScalar(-1);
           coh.add(difference);
         }
-      } else {
-        if (dist < vars.separationRadius) {
-          sep.add(flockmate.position);
-          sepNeighbours++;
-        }
-        if (dist < vars.alignmentRadius) {
-          ali.add(flockmate.velocity);
-          aliNeighbours++;
-        }
-        if (dist < vars.cohesionRadius) {
-          coh.add(flockmate.position);
-          cohNeighbours++;
-        }
       }
     }
   }
 
-  if (!vars.commonReynolds) {
-    sep.clampLength(0, 1);
-    ali.clampLength(0, 1);
-    coh.clampLength(0, 1);
-  } else {
+  if (vars.commonReynolds) {
     if (sepNeighbours > 0) {
       sep.divideScalar(sepNeighbours);
       positionClone = boid.position.clone();
@@ -65,9 +116,23 @@ function reynolds(boid, flockmates) {
       coh.sub(boid.position);
       coh.multiplyScalar(0.14);
     }
+  } else {
+    sep.clampLength(0, 1);
+    ali.clampLength(0, 1);
+    coh.clampLength(0, 1);
   }
 
   return [sep, ali, coh];
+}
+
+function cubeFromBoidRadius(position, radius) {
+  return new Cube(
+    position.x - radius,
+    position.y - radius,
+    position.z - radius,
+    radius * 2
+    // 0x00ff00
+  );
 }
 
 function flee(boid) {

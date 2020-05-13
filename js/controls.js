@@ -59,6 +59,11 @@ function datGui() {
       setTimeout(() => generateAvoidanceField(), 500);
     };
 
+    // Octree
+    this.useOctree = true;
+    this.leafCapacity = 30;
+    this.showOctree = false;
+
     // UI
     this.showVectors = false;
     this.vectorLenMultiplier = 60;
@@ -88,6 +93,7 @@ function datGui() {
   folBoids = gui.addFolder("Boids");
   folPredators = gui.addFolder("Predators");
   folObstacles = gui.addFolder("Obstacles");
+  folOctree = gui.addFolder("Octree");
   folUI = gui.addFolder("UI");
   folBoids.open();
 
@@ -101,7 +107,7 @@ function datGui() {
       changeCamera(value);
     });
   folMain
-    .add(vars, "boundSize", 0, 150)
+    .add(vars, "boundSize", 1, 150)
     .step(1)
     .onChange((value) => updateBounds(value));
   folMain.add(vars, "reset");
@@ -166,6 +172,11 @@ function datGui() {
   folObstaclesGenerate.add(vars, "avoidRadius", 1, 20).step(1);
   folObstaclesGenerate.add(vars, "raisedTo", 1, 5).step(0.1);
   folObstaclesGenerate.add(vars, "generate");
+
+  // Octree folder -------------------------------------------------------------
+  folOctree.add(vars, "useOctree");
+  folOctree.add(vars, "leafCapacity", 1, 100).step(1);
+  folOctree.add(vars, "showOctree");
 
   // UI folder -----------------------------------------------------------------
   folUI

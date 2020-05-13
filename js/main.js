@@ -1,18 +1,22 @@
 var scene, renderer;
 var camera, cameraControls, boidCamera, axesHelper, subject, bounds, noiseLines;
-let deltaSum = 0;
 
-var stats = new Stats();
-var clock = new THREE.Clock();
-var capturer = new CCapture({ framerate: 24, format: "webm" });
+var clock, capturer, stats, movingBoidsPanel;
 
 const boids = [];
 const predators = [];
-const boidTotalCount = 800;
+const boidTotalCount = 1000;
 const predatorTotalCount = 15;
+let deltaSum = 0;
 
 // project setup
 function init() {
+  clock = new THREE.Clock();
+  capturer = new CCapture({ framerate: 24, format: "webm" });
+  stats = new Stats();
+  movingBoidsPanel = stats.addPanel(new Stats.Panel("μ", "#ff8", "#212"));
+  stats.showPanel(0);
+
   let w = window.innerWidth;
   let h = window.innerHeight;
 
@@ -50,6 +54,7 @@ function init() {
   addPredators();
   addBounds();
   addNoiseCurve();
+  initOctree();
 
   updateInfo();
 
@@ -58,13 +63,13 @@ function init() {
 }
 
 function animate() {
-  document.getElementById("time").textContent = deltaSum.toFixed(1);
-
   let delta = clock.getDelta();
   if (delta > 1) delta = 0; // when tab not open for some time
 
   if (delta && vars.play) {
     deltaSum += delta;
+    document.getElementById("time").textContent = deltaSum.toFixed(1);
+
     moveBoids(delta);
     if (vars.drawNoiseFunction) drawNoise(delta);
   }
