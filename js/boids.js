@@ -52,15 +52,17 @@ function addBoid(position, index) {
     z: { cumWavLen: 0, randomValues: [rand(), rand(), rand(), rand()] },
   };
 
-  // helper arrows
-  addArrows(boid);
+  if (boid.index == 0) {
+    // vector arrows
+    addArrows(boid);
 
-  // travelled path line
-  var tailLine = new THREE.Group();
-  tailLine.name = "tailLine";
-  tailLine.color = 0xff00ff;
-  boid.tailLine = tailLine;
-  scene.add(tailLine);
+    // travelled path line
+    var tailLine = new THREE.Group();
+    tailLine.name = "tailLine";
+    tailLine.color = 0xff00ff;
+    boid.tailLine = tailLine;
+    scene.add(tailLine);
+  }
 
   return boid;
 }

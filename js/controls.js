@@ -21,8 +21,8 @@ function datGui() {
     this.towardsMesh = true;
 
     this.separationRadius = 2.2;
-    this.cohesionRadius = 11;
     this.alignmentRadius = 7;
+    this.cohesionRadius = 11;
     this.fleeRadius = 26;
 
     this.separationScalar = 0.34;

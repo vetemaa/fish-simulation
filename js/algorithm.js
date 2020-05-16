@@ -8,20 +8,23 @@ function reynolds(boid, flockmates) {
   let flockmateCount = boid.predator ? vars.predatorCount : vars.boidCount;
 
   if (vars.commonReynolds) {
-    const flockmate = flockmates[i];
-    const dist = difference.length();
-    if (boid.index !== flockmate.index) {
-      if (dist < vars.separationRadius) {
-        sep.add(flockmate.position);
-        sepNeighbours++;
-      }
-      if (dist < vars.alignmentRadius) {
-        ali.add(flockmate.velocity);
-        aliNeighbours++;
-      }
-      if (dist < vars.cohesionRadius) {
-        coh.add(flockmate.position);
-        cohNeighbours++;
+    for (let i = 0; i < flockmateCount; i++) {
+      const flockmate = flockmates[i];
+      const difference = boid.position.clone().sub(flockmate.position);
+      const dist = difference.length();
+      if (boid.index !== flockmate.index) {
+        if (dist < vars.separationRadius) {
+          sep.add(flockmate.position);
+          sepNeighbours++;
+        }
+        if (dist < vars.alignmentRadius) {
+          ali.add(flockmate.velocity);
+          aliNeighbours++;
+        }
+        if (dist < vars.cohesionRadius) {
+          coh.add(flockmate.position);
+          cohNeighbours++;
+        }
       }
     }
   } else if (vars.useOctree && vars.useLargestRadius) {
@@ -100,14 +103,12 @@ function reynolds(boid, flockmates) {
       flockmates,
       cubeFromBoidRadius(boid.position, vars.cohesionRadius)
     );
-    let neighbourCount = 0;
     for (let i = 0; i < flockmates.length; i++) {
       const flockmate = flockmates[i];
       if (boid.index !== flockmate.index) {
         const difference = flockmate.position.clone().sub(boid.position);
         const dist = difference.length();
         if (dist < vars.cohesionRadius) {
-          neighbourCount++;
           difference.setLength(1 - dist / vars.cohesionRadius);
           coh.add(difference);
         }
