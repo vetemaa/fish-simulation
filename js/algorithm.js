@@ -173,15 +173,15 @@ function cubeFromBoidRadius(position, radius) {
   );
 }
 
-function flee(boid) {
+function predatorAvoidance(boid) {
   const steer = new THREE.Vector3();
 
   for (let i = 0; i < vars.predatorCount; i++) {
     const predator = predators[i];
     const diff = boid.position.clone().sub(predator.position);
 
-    if (diff.length() < vars.fleeRadius) {
-      diff.setLength(1 - dist / vars.fleeRadius);
+    if (diff.length() < vars.predatorAvoidanceRadius) {
+      diff.setLength(1 - dist / vars.predatorAvoidanceRadius);
       steer.add(diff);
     }
   }
@@ -238,7 +238,7 @@ function noise(time, boid, axis) {
   return value * 2 - 1;
 }
 
-function avoidance(boid) {
+function obstacleAvoidance(boid) {
   const steer = new THREE.Vector3();
   if (vars.enabled) steer.copy(avoidanceFieldValue(boid.position.toArray()));
   return steer;

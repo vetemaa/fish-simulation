@@ -16,22 +16,22 @@ function datGui() {
     this.cohesion = true;
     this.bounds = true;
     this.random = true;
-    this.flee = true;
-    this.avoidance = true;
+    this.predatorAvoidance = true;
+    this.obstacleAvoidance = true;
     this.towardsMesh = true;
 
     this.separationRadius = 2.2;
     this.alignmentRadius = 7;
     this.cohesionRadius = 11;
-    this.fleeRadius = 26;
+    this.predatorAvoidanceRadius = 26;
 
     this.separationScalar = 0.34;
     this.alignmentScalar = 0.08;
     this.cohesionScalar = 0.09;
     this.boundsScalar = 0.01;
     this.randomScalar = 0.09;
-    this.fleeScalar = 0.22;
-    this.avoidanceScalar = 0.26;
+    this.predatorAvoidanceScalar = 0.22;
+    this.obstacleAvoidanceScalar = 0.26;
 
     this.ruleScalar = 0.5;
     this.maxSpeed = 0.03;
@@ -52,8 +52,8 @@ function datGui() {
     this.planePosition = 20;
 
     this.resoultion = 15;
-    this.avoidRadius = 10;
-    this.raisedTo = 2;
+    this.avoidRadius = 14;
+    this.raisedTo = 4;
     this.generate = () => {
       showLoader(true);
       setTimeout(() => generateAvoidanceField(), 500);
@@ -88,7 +88,6 @@ function datGui() {
 
   vars = new vars();
   gui = new dat.GUI({ width: 270 });
-  gui.domElement.style.opacity = 0.8;
 
   folMain = gui.addFolder("Main");
   folBoids = gui.addFolder("Boids");
@@ -123,10 +122,10 @@ function datGui() {
     ["separation", 10],
     ["alignment", 100],
     ["cohesion", 100],
-    ["flee", 100],
     ["bounds"],
     ["random"],
-    ["avoidance"],
+    ["predatorAvoidance", 100],
+    ["obstacleAvoidance"],
   ];
   rules.forEach((rule) => {
     folBoids.add(vars, rule[0]);

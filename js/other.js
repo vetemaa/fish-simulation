@@ -4,8 +4,8 @@ var info = [
   { name: "coh", color: "#5d7ada", showArr: true },
   { name: "bnd", color: "#866144", showArr: true },
   { name: "ran", color: "#ffb74d", showArr: true },
-  { name: "fle", color: "#8e64bd", showArr: true },
-  { name: "avd", color: "#64c3ec", showArr: true },
+  { name: "pre", color: "#8e64bd", showArr: true },
+  { name: "obs", color: "#64c3ec", showArr: true },
   { name: "acc", color: "#aaaaaa", showArr: true },
 ];
 

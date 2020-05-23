@@ -11,6 +11,7 @@ function addObstacles(animate) {
     generateAvoidanceField();
     updateObstacles();
     animate();
+    document.getElementById("loaderbg").style.display = "none";
   };
 
   // CORS-policy restrictions

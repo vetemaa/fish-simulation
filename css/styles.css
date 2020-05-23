@@ -6,7 +6,7 @@ body {
   margin: 0;
 
   font-family: monospace;
-  color: #555;
+  color: #444;
   font-size: 13px;
 
   user-select: none;
@@ -14,8 +14,8 @@ body {
 
 #info {
   position: absolute;
-  bottom: 8px;
-  left: 11px;
+  bottom: 7px;
+  left: 10px;
   z-index: 10001;
 }
 
@@ -36,13 +36,20 @@ div.arr {
   background-color: #999;
 }
 
-.dg {
-  margin-right: 0px !important;
+.dg.a {
+  margin-right: 6px !important;
+  opacity: 0.8;
 }
 
 #container div canvas {
   transform-origin: 0 0;
   transform: scale(1.1);
+  margin: 0 6px;
+  border-radius: 0 0 3px 3px;
+}
+
+.close-button {
+  border-radius: 0 0 3px 3px;
 }
 
 #time {
@@ -51,8 +58,8 @@ div.arr {
   left: 0;
   right: 0;
   text-align: center;
-  color: #aaa;
-  font-size: 10px;
+  color: #999;
+  font-size: 11px;
 }
 
 #alert {
@@ -61,15 +68,62 @@ div.arr {
   left: 0;
   right: 0;
   text-align: center;
-  font-size: 14px;
+  font-size: 11px;
+  color: #888;
   width: 100vw;
-  /* line-height: 22px; */
 }
 
-#alert div {
-  margin: auto;
-  width: 70%;
-  /* width: min(400px, 80%); */
+#links {
+  position: absolute;
+  bottom: 190px;
+  left: 8px;
+  z-index: 10001;
+}
+
+#links a {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  padding: 3px 6px 3px 5px;
+  margin: -2px -2px 1px -4px;
+  border: 1px solid rgba(0, 0, 0, 0);
+  border-radius: 3px;
+  width: min-content;
+  white-space: nowrap;
+}
+
+#links img {
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
+}
+
+#links a:hover {
+  background-color: rgb(238, 242, 255);
+  border: 1px solid rgb(80, 115, 231);
+  color: rgb(38, 72, 184);
+}
+
+#links #submission {
+  margin-top: 7px;
+  font-size: 11px;
+  color: #999;
+}
+
+#links #submission:hover {
+  background-color: #f8f8f8;
+  border: 1px solid #bbb;
+}
+
+#loaderbg {
+  background: #fff;
+  z-index: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 /* Loading icon from: https://loading.io/css/ */
@@ -80,9 +134,12 @@ div.arr {
   left: 0;
   bottom: 0;
   right: 0;
-
   width: 80px;
   height: 80px;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  background: rgba(255, 255, 255, 0.84);
+  border-radius: 8px;
+  padding: 20px;
 }
 #loader div {
   box-sizing: border-box;
@@ -91,10 +148,10 @@ div.arr {
   width: 64px;
   height: 64px;
   margin: 8px;
-  border: 8px solid #777786;
+  border: 8px solid #444;
   border-radius: 50%;
   animation: loader 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  border-color: #777786 transparent transparent transparent;
+  border-color: #444 transparent transparent transparent;
 }
 #loader div:nth-child(1) {
   animation-delay: -0.45s;

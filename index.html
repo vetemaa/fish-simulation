@@ -15,7 +15,7 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="css/styles.css" />
 
     <script src="js/external/CCapture.min.js"></script>
     <script src="js/external/three.min.js"></script>
@@ -37,14 +37,28 @@
   </head>
   <body>
     <div id="container">
-      <div id="alert">
-        <div>
-          demo in the state of thesis submission (8 May 2020):
-          <a href="https://boids.tint.digital/">boids.tint.digital</a>
-        </div>
+      <div id="links">
+        <a href="https://www.youtube.com/watch?v=18ADVxr34BM"
+          ><img src="/css/icon-youtube.svg" />Project video<br
+        /></a>
+        <a href="https://courses.cs.ut.ee/t/student_projects_results"
+          ><img src="/css/icon-pdf.svg" />Project poster<br
+        /></a>
+        <a
+          href="https://comserv.cs.ut.ee/ati_thesis/datasheet.php?id=69758&year=2020"
+          ><img src="/css/icon-pdf.svg" />50-page thesis<br
+        /></a>
+        <a href="https://github.com/vetemaa/fish-simulation"
+          ><img src="/css/icon-github.svg" />GitHub repo<br
+        /></a>
+        <a id="submission" href="https://boids.tint.digital/"
+          >demo in the state <br />
+          of thesis submission <br />
+          8 May 2020</a
+        >
       </div>
-
-      <div id="time">0.0</div>
+      <div id="time">elapsed time: 0.0</div>
+      <div id="loaderbg"></div>
       <div id="loader">
         <div></div>
         <div></div>
@@ -53,7 +67,7 @@
       </div>
       <div id="info">
         <div style="margin-bottom: 4px;">
-          purple boid's<br />
+          pink boid's<br />
           vector lengths:
         </div>
         <div id="sep">
@@ -76,11 +90,11 @@
           <span class="rect"></span><span></span>
           <div class="arr"></div>
         </div>
-        <div id="fle">
+        <div id="pre">
           <span class="rect"></span><span></span>
           <div class="arr"></div>
         </div>
-        <div id="avd">
+        <div id="obs">
           <span class="rect"></span><span></span>
           <div class="arr"></div>
         </div>

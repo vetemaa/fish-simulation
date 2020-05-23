@@ -68,7 +68,8 @@ function animate() {
 
   if (delta && vars.play) {
     deltaSum += delta;
-    document.getElementById("time").textContent = deltaSum.toFixed(1);
+    document.getElementById("time").textContent =
+      "elapsed time: " + deltaSum.toFixed(1);
 
     moveBoids(delta);
     if (vars.drawNoiseFunction) drawNoise(delta);
