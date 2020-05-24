@@ -18,7 +18,7 @@ function datGui() {
     this.random = true;
     this.predatorAvoidance = true;
     this.obstacleAvoidance = true;
-    this.towardsMesh = true;
+    this.towardsObstacle = true;
 
     this.separationRadius = 2.2;
     this.alignmentRadius = 7;
@@ -130,7 +130,7 @@ function datGui() {
   rules.forEach((rule) => {
     folBoids.add(vars, rule[0]);
   });
-  folBoids.add(vars, "towardsMesh");
+  folBoids.add(vars, "towardsObstacle");
 
   folWeights = folBoids.addFolder("Rule Weights");
   folDists = folBoids.addFolder("Rule Radiuses");

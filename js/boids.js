@@ -184,7 +184,7 @@ function accelerationRules(boid) {
         enabled: vars.obstacleAvoidance,
         scalar: vars.obstacleAvoidanceScalar * 2,
       },
-      { enabled: vars.towardsMesh, vec: towards(boid), scalar: 1 },
+      { enabled: vars.towardsObstacle, vec: towards(boid), scalar: 1 },
     ];
   }
 
