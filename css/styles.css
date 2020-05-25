@@ -13,11 +13,36 @@ body {
   user-select: none;
 }
 
+#title {
+  position: absolute;
+  top: 7px;
+  left: 104px;
+}
+
 #info {
   position: absolute;
   bottom: 7px;
   left: 10px;
-  z-index: 10001;
+}
+
+.infoline:hover .tooltip {
+  visibility: visible;
+}
+
+.tooltip {
+  visibility: hidden;
+  position: fixed;
+  z-index: 1;
+  background-color: #999;
+  padding: 2px 5px;
+
+  margin-top: -22px;
+  margin-left: -58px;
+  pointer-events: none;
+
+  background-color: #fff;
+  box-shadow: 0 0 0 1.4px #bbb;
+  border-radius: 2px;
 }
 
 span.rect {
@@ -26,7 +51,7 @@ span.rect {
   width: 8px;
   height: 8px;
   border-radius: 1px;
-  margin-right: 8px;
+  margin-right: 1px;
 }
 
 div.arr {
@@ -79,7 +104,6 @@ div.arr {
   position: absolute;
   bottom: 196px;
   left: 8px;
-  z-index: 10001;
 }
 
 #links a {
@@ -114,7 +138,7 @@ div.arr {
 }
 
 #links #submission:hover {
-  background-color: #f8f8f8;
+  background-color: #fbfbfb;
   box-shadow: 0 0 0 1.4px #bbb;
 }
 
@@ -126,6 +150,18 @@ div.arr {
   bottom: 0;
   left: 0;
   right: 0;
+}
+
+@media screen and (max-width: 812px) {
+  #title,
+  #info,
+  #time,
+  #submission {
+    display: none !important;
+  }
+  #links {
+    bottom: 8px;
+  }
 }
 
 /* Loading icon from: https://loading.io/css/ */

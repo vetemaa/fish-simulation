@@ -1,12 +1,12 @@
 var info = [
-  { name: "sep", color: "#e57373", showArr: true },
-  { name: "ali", color: "#66bb6a", showArr: true },
-  { name: "coh", color: "#5d7ada", showArr: true },
-  { name: "bnd", color: "#866144", showArr: true },
-  { name: "ran", color: "#ffb74d", showArr: true },
-  { name: "pre", color: "#8e64bd", showArr: true },
-  { name: "obs", color: "#64c3ec", showArr: true },
-  { name: "acc", color: "#aaaaaa", showArr: true },
+  { name: "sep", color: "#e57373", showArr: true, desc: "separation" },
+  { name: "ali", color: "#66bb6a", showArr: true, desc: "alignment" },
+  { name: "coh", color: "#5d7ada", showArr: true, desc: "cohesion" },
+  { name: "bnd", color: "#866144", showArr: true, desc: "bounds" },
+  { name: "ran", color: "#ffb74d", showArr: true, desc: "random direction" },
+  { name: "pre", color: "#8e64bd", showArr: true, desc: "predator avoidance" },
+  { name: "obs", color: "#64c3ec", showArr: true, desc: "obstacle avoidance" },
+  { name: "acc", color: "#aaaaaa", showArr: true, desc: "acceleration" },
 ];
 
 function addArrows(boid) {
@@ -165,6 +165,21 @@ function findInfoByName(name) {
     if (info[i].name == name) return info[i];
 }
 
+function initInfoHTML() {
+  innerHTML = "";
+  info.forEach((item) => {
+    innerHTML += `<div class="infoline" id="${item.name}">
+    <span class="rect" style="background-color: ${item.color}"></span>
+    <span>${item.name}: 
+    <span class="tooltip">${item.desc}</span>
+    </span>
+    <span>-</span>
+    <div class="arr"></div>
+    </div>`;
+  });
+  document.getElementById("info").innerHTML += innerHTML;
+}
+
 function updateInfo() {
   setArrows();
 
@@ -175,16 +190,15 @@ function updateInfo() {
 
     let text, length;
     if (enabled) {
-      text = `${infoItem.name}: ${infoItem.vec.length().toFixed(2)}`;
+      text = infoItem.vec.length().toFixed(2);
       length = infoItem.vec.length() * 200;
     } else {
-      text = `${infoItem.name}: -`;
+      text = "-";
       length = 0;
     }
 
-    infoDiv.children[0].style.backgroundColor = infoItem.color;
-    infoDiv.children[1].textContent = text;
-    infoDiv.children[2].style.width = length + "px";
+    infoDiv.children[2].textContent = text;
+    infoDiv.children[3].style.width = length + "px";
   }
 }
 

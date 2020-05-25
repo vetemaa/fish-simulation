@@ -54,6 +54,7 @@ function init() {
   addPredators();
   addBounds();
   addNoiseCurve();
+  initInfoHTML();
   initOctree();
 
   updateInfo();

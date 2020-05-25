@@ -97,6 +97,11 @@ function datGui() {
   folUI = gui.addFolder("UI");
   folBoids.open();
 
+  if (window.innerWidth <= 812 || window.innerHeight <= 400) {
+    gui.close();
+    folBoids.close();
+  }
+
   // Main folder ---------------------------------------------------------------
   folMain.add(vars, "play").listen();
   folMain.add(vars, "playSpeed", 0, 10).step(0.1);
