@@ -15,8 +15,8 @@ body {
 
 #title {
   position: absolute;
-  top: 7px;
-  left: 104px;
+  top: 6px;
+  left: 103px;
 }
 
 #info {
@@ -37,11 +37,11 @@ body {
   padding: 2px 5px;
 
   margin-top: -22px;
-  margin-left: -58px;
+  margin-left: -57px;
   pointer-events: none;
 
   background-color: #fff;
-  box-shadow: 0 0 0 1.4px #bbb;
+  box-shadow: 0 0 0 1.3px #bbb;
   border-radius: 2px;
 }
 
@@ -62,19 +62,20 @@ div.arr {
   background-color: #999;
 }
 
-.dg.a {
+/* DAT.gui */
+.dg.main.a {
   margin-right: 6px !important;
-  opacity: 0.8;
+  opacity: 0.84;
+}
+.close-button {
+  border-radius: 0 0 3px 3px;
 }
 
+/* stats.min */
 #container div canvas {
   transform-origin: 0 0;
   transform: scale(1.1);
   margin: 0 6px;
-  border-radius: 0 0 3px 3px;
-}
-
-.close-button {
   border-radius: 0 0 3px 3px;
 }
 
@@ -126,7 +127,7 @@ div.arr {
 
 #links a:hover {
   background-color: rgb(238, 242, 255);
-  box-shadow: 0 0 0 1.4px rgb(80, 115, 231);
+  box-shadow: 0 0 0 1.3px rgb(80, 115, 231);
   color: rgb(38, 72, 184);
 }
 
@@ -139,7 +140,7 @@ div.arr {
 
 #links #submission:hover {
   background-color: #fbfbfb;
-  box-shadow: 0 0 0 1.4px #bbb;
+  box-shadow: 0 0 0 1.3px #bbb;
 }
 
 #loaderbg {
@@ -152,6 +153,19 @@ div.arr {
   right: 0;
 }
 
+#fullscreen {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background-color: #fff;
+  border: 1.3px solid #bbb;
+  font-size: 13px;
+  border-radius: 3px;
+  padding: 3px 7px;
+  cursor: pointer;
+  display: none;
+}
+
 @media screen and (max-width: 812px) {
   #title,
   #info,
@@ -161,6 +175,18 @@ div.arr {
   }
   #links {
     bottom: 8px;
+  }
+  body {
+    font-size: 10px;
+  }
+  .dg {
+    font-size: 10px;
+  }
+  #container div canvas {
+    transform: scale(1);
+  }
+  #fullscreen {
+    display: initial;
   }
 }
 

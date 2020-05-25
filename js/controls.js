@@ -4,8 +4,8 @@ function datGui() {
     // Main
     this.play = true;
     this.playSpeed = 5;
-    this.boidCamera = false;
     this.boundSize = 40;
+    this.boidCamera = false;
     this.reset = () => location.reload();
 
     // Boids
@@ -87,7 +87,9 @@ function datGui() {
   };
 
   vars = new vars();
-  gui = new dat.GUI({ width: 270 });
+  const mobile = window.innerWidth <= 812 || window.innerHeight <= 400;
+  gui = new dat.GUI({ width: mobile ? 248 : 270 });
+  if (mobile) gui.close();
 
   folMain = gui.addFolder("Main");
   folBoids = gui.addFolder("Boids");
@@ -95,12 +97,7 @@ function datGui() {
   folObstacles = gui.addFolder("Obstacles");
   folOctree = gui.addFolder("Octree");
   folUI = gui.addFolder("UI");
-  folBoids.open();
-
-  if (window.innerWidth <= 812 || window.innerHeight <= 400) {
-    gui.close();
-    folBoids.close();
-  }
+  if (!mobile) folBoids.open();
 
   // Main folder ---------------------------------------------------------------
   folMain.add(vars, "play").listen();
@@ -297,4 +294,21 @@ function updateBounds(size) {
 
   const target = vars.boundSize / 2;
   cameraControls.target.set(target, target / 1.1, target);
+}
+
+function fullscreen() {
+  console.log("a");
+  document.documentElement.requestFullscreen();
+  // this.toggleFullscreen = () => {
+  //   if (
+  //     !document.fullscreenElement &&
+  //     document.documentElement.requestFullscreen
+  //   ) {
+  //     document.documentElement.requestFullscreen();
+  //   } else {
+  //     if (document.exitFullscreen) {
+  //       document.exitFullscreen();
+  //     }
+  //   }
+  // };
 }
