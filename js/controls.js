@@ -297,18 +297,5 @@ function updateBounds(size) {
 }
 
 function fullscreen() {
-  console.log("a");
   document.documentElement.requestFullscreen();
-  // this.toggleFullscreen = () => {
-  //   if (
-  //     !document.fullscreenElement &&
-  //     document.documentElement.requestFullscreen
-  //   ) {
-  //     document.documentElement.requestFullscreen();
-  //   } else {
-  //     if (document.exitFullscreen) {
-  //       document.exitFullscreen();
-  //     }
-  //   }
-  // };
 }

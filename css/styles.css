@@ -85,7 +85,7 @@ div.arr {
   left: 0;
   right: 0;
   text-align: center;
-  color: #777;
+  color: #999;
   font-weight: 500;
   font-size: 11px;
 }
@@ -103,7 +103,7 @@ div.arr {
 
 #links {
   position: absolute;
-  bottom: 196px;
+  bottom: 186px;
   left: 8px;
 }
 

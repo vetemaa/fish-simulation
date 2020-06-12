@@ -81,7 +81,7 @@ function closestPointToTriangle(p, a, b, c) {
   if (tdenom <= 0 && udenom <= 0) return c; // Voronoi region early out
 
   // P is outside (or on) AB if the triple scalar product [N PA PB] <= 0
-  vc = normal.dot(new THREE.Vector3().crossVectors(pa, pb)); // !!! Basically same as sameside!!
+  vc = normal.dot(new THREE.Vector3().crossVectors(pa, pb));
   // If P outside AB and within feature region of AB,
   // return projection of P onto AB
   if (vc <= 0 && snom >= 0 && sdenom >= 0)
