@@ -3,7 +3,7 @@ function datGui() {
   vars = function () {
     // Main
     this.play = true;
-    this.playSpeed = 5;
+    this.playSpeed = 4;
     this.boundSize = 40;
     this.boidCamera = false;
     this.reset = () => location.reload();
@@ -46,7 +46,7 @@ function datGui() {
     this.attackScalar = 0.5;
 
     // Obstacles
-    this.enabled = true;
+    this.enabled = false;
     this.showMesh = true;
     this.showPlane = false;
     this.planePosition = 20;
